@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.os.unirios.entities.AcompanhamentoEstudo;
 import com.os.unirios.entities.CurriculoEstudo;
-import com.os.unirios.entities.LicoesCurriculo;
 import com.os.unirios.repositories.CurriculoEstudoRepository;
 import com.os.unirios.services.exceptions.DataIntegrityException;
 import com.os.unirios.services.exceptions.ObjectNotFoundException;
@@ -65,8 +64,6 @@ public class CurriculoEstudoService {
                                 AcompanhamentoEstudo acompanhamentoEstudo = acompanhamentoEstudoService.findById(obj.getAcompanhamentoEstudo().getId());
                             obj.setAcompanhamentoEstudo(acompanhamentoEstudo);
 
-                                LicoesCurriculo licoesCurriculo = licoesCurriculoService.findById(obj.getLicoesCurriculo().getId());
-                                obj.setLicoesCurriculo(licoesCurriculo);
         
         obj.setId(null);
         obj = repo.save(obj); // salvar e obter objeto monitorado
@@ -89,9 +86,6 @@ public class CurriculoEstudoService {
                                 AcompanhamentoEstudo acompanhamentoEstudo = acompanhamentoEstudoService.findById(obj.getAcompanhamentoEstudo().getId());
                             obj.setAcompanhamentoEstudo(acompanhamentoEstudo);
 
-                                LicoesCurriculo licoesCurriculo = licoesCurriculoService.findById(obj.getLicoesCurriculo().getId());
-                                obj.setLicoesCurriculo(licoesCurriculo);
-
         CurriculoEstudo newObj = findById(obj.getId());
         
         
@@ -105,7 +99,6 @@ public class CurriculoEstudoService {
         
                         newObj.setAcompanhamentoEstudo(obj.getAcompanhamentoEstudo());
 
-                        newObj.setLicoesCurriculo(obj.getLicoesCurriculo());
         newObj.setId(obj.getId());
             newObj.setNome(obj.getNome());
             newObj.setDescricao(obj.getDescricao());

@@ -34,35 +34,58 @@ private static final long serialVersionUID = 1L;
                 @Column(name="CULTO_ID")
                 
             private  Long id;
+            
+            @Column(name="CULTO_TITULO")
+            private  String titulo;
+            
             @Column(name="CULTO_NOME")
             private  String nome;
+            
             @Column(name="CULTO_TIPO")
             private  String tipo;
-            @Column(name="CULTO_DATA HORA")
+            
+            @Column(name="CULTO_DATA_HORA")
             private  Date dataHora;
+            
             @Column(name="CULTO_LOCAL")
             private  String local;
+            
             @Column(name="CULTO_DESCRICAO")
             private  String descricao;
+            
+            @Column(name="CULTO_PREGADOR")
+            private  String pregador;
+            
+            @Column(name="CULTO_STATUS")
+            private  String status;
+            
+            @Column(name="CULTO_OBSERVACOES")
+            private  String observacoes;
     
             @ManyToOne
             @JoinColumn(name="PRESENCA_ID")
             private Presenca presenca;
 
-    public Culto  ( Long id ,String nome ,String tipo ,Date dataHora ,String local ,String descricao ){
-        
-            this.id = id;
-            
-            this.nome = nome;
-            
-            this.tipo = tipo;
-            
-            this.dataHora = dataHora;
-            
-            this.local = local;
-            
-            this.descricao = descricao;
-            
+    public Culto(Long id, String titulo, String nome, String tipo, Date dataHora, String local, String descricao, String pregador, String status, String observacoes) {
+        this.id = id;
+        this.titulo = titulo;
+        this.nome = nome;
+        this.tipo = tipo;
+        this.dataHora = dataHora;
+        this.local = local;
+        this.descricao = descricao;
+        this.pregador = pregador;
+        this.status = status;
+        this.observacoes = observacoes;
+    }
+
+    public Culto(Long id, String nome, String tipo, Date dataHora, String local, String descricao) {
+        this.id = id;
+        this.nome = nome;
+        this.tipo = tipo;
+        this.dataHora = dataHora;
+        this.local = local;
+        this.descricao = descricao;
     }
 
     }

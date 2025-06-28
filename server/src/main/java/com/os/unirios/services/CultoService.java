@@ -24,11 +24,11 @@ public class CultoService {
     private CultoRepository repo;
 
    
-                        @Autowired 
-                        private PresencaService presencaService;
+    @Autowired 
+    private PresencaService presencaService;
                       
 
-   private final GenericSpecificationUtil<Culto> specUtil = new GenericSpecificationUtil<>();
+    private final GenericSpecificationUtil<Culto> specUtil = new GenericSpecificationUtil<>();
 
             
     public List<Culto> findAll(){
@@ -57,8 +57,13 @@ public class CultoService {
 
     public Culto insert(Culto obj){
         
-                                Presenca presenca = presencaService.findById(obj.getPresenca().getId());
-                                obj.setPresenca(presenca);
+        // Verificar se presenca não é null antes de tentar acessar
+        if (obj.getPresenca() != null && obj.getPresenca().getId() != null) {
+            Presenca presenca = presencaService.findById(obj.getPresenca().getId());
+            obj.setPresenca(presenca);
+        } else {
+            obj.setPresenca(null);
+        }
         
         obj.setId(null);
         obj = repo.save(obj); // salvar e obter objeto monitorado
@@ -78,13 +83,16 @@ public class CultoService {
         
     public Culto update(Culto obj) {
         
-                                Presenca presenca = presencaService.findById(obj.getPresenca().getId());
-                                obj.setPresenca(presenca);
+        // Verificar se presenca não é null antes de tentar acessar
+        if (obj.getPresenca() != null && obj.getPresenca().getId() != null) {
+            Presenca presenca = presencaService.findById(obj.getPresenca().getId());
+            obj.setPresenca(presenca);
+        } else {
+            obj.setPresenca(null);
+        }
 
         Culto newObj = findById(obj.getId());
         
-        
-
         updateData(newObj, obj);
         
         return repo.save(newObj);          
@@ -92,15 +100,19 @@ public class CultoService {
 
     private void updateData(Culto newObj, Culto obj) {
         
-                        newObj.setPresenca(obj.getPresenca());
+        newObj.setPresenca(obj.getPresenca());
         newObj.setId(obj.getId());
-            newObj.setNome(obj.getNome());
-            newObj.setTipo(obj.getTipo());
-            newObj.setDataHora(obj.getDataHora());
-            newObj.setLocal(obj.getLocal());
-            newObj.setDescricao(obj.getDescricao());
-            newObj.setCriadoEm(obj.getCriadoEm());
-            newObj.setAlteradoEm(obj.getAlteradoEm());
+        newObj.setTitulo(obj.getTitulo());
+        newObj.setNome(obj.getNome());
+        newObj.setTipo(obj.getTipo());
+        newObj.setDataHora(obj.getDataHora());
+        newObj.setLocal(obj.getLocal());
+        newObj.setDescricao(obj.getDescricao());
+        newObj.setPregador(obj.getPregador());
+        newObj.setStatus(obj.getStatus());
+        newObj.setObservacoes(obj.getObservacoes());
+        newObj.setCriadoEm(obj.getCriadoEm());
+        newObj.setAlteradoEm(obj.getAlteradoEm());
             
     }
 }

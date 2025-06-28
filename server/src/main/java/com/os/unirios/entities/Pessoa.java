@@ -28,73 +28,71 @@ public class Pessoa extends BaseEntity implements Serializable{
             
 private static final long serialVersionUID = 1L;
             
-    
-            
-                @Id
-                @GeneratedValue(strategy = GenerationType.IDENTITY)
-                @Column(name="PESSOA_ID")
-                
-            private  Long id;
-            @Column(name="PESSOA_NOME COMPLETO")
-            private  String nomeCompleto;
-            @Column(name="PESSOA_DATA NASCIMENTO")
-            private  Date dataNascimento;
-            @Column(name="PESSOA_TELEFONE")
-            private  String telefone;
-            @Column(name="PESSOA_EMAIL")
-            private  String email;
-            @Column(name="PESSOA_ENDERECO")
-            private  String endereco;
-            @Column(name="PESSOA_STATUS")
-            private  String status;
-            @Column(name="PESSOA_TIPO")
-            private  String tipo;
-            @Column(name="PESSOA_STATUS BATISMO")
-            private  String statusBatismo;
-            @Column(name="PESSOA_DATA INTERESSE BATISMO")
-            private  Date dataInteresseBatismo;
-            @Column(name="PESSOA_DATA BATISMO")
-            private  Date dataBatismo;
-            @Column(name="PESSOA_OBSERVACOES")
-            private  String observacoes;
-    
-            @ManyToOne
-            @JoinColumn(name="ACOMPANHAMENTOESTUDO_ID")
-            private AcompanhamentoEstudo acompanhamentoEstudo;
-            @ManyToOne
-            @JoinColumn(name="ALERTAS_ID")
-            private Alertas alertas;
-            @ManyToOne
-            @JoinColumn(name="PRESENCA_ID")
-            @JsonBackReference
-            private Presenca presenca;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name="PESSOA_ID")
+        private  Long id;
+
+        @Column(name="PESSOA_NOME COMPLETO")
+        private  String nomeCompleto;
+        @Column(name="PESSOA_DATA NASCIMENTO")
+        private  Date dataNascimento;
+        @Column(name="PESSOA_TELEFONE")
+        private  String telefone;
+        @Column(name="PESSOA_EMAIL")
+        private  String email;
+        @Column(name="PESSOA_ENDERECO")
+        private  String endereco;
+        @Column(name="PESSOA_STATUS")
+        private  String status;
+        @Column(name="PESSOA_TIPO")
+        private  String tipo;
+        @Column(name="PESSOA_STATUS BATISMO")
+        private  String statusBatismo;
+        @Column(name="PESSOA_DATA INTERESSE BATISMO")
+        private  Date dataInteresseBatismo;
+        @Column(name="PESSOA_DATA BATISMO")
+        private  Date dataBatismo;
+        @Column(name="PESSOA_OBSERVACOES")
+        private  String observacoes;
+
+        @ManyToOne
+        @JoinColumn(name="ACOMPANHAMENTOESTUDO_ID")
+        private AcompanhamentoEstudo acompanhamentoEstudo;
+        @ManyToOne
+        @JoinColumn(name="ALERTAS_ID")
+        private Alertas alertas;
+        @ManyToOne
+        @JoinColumn(name="PRESENCA_ID")
+        @JsonBackReference
+        private Presenca presenca;
 
     public Pessoa  ( Long id ,String nomeCompleto ,Date dataNascimento ,String telefone ,String email ,String endereco ,String status ,String tipo ,String statusBatismo ,Date dataInteresseBatismo ,Date dataBatismo ,String observacoes ){
         
-            this.id = id;
-            
-            this.nomeCompleto = nomeCompleto;
-            
-            this.dataNascimento = dataNascimento;
-            
-            this.telefone = telefone;
-            
-            this.email = email;
-            
-            this.endereco = endereco;
-            
-            this.status = status;
-            
-            this.tipo = tipo;
-            
-            this.statusBatismo = statusBatismo;
-            
-            this.dataInteresseBatismo = dataInteresseBatismo;
-            
-            this.dataBatismo = dataBatismo;
-            
-            this.observacoes = observacoes;
+        this.id = id;
+        
+        this.nomeCompleto = nomeCompleto;
+        
+        this.dataNascimento = dataNascimento;
+        
+        this.telefone = telefone;
+        
+        this.email = email;
+        
+        this.endereco = endereco;
+        
+        this.status = status;
+        
+        this.tipo = tipo;
+        
+        this.statusBatismo = statusBatismo;
+        
+        this.dataInteresseBatismo = dataInteresseBatismo;
+        
+        this.dataBatismo = dataBatismo;
+        
+        this.observacoes = observacoes;
             
     }
 
-    }
+}

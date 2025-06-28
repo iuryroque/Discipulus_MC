@@ -38,6 +38,7 @@ import licoesCurriculoList from './forms/LicoesCurriculo/licoesCurriculoList';
 import pessoaCreate from './forms/Pessoa/pessoaCreate';
 import pessoaEdit from './forms/Pessoa/pessoaEdit';
 import pessoaList from './forms/Pessoa/pessoaList';
+import pessoaShow from './forms/Pessoa/pessoaShow';
 import presencaCreate from './forms/Presenca/presencaCreate';
 import presencaEdit from './forms/Presenca/presencaEdit';
 import presencaList from './forms/Presenca/presencaList';
@@ -61,6 +62,7 @@ function App() {
               create={pessoaCreate} 
               list={pessoaList} 
               edit={pessoaEdit} 
+              show={pessoaShow}
               icon={People}
               options={{ label: 'Pessoas' }}
             />

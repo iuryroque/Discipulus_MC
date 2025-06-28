@@ -37,5 +37,4 @@ public class Profile {
         this.id = id;
         this.name = name;
     }
-
 }

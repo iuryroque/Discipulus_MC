@@ -104,6 +104,87 @@ export const pessoaCondicionalSchema = z.object({
   }
 });
 
+// Esquema para Currículo de Estudo
+export const curriculoEstudoSchema = z.object({
+  nome: z.string()
+    .min(1, 'Nome é obrigatório')
+    .min(3, 'Nome deve ter pelo menos 3 caracteres')
+    .max(100, 'Nome deve ter no máximo 100 caracteres'),
+  descricao: z.string()
+    .min(1, 'Descrição é obrigatória')
+    .min(10, 'Descrição deve ter pelo menos 10 caracteres')
+    .max(500, 'Descrição deve ter no máximo 500 caracteres'),
+  nivel: z.enum(['Básico', 'Intermediário', 'Avançado'], {
+    errorMap: () => ({ message: 'Nível deve ser Básico, Intermediário ou Avançado' })
+  }),
+  status: z.enum(['ATIVO', 'INATIVO', 'EM_DESENVOLVIMENTO'], {
+    errorMap: () => ({ message: 'Status deve ser ATIVO, INATIVO ou EM_DESENVOLVIMENTO' })
+  }).default('ATIVO'),
+  duracao: z.string()
+    .max(50, 'Duração deve ter no máximo 50 caracteres')
+    .optional()
+    .or(z.literal('')),
+  objetivos: z.string()
+    .max(1000, 'Objetivos devem ter no máximo 1000 caracteres')
+    .optional()
+    .or(z.literal('')),
+  observacoes: z.string()
+    .max(1000, 'Observações devem ter no máximo 1000 caracteres')
+    .optional()
+    .or(z.literal(''))
+});
+
+// Esquema para Lições do Currículo
+export const licoesCurriculoSchema = z.object({
+  curriculoEstudo: z.object({
+    id: z.number().min(1, 'Currículo é obrigatório')
+  }),
+  numeroLicao: z.number()
+    .min(1, 'Número da lição deve ser maior que 0')
+    .max(999, 'Número da lição deve ser menor que 999'),
+  titulo: z.string()
+    .min(3, 'Título deve ter pelo menos 3 caracteres')
+    .max(200, 'Título deve ter no máximo 200 caracteres'),
+  conteudo: z.string()
+    .min(10, 'Conteúdo deve ter pelo menos 10 caracteres')
+    .max(5000, 'Conteúdo deve ter no máximo 5000 caracteres'),
+  duracao: z.string()
+    .min(1, 'Duração é obrigatória')
+    .regex(/^\d+(\s*-\s*\d+)?\s*(min|hora|horas)?$/i, 'Formato inválido (ex: 45 min, 1 hora, 1-2 horas)'),
+  objetivos: z.string()
+    .min(10, 'Objetivos devem ter pelo menos 10 caracteres')
+    .max(1000, 'Objetivos devem ter no máximo 1000 caracteres')
+    .optional(),
+  materiais: z.string()
+    .min(5, 'Materiais devem ter pelo menos 5 caracteres')
+    .max(500, 'Materiais devem ter no máximo 500 caracteres')
+    .optional(),
+  ordem: z.number()
+    .min(1, 'Ordem deve ser maior que 0')
+    .max(999, 'Ordem deve ser menor que 999')
+});
+
+// Esquema para Lições Concluídas
+export const licoesConcluidasPessoaSchema = z.object({
+  pessoa: z.object({
+    id: z.number().min(1, 'Pessoa é obrigatória')
+  }),
+  licoesCurriculo: z.object({
+    id: z.number().min(1, 'Lição é obrigatória')
+  }),
+  dataConclusao: z.string()
+    .min(1, 'Data de conclusão é obrigatória')
+    .refine((date) => {
+      const inputDate = new Date(date);
+      const today = new Date();
+      return inputDate <= today;
+    }, 'Data de conclusão não pode ser futura'),
+  observacoes: z.string()
+    .min(5, 'Observações devem ter pelo menos 5 caracteres')
+    .max(1000, 'Observações devem ter no máximo 1000 caracteres')
+    .optional()
+});
+
 // Esquema para Presença
 export const presencaSchema = z.object({
   pessoa: z.object({
@@ -241,5 +322,8 @@ export const validations = {
   acompanhamentoEstudo: createValidation(acompanhamentoEstudoSchema),
   alertas: createValidation(alertasSchema),
   login: createValidation(loginSchema),
-  signup: createValidation(signupSchema)
+  signup: createValidation(signupSchema),
+  curriculoEstudo: createValidation(curriculoEstudoSchema),
+  licoesCurriculo: createValidation(licoesCurriculoSchema),
+  licoesConcluidasPessoa: createValidation(licoesConcluidasPessoaSchema)
 }; 

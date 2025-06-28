@@ -78,9 +78,10 @@ public class PessoaService {
         }
 
         if (obj.getPresenca() != null && obj.getPresenca().getId() != null) {
-            Optional<Presenca> presencaOpt = presencaRepository.findById(obj.getPresenca().getId());
+            final Long presencaId = obj.getPresenca().getId();
+            Optional<Presenca> presencaOpt = presencaRepository.findById(presencaId);
             Presenca presenca = presencaOpt.orElseThrow(() -> new ObjectNotFoundException(
-                "Presenca não encontrada! Id: " + obj.getPresenca().getId()));
+                "Presenca não encontrada! Id: " + presencaId));
             obj.setPresenca(presenca);
         }
         
@@ -103,7 +104,7 @@ public class PessoaService {
     public Pessoa update(Pessoa obj) {
         
         // Criar uma cópia do objeto para evitar problemas de finalidade
-        Pessoa objCopy = new Pessoa();
+        final Pessoa objCopy = new Pessoa();
         objCopy.setId(obj.getId());
         objCopy.setNomeCompleto(obj.getNomeCompleto());
         objCopy.setDataNascimento(obj.getDataNascimento());

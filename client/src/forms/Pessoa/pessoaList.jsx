@@ -1,38 +1,87 @@
 import React from 'react';
-import { Datagrid, DateField, DeleteButton, EditButton, List, NumberField, ShowButton, TextField, TextInput } from 'react-admin';
+import {
+    ChipField,
+    Datagrid,
+    DateField,
+    DeleteButton,
+    EditButton,
+    List,
+    SelectInput,
+    ShowButton,
+    TextField,
+    TextInput
+} from 'react-admin';
 import AuditField from '../../components/AuditField';
 
 const postFilters = [
-        <TextInput label="Filtrar pelo nome completo" source="nomeCompleto" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo telefone" source="telefone" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo email" source="email" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo endereco" source="endereco" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo status" source="status" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo tipo" source="tipo" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo status batismo" source="statusBatismo" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo observacoes" source="observacoes" alwaysOn variant="outlined"/>,
-        ]; 
+    <TextInput 
+        label="Filtrar pelo nome" 
+        source="nomeCompleto" 
+        alwaysOn 
+        variant="outlined"
+    />,
+    <TextInput 
+        label="Filtrar pelo telefone" 
+        source="telefone" 
+        variant="outlined"
+    />,
+    <TextInput 
+        label="Filtrar pelo email" 
+        source="email" 
+        variant="outlined"
+    />,
+    <SelectInput 
+        label="Status" 
+        source="status" 
+        choices={[
+            { id: 'ATIVO', name: 'Ativo' },
+            { id: 'INATIVO', name: 'Inativo' },
+            { id: 'PENDENTE', name: 'Pendente' }
+        ]}
+        variant="outlined"
+    />,
+    <SelectInput 
+        label="Tipo" 
+        source="tipo" 
+        choices={[
+            { id: 'MEMBRO', name: 'Membro' },
+            { id: 'VISITANTE', name: 'Visitante' },
+            { id: 'CONGREGADO', name: 'Congregado' }
+        ]}
+        variant="outlined"
+    />,
+    <SelectInput 
+        label="Status do Batismo" 
+        source="statusBatismo" 
+        choices={[
+            { id: 'BATIZADO', name: 'Batizado' },
+            { id: 'NAO_BATIZADO', name: 'Não Batizado' },
+            { id: 'INTERESSADO', name: 'Interessado' }
+        ]}
+        variant="outlined"
+    />
+]; 
 
 const PessoaList = props => {
-
     return (
-
-        <List {...props} filters={postFilters}>
+        <List {...props} filters={postFilters} title="Lista de Pessoas">
             <Datagrid>
-                <NumberField source="id" variant="outlined"/>
-<TextField source="nomeCompleto" variant="outlined" />
-<DateField  source="dataNascimento" variant="outlined"/>
-<TextField source="telefone" variant="outlined" />
-<TextField source="email" variant="outlined" />
-<TextField source="endereco" variant="outlined" />
-<TextField source="status" variant="outlined" />
-<TextField source="tipo" variant="outlined" />
-<TextField source="statusBatismo" variant="outlined" />
-<DateField  source="dataInteresseBatismo" variant="outlined"/>
-<DateField  source="dataBatismo" variant="outlined"/>
-<TextField source="observacoes" variant="outlined" />
-<AuditField variant="compact" label="Auditoria" />
+                <TextField source="nomeCompleto" label="Nome Completo" />
+                <TextField source="telefone" label="Telefone" />
+                <TextField source="email" label="Email" />
+                <ChipField source="status" label="Status" />
+                <ChipField source="tipo" label="Tipo" />
+                <ChipField source="statusBatismo" label="Status Batismo" />
+                <DateField source="dataNascimento" label="Data Nascimento" showTime={false} />
+                <AuditField variant="compact" label="Auditoria" />
                 <ShowButton />
                 <EditButton />
                 <DeleteButton />
             </Datagrid>
         </List>
-    )
-}
+    );
+};
 
-export default PessoaList
+export default PessoaList;
 
     
