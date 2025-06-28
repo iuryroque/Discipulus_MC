@@ -7,14 +7,14 @@ import dataProvider from './service/dataProvider';
 import myTheme from './theme/myTheme';
 
 import {
-    Book,
-    CheckCircle,
-    Event,
-    LibraryBooks,
-    Notifications,
-    People,
-    School,
-    TaskAlt
+  Book,
+  CheckCircle,
+  Event,
+  LibraryBooks,
+  Notifications,
+  People,
+  School,
+  TaskAlt
 } from '@mui/icons-material';
 import { Admin, Resource } from 'react-admin';
 import acompanhamentoEstudoCreate from './forms/AcompanhamentoEstudo/acompanhamentoEstudoCreate';
@@ -42,6 +42,9 @@ import presencaCreate from './forms/Presenca/presencaCreate';
 import presencaEdit from './forms/Presenca/presencaEdit';
 import presencaList from './forms/Presenca/presencaList';
 import presencaShow from './forms/Presenca/presencaShow';
+import userCreate from './forms/User/userCreate';
+import userEdit from './forms/User/userEdit';
+import userList from './forms/User/userList';
 
 function App() {
 
@@ -135,6 +138,14 @@ function App() {
               icon={Notifications}
               options={{ label: 'Alertas e Notificações' }}
             />
+                    <Resource 
+          name="user" 
+          list={userList} 
+          create={userCreate} 
+          edit={userEdit} 
+          // Você pode adicionar um ícone, por exemplo: icon={People}
+          options={{ label: 'Usuários' }}
+        />
         </Admin>
     </div>
   )

@@ -71,7 +71,19 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 		User user = userRepository.findByUsername(username).orElseThrow(() -> new UnAuthenticated("Invalid or missing JWT token for User."));
 
+		// Se o usuário é admin, permite acesso a todos os endpoints de gerenciamento
+		if (user.isAdmin()) {
+			// Endpoints de gerenciamento que admin pode acessar
+			String[] adminEndpoints = { "/user", "/profile", "/permission", "/resource" };
+			for (String endpoint : adminEndpoints) {
+				if (uri.startsWith(endpoint)) {
+					filterChain.doFilter(request, response);
+					return;
+				}
+			}
+		}
 		
+		// Para usuários não-admin, verifica permissões
 		if (!user.isAdmin()) {
 			if (!hasAccess(user.getProfiles(), uri, httpMethod)) {
 				throw new UnAuthorized("User does not have access to the resource.");
