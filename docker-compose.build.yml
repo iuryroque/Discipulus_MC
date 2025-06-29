@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # Build do Backend
+  backend-build:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME:-seu_usuario_dockerhub}/discipulus-backend:${VERSION:-latest}
+    container_name: discipulus_backend_build
+
+  # Build do Frontend
+  frontend-build:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME:-seu_usuario_dockerhub}/discipulus-frontend:${VERSION:-latest}
+    container_name: discipulus_frontend_build 
