@@ -18,27 +18,29 @@ import {
     CardContent,
     Chip,
     Collapse,
-    Datagrid,
-    DeleteButton,
-    EditButton,
     Grid,
     IconButton,
     LinearProgress,
-    List,
-    NumberField,
-    NumberInput,
     Paper,
-    ReferenceField,
-    ReferenceInput,
-    SelectInput,
-    ShowButton,
-    TextField,
-    TextInput,
     Tooltip,
     Typography,
     useTheme
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import {
+    Datagrid,
+    DeleteButton,
+    EditButton,
+    List,
+    NumberField,
+    NumberInput,
+    ReferenceField,
+    ReferenceInput,
+    SelectInput,
+    ShowButton,
+    TextField,
+    TextInput
+} from 'react-admin';
 import AuditList from '../../components/AuditList';
 
 // Componente de filtros avançados

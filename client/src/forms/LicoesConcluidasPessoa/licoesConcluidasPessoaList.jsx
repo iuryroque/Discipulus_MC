@@ -21,28 +21,30 @@ import {
     CardContent,
     Chip,
     Collapse,
-    Datagrid,
-    DateField,
-    DateInput,
-    DeleteButton,
-    EditButton,
     Grid,
     IconButton,
     LinearProgress,
-    List,
-    NumberField,
     Paper,
-    ReferenceField,
-    ReferenceInput,
-    SelectInput,
-    ShowButton,
-    TextField,
-    TextInput,
     Tooltip,
     Typography,
     useTheme
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import {
+    Datagrid,
+    DateField,
+    DateInput,
+    DeleteButton,
+    EditButton,
+    List,
+    NumberField,
+    ReferenceField,
+    ReferenceInput,
+    SelectInput,
+    ShowButton,
+    TextField,
+    TextInput
+} from 'react-admin';
 import AuditList from '../../components/AuditList';
 
 // Componente de filtros avançados

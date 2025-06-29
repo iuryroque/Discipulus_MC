@@ -115,7 +115,7 @@ const AcompanhamentoEstudoCreate = (props) => {
                     </Box>
 
                     {/* Alertas de validação */}
-                    {!isValid && Object.keys(errors).length > 0 && (
+                    {!isValid && Object.keys(errors || {}).length > 0 && (
                         <Alert 
                             severity="warning" 
                             sx={{ mb: 3 }}
@@ -139,7 +139,7 @@ const AcompanhamentoEstudoCreate = (props) => {
                                 Erros de Validação:
                             </Typography>
                             <Stack spacing={1}>
-                                {Object.entries(errors).map(([field, error]) => (
+                                {Object.entries(errors || {}).map(([field, error]) => (
                                     <Box key={field} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Typography variant="body2" color="text.secondary">
                                             <strong>{field}:</strong> {error}

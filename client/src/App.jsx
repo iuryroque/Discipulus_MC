@@ -1,4 +1,12 @@
+// src/App.jsx
+
 import React from 'react';
+import { Admin, Resource } from 'react-admin';
+
+// Importe seu novo Layout
+import MyLayout from './components/layout/MyLayout';
+
+// Suas importações existentes
 import Dashboard from './components/Dashboard';
 import LoginPage from './components/LoginPage';
 import i18nProvider from './i18n/index.js';
@@ -7,16 +15,17 @@ import dataProvider from './service/dataProvider';
 import myTheme from './theme/myTheme';
 
 import {
-    Book,
-    CheckCircle,
-    Event,
-    LibraryBooks,
-    Notifications,
-    People,
-    School,
-    TaskAlt
+  Book,
+  CheckCircle,
+  Event,
+  LibraryBooks,
+  Notifications,
+  People,
+  School,
+  TaskAlt
 } from '@mui/icons-material';
-import { Admin, Resource } from 'react-admin';
+
+// Suas importações de componentes de CRUD (Create, Read, Update, Delete)
 import acompanhamentoEstudoCreate from './forms/AcompanhamentoEstudo/acompanhamentoEstudoCreate';
 import acompanhamentoEstudoEdit from './forms/AcompanhamentoEstudo/acompanhamentoEstudoEdit';
 import acompanhamentoEstudoList from './forms/AcompanhamentoEstudo/acompanhamentoEstudoList';
@@ -44,104 +53,36 @@ import presencaEdit from './forms/Presenca/presencaEdit';
 import presencaList from './forms/Presenca/presencaList';
 import presencaShow from './forms/Presenca/presencaShow';
 
-function App() {
 
+function App() {
   return (
     <div className="App">
-       <Admin 
-         dataProvider={dataProvider} 
-         authProvider={authProvider} 
-         i18nProvider={i18nProvider}
-         loginPage={LoginPage}
-         dashboard={Dashboard}
-         theme={myTheme}
-       >
-            {/* Gestão de Pessoas */}
-            <Resource 
-              name="pessoa" 
-              create={pessoaCreate} 
-              list={pessoaList} 
-              edit={pessoaEdit} 
-              show={pessoaShow}
-              icon={People}
-              options={{ label: 'Pessoas' }}
-            />
-            
-            {/* Gestão de Presença */}
-            <Resource 
-              name="presenca" 
-              create={presencaCreate} 
-              list={presencaList} 
-              edit={presencaEdit} 
-              show={presencaShow} 
-              icon={CheckCircle}
-              options={{ label: 'Controle de Presença' }}
-            />
-            
-            {/* Gestão de Cultos */}
-            <Resource 
-              name="culto" 
-              create={cultoCreate} 
-              list={cultoList} 
-              edit={cultoEdit} 
-              icon={Event}
-              options={{ label: 'Cultos e Eventos' }}
-            />
-            
-            {/* Gestão de Estudos */}
-            <Resource 
-              name="acompanhamentoEstudo" 
-              create={acompanhamentoEstudoCreate} 
-              list={acompanhamentoEstudoList} 
-              edit={acompanhamentoEstudoEdit} 
-              icon={School}
-              options={{ label: 'Acompanhamento de Estudos' }}
-            />
-            
-            {/* Currículo de Estudos */}
-            <Resource 
-              name="curriculoEstudo" 
-              create={curriculoEstudoCreate} 
-              list={curriculoEstudoList} 
-              edit={curriculoEstudoEdit} 
-              icon={LibraryBooks}
-              options={{ label: 'Currículo de Estudos' }}
-            />
-            
-            {/* Lições do Currículo */}
-            <Resource 
-              name="licoesCurriculo" 
-              create={licoesCurriculoCreate} 
-              list={licoesCurriculoList} 
-              edit={licoesCurriculoEdit} 
-              icon={Book}
-              options={{ label: 'Lições do Currículo' }}
-            />
-            
-            {/* Lições Concluídas */}
-            <Resource 
-              name="licoesConcluidasPessoa" 
-              create={licoesConcluidasPessoaCreate} 
-              list={licoesConcluidasPessoaList} 
-              edit={licoesConcluidasPessoaEdit} 
-              icon={TaskAlt}
-              options={{ label: 'Lições Concluídas' }}
-            />
-            
-            {/* Sistema de Alertas */}
-            <Resource 
-              name="alertas" 
-              create={alertasCreate} 
-              list={alertasList} 
-              edit={alertasEdit} 
-              icon={Notifications}
-              options={{ label: 'Alertas e Notificações' }}
-            />
-        </Admin>
+      <Admin 
+        dataProvider={dataProvider} 
+        authProvider={authProvider} 
+        i18nProvider={i18nProvider}
+        loginPage={LoginPage}
+        dashboard={Dashboard}
+        theme={myTheme}
+        // A grande mudança está aqui:
+        layout={MyLayout}
+      >
+        {/*
+          IMPORTANTE: Todos os Resources devem continuar aqui.
+          Eles registram as rotas (/pessoa, /presenca, etc) no React-Admin.
+          O nosso menu customizado apenas controla como os links para eles são exibidos.
+        */}
+        <Resource name="pessoa" list={pessoaList} create={pessoaCreate} edit={pessoaEdit} show={pessoaShow} icon={People} options={{ label: 'Pessoas' }} />
+        <Resource name="presenca" list={presencaList} create={presencaCreate} edit={presencaEdit} show={presencaShow} icon={CheckCircle} options={{ label: 'Controle de Presença' }} />
+        <Resource name="culto" list={cultoList} create={cultoCreate} edit={cultoEdit} icon={Event} options={{ label: 'Cultos e Eventos' }} />
+        <Resource name="acompanhamentoEstudo" list={acompanhamentoEstudoList} create={acompanhamentoEstudoCreate} edit={acompanhamentoEstudoEdit} icon={School} options={{ label: 'Acompanhamento de Estudos' }} />
+        <Resource name="curriculoEstudo" list={curriculoEstudoList} create={curriculoEstudoCreate} edit={curriculoEstudoEdit} icon={LibraryBooks} options={{ label: 'Estudos' }} />
+        <Resource name="licoesCurriculo" list={licoesCurriculoList} create={licoesCurriculoCreate} edit={licoesCurriculoEdit} icon={Book} options={{ label: 'Lições' }} />
+        <Resource name="licoesConcluidasPessoa" list={licoesConcluidasPessoaList} create={licoesConcluidasPessoaCreate} edit={licoesConcluidasPessoaEdit} icon={TaskAlt} options={{ label: 'Lições Concluídas' }} />
+        <Resource name="alertas" list={alertasList} create={alertasCreate} edit={alertasEdit} icon={Notifications} options={{ label: 'Alertas e Notificações' }} />
+      </Admin>
     </div>
   )
 }
 
-export default App
-
-    
+export default App;

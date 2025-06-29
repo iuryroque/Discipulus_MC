@@ -18,22 +18,24 @@ import {
     Card,
     CardContent,
     Collapse,
-    DateInput,
-    Edit,
     Grid,
     IconButton,
     InputAdornment,
     Paper,
-    ReferenceInput,
-    SelectInput,
-    SimpleForm,
     Stack,
-    TextInput,
     Tooltip,
     Typography,
     useTheme
 } from '@mui/material';
 import React, { useState } from 'react';
+import {
+    DateInput,
+    Edit,
+    ReferenceInput,
+    SelectInput,
+    SimpleForm,
+    TextInput
+} from 'react-admin';
 import { z } from 'zod';
 import { useZodValidation } from '../../validation/useZodValidation';
 
@@ -310,7 +312,7 @@ const LicoesConcluidasPessoaEdit = props => {
                     </Box>
 
                     {/* Alertas de validação */}
-                    {!isValid && Object.keys(errors).length > 0 && (
+                    {!isValid && Object.keys(errors || {}).length > 0 && (
                         <Alert 
                             severity="warning" 
                             sx={{ mb: 3 }}
@@ -334,7 +336,7 @@ const LicoesConcluidasPessoaEdit = props => {
                                 Erros de Validação:
                             </Typography>
                             <Stack spacing={1}>
-                                {Object.entries(errors).map(([field, error]) => (
+                                {Object.entries(errors || {}).map(([field, error]) => (
                                     <Box key={field} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <WarningIcon sx={{ fontSize: 16, color: theme.palette.warning.main }} />
                                         <Typography variant="body2" color="text.secondary">
