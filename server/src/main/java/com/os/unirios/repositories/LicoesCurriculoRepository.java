@@ -1,6 +1,9 @@
-
 package com.os.unirios.repositories;
 
+import java.util.List;
+
+import com.os.unirios.entities.CurriculoEstudo;
+import com.os.unirios.entities.LicoesConcluidasPessoa;
 import com.os.unirios.entities.LicoesCurriculo; 
 
 import org.springframework.data.domain.Page;
@@ -16,4 +19,7 @@ public interface  LicoesCurriculoRepository extends JpaRepository<LicoesCurricul
     @Query("FROM LicoesCurriculo obj")
 	public Page<LicoesCurriculo> licoesCurriculoPage(Pageable pageable);
     
+    List<LicoesCurriculo> findByCurriculoEstudo(CurriculoEstudo curriculoEstudo);
+    
+    List<LicoesCurriculo> findByLicoesConcluidasPessoa(LicoesConcluidasPessoa licoesConcluidasPessoa);
 } 

@@ -1,12 +1,19 @@
-
 package com.os.unirios.controllers;
 
 import java.net.URI;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.os.unirios.entities.Pessoa;
+import com.os.unirios.payload.response.PessoaCardResponse;
 import com.os.unirios.services.PessoaService;
+import com.os.unirios.entities.Presenca;
+import com.os.unirios.entities.Culto;
+import com.os.unirios.repositories.PresencaRepository;
+import com.os.unirios.repositories.CultoRepository;
     
     
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +37,12 @@ public class PessoaController {
     @Autowired
     private PessoaService service;
     
+    @Autowired
+    private PresencaRepository presencaRepository;
+    
+    @Autowired
+    private CultoRepository cultoRepository;
+    
     @RequestMapping( method = RequestMethod.GET)
 	public ResponseEntity<Page<Pessoa>> findPage(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -45,6 +58,67 @@ public class PessoaController {
     public ResponseEntity<List<Pessoa>> findAl(){
         List<Pessoa> list = service.findAll();
         return ResponseEntity.ok().body(list);
+    }
+    
+    @GetMapping(value = "/cards")
+    public Map<String, Object> getPessoasCards() {
+        List<Pessoa> pessoas = service.findAll();
+        List<PessoaCardResponse> cards = pessoas.stream()
+            .map(pessoa -> {
+                PessoaCardResponse card = new PessoaCardResponse();
+                card.setId(pessoa.getId());
+                card.setNomeCompleto(pessoa.getNomeCompleto());
+                card.setTipo(pessoa.getTipo());
+                card.setStatus(pessoa.getStatus());
+                card.setTelefone(pessoa.getTelefone());
+                card.setEmail(pessoa.getEmail());
+                
+                // Buscar último culto
+                List<Presenca> presencas = presencaRepository.findByPessoaOrderByCriadoEmDesc(pessoa);
+                if (!presencas.isEmpty()) {
+                    Presenca ultimaPresenca = presencas.get(0);
+                    List<Culto> cultos = cultoRepository.findByPresenca(ultimaPresenca);
+                    if (!cultos.isEmpty()) {
+                        Culto ultimoCulto = cultos.get(0);
+                        card.setUltimoCultoNome(ultimoCulto.getNome());
+                        card.setUltimoCultoData(ultimoCulto.getDataHora());
+                    }
+                }
+                
+                // Progresso de estudo
+                if (pessoa.getAcompanhamentoEstudo() != null) {
+                    card.setStatusAcompanhamento(pessoa.getAcompanhamentoEstudo().getStatus());
+                    card.setCurriculoEstudoNome("Acompanhamento Ativo");
+                    card.setLicaoAtual(0);
+                    card.setTotalLicoes(0);
+                } else {
+                    card.setStatusAcompanhamento("Sem acompanhamento");
+                    card.setCurriculoEstudoNome("N/A");
+                    card.setLicaoAtual(0);
+                    card.setTotalLicoes(0);
+                }
+                
+                // Status de alerta
+                if (pessoa.getAlertas() != null) {
+                    card.setTemAlertaAtivo("N".equals(pessoa.getAlertas().getResolvido()));
+                    card.setTipoAlerta(pessoa.getAlertas().getTipo());
+                    card.setDataUltimoAlerta(pessoa.getAlertas().getDataAlerta());
+                } else {
+                    card.setTemAlertaAtivo(false);
+                    card.setTipoAlerta("N/A");
+                    card.setDataUltimoAlerta(null);
+                }
+                
+                // Último contato
+                card.setDataUltimoContato(pessoa.getCriadoEm());
+                
+                return card;
+            })
+            .collect(Collectors.toList());
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", cards);
+        result.put("total", cards.size());
+        return result;
     }
     
     @GetMapping(value = "/{id}")
@@ -97,6 +171,4 @@ public class PessoaController {
 		Long[] vars = ids;
 		return ResponseEntity.ok().body(vars);
 	}
-
-        
 }

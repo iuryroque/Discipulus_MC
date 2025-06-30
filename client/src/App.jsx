@@ -15,14 +15,14 @@ import dataProvider from './service/dataProvider';
 import myTheme from './theme/myTheme';
 
 import {
-  Book,
-  CheckCircle,
-  Event,
-  LibraryBooks,
-  Notifications,
-  People,
-  School,
-  TaskAlt
+    Book,
+    CheckCircle,
+    Event,
+    LibraryBooks,
+    Notifications,
+    People,
+    School,
+    TaskAlt
 } from '@mui/icons-material';
 
 // Suas importações de componentes de CRUD (Create, Read, Update, Delete)
@@ -44,6 +44,7 @@ import licoesConcluidasPessoaList from './forms/LicoesConcluidasPessoa/licoesCon
 import licoesCurriculoCreate from './forms/LicoesCurriculo/licoesCurriculoCreate';
 import licoesCurriculoEdit from './forms/LicoesCurriculo/licoesCurriculoEdit';
 import licoesCurriculoList from './forms/LicoesCurriculo/licoesCurriculoList';
+import pessoaCardList from './forms/Pessoa/pessoaCardList';
 import pessoaCreate from './forms/Pessoa/pessoaCreate';
 import pessoaEdit from './forms/Pessoa/pessoaEdit';
 import pessoaList from './forms/Pessoa/pessoaList';
@@ -73,6 +74,7 @@ function App() {
           O nosso menu customizado apenas controla como os links para eles são exibidos.
         */}
         <Resource name="pessoa" list={pessoaList} create={pessoaCreate} edit={pessoaEdit} show={pessoaShow} icon={People} options={{ label: 'Pessoas' }} />
+        <Resource name="pessoa/cards" list={pessoaCardList} icon={People} options={{ label: 'Acompanhamento de Visitas' }} />
         <Resource name="presenca" list={presencaList} create={presencaCreate} edit={presencaEdit} show={presencaShow} icon={CheckCircle} options={{ label: 'Controle de Presença' }} />
         <Resource name="culto" list={cultoList} create={cultoCreate} edit={cultoEdit} icon={Event} options={{ label: 'Cultos e Eventos' }} />
         <Resource name="acompanhamentoEstudo" list={acompanhamentoEstudoList} create={acompanhamentoEstudoCreate} edit={acompanhamentoEstudoEdit} icon={School} options={{ label: 'Acompanhamento de Estudos' }} />

@@ -1,6 +1,8 @@
-
 package com.os.unirios.repositories;
 
+import java.util.List;
+
+import com.os.unirios.entities.Pessoa;
 import com.os.unirios.entities.Presenca; 
 
 import org.springframework.data.domain.Page;
@@ -16,4 +18,5 @@ public interface  PresencaRepository extends JpaRepository<Presenca, Long>  , Jp
     @Query("FROM Presenca obj")
 	public Page<Presenca> presencaPage(Pageable pageable);
     
+    List<Presenca> findByPessoaOrderByCriadoEmDesc(Pessoa pessoa);
 } 

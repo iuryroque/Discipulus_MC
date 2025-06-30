@@ -1,7 +1,9 @@
-
 package com.os.unirios.repositories;
 
+import java.util.List;
+
 import com.os.unirios.entities.LicoesConcluidasPessoa; 
+import com.os.unirios.entities.Pessoa;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,5 +17,4 @@ public interface  LicoesConcluidasPessoaRepository extends JpaRepository<LicoesC
 
     @Query("FROM LicoesConcluidasPessoa obj")
 	public Page<LicoesConcluidasPessoa> licoesConcluidasPessoaPage(Pageable pageable);
-    
 } 

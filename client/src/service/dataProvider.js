@@ -26,7 +26,17 @@ export default {
        const {order, field } = params.sort;
        const filter = encodeURIComponent(JSON.stringify(params.filter))
        
-      let url = `${apiUrl}/${resource}?linesPerPage=${perPage}&orderBy=${field}&direction=${order}&page=${page-1}&filter=${filter}`;
+      // Endpoint especial para cards de pessoa
+      let url = `${apiUrl}/${resource}`;
+      if (resource === 'pessoa/cards') {
+          url = `${apiUrl}/pessoa/cards`;
+          return httpClient(url).then((response) => ({
+              data: response.json.data,
+              total: response.json.total
+          }));
+      }
+      
+      url += `?linesPerPage=${perPage}&orderBy=${field}&direction=${order}&page=${page-1}&filter=${filter}`;
       
        return httpClient(url).then((response) => ({
            data: response.json.content,
