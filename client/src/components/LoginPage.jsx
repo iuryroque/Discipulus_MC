@@ -98,7 +98,7 @@ const LoginPage = () => {
                                     width: 80,
                                     height: 80,
                                     borderRadius: '50%',
-                                    backgroundColor: '#1976D2',
+                                    backgroundColor: '#fff',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -106,7 +106,7 @@ const LoginPage = () => {
                                     boxShadow: '0 8px 32px rgba(25, 118, 210, 0.3)'
                                 }}
                             >
-                                <School sx={{ fontSize: 40, color: 'white' }} />
+                                <img src={'/favicon.png'} alt="Ícone de pessoas" style={{ width: 48, height: 48 }} />
                             </Box>
                             <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: '#2c3e50' }}>
                                 Discipulus
