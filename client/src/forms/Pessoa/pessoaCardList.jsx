@@ -39,6 +39,7 @@ import {
     useNotify,
     useRedirect
 } from 'react-admin';
+import { usePessoaEnumOptions } from '../../hooks/useEnumOptions';
 
 // Componente para exibir pessoa em formato de card
 const PessoaCard = ({ record, onEdit, onDelete, onShow, onRegistrarPresenca }) => {
@@ -98,75 +99,92 @@ const PessoaCard = ({ record, onEdit, onDelete, onShow, onRegistrarPresenca }) =
     const progresso = calcularProgresso();
 
     return (
-        <Card 
-            elevation={2}
-            sx={{ 
-                height: '100%',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
-                }
-            }}
-        >
-            <CardContent>
+        <Card sx={{ 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+            }
+        }}>
+            <CardContent sx={{ flexGrow: 1, p: 3 }}>
                 {/* Header do Card */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: '#2c3e50' }}>
-                            {record.nomeCompleto}
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                            <Chip
-                                icon={getTipoIcon(record.tipo)}
-                                label={record.tipo}
-                                color={getTipoColor(record.tipo)}
-                                size="small"
-                                sx={{ fontWeight: 600 }}
-                            />
-                            <Chip
-                                label={record.status}
-                                color={getStatusColor(record.status)}
-                                size="small"
-                                variant="outlined"
-                            />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
+                            {record.nomeCompleto?.charAt(0)?.toUpperCase() || 'P'}
+                        </Avatar>
+                        <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                                {record.nomeCompleto}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                                <Chip
+                                    icon={getTipoIcon(record.tipo)}
+                                    label={record.tipo}
+                                    size="small"
+                                    color={getTipoColor(record.tipo)}
+                                    variant="outlined"
+                                />
+                                <Chip
+                                    label={record.status}
+                                    size="small"
+                                    color={getStatusColor(record.status)}
+                                    variant="outlined"
+                                />
+                            </Box>
                         </Box>
                     </Box>
-                    <Avatar 
-                        sx={{ 
-                            bgcolor: getTipoColor(record.tipo) === 'success' ? 'success.main' : 
-                                   getTipoColor(record.tipo) === 'warning' ? 'warning.main' : 
-                                   getTipoColor(record.tipo) === 'info' ? 'info.main' : 'primary.main'
-                        }}
-                    >
-                        <Person />
-                    </Avatar>
+                    
+                    {/* Menu de Ações */}
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Tooltip title="Visualizar">
+                            <IconButton size="small" onClick={() => onShow(record.id)}>
+                                <Visibility />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Editar">
+                            <IconButton size="small" onClick={() => onEdit(record.id)}>
+                                <Edit />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Excluir">
+                            <IconButton size="small" onClick={() => onDelete(record.id)}>
+                                <Delete />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
                 </Box>
 
                 <Divider sx={{ my: 2 }} />
 
                 {/* Informações de Contato */}
                 <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                        <Phone sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
-                        {record.telefone || 'Não informado'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                        <Email sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
-                        {record.email || 'Não informado'}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Phone sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary">
+                            {record.telefone || 'Não informado'}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Email sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary">
+                            {record.email || 'Não informado'}
+                        </Typography>
+                    </Box>
                 </Box>
 
                 {/* Último Culto */}
                 {record.ultimoCultoNome && (
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                            <Event sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
-                            Último Culto
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {record.ultimoCultoNome}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Event sx={{ fontSize: 16, color: 'text.secondary' }} />
+                            <Typography variant="body2" color="text.secondary">
+                                Último culto: {record.ultimoCultoNome}
+                            </Typography>
+                        </Box>
                         <Typography variant="caption" color="text.secondary">
                             {formatDateTime(record.ultimoCultoData)}
                         </Typography>
@@ -174,142 +192,67 @@ const PessoaCard = ({ record, onEdit, onDelete, onShow, onRegistrarPresenca }) =
                 )}
 
                 {/* Progresso de Estudo */}
-                {record.curriculoEstudoNome && (
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                            <School sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
-                            Progresso de Estudo
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1 }}>
+                <Box sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <School sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary">
                             {record.curriculoEstudoNome}
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>
-                                {record.licaoAtual || 0}/{record.totalLicoes || 0} lições
-                            </Typography>
-                            <Chip 
-                                label={record.statusAcompanhamento} 
-                                size="small" 
-                                color="primary" 
-                                variant="outlined"
+                    </Box>
+                    {record.totalLicoes > 0 && (
+                        <Box sx={{ width: '100%' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                <Typography variant="caption" color="text.secondary">
+                                    Progresso
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    {record.licaoAtual}/{record.totalLicoes}
+                                </Typography>
+                            </Box>
+                            <LinearProgress 
+                                variant="determinate" 
+                                value={(record.licaoAtual / record.totalLicoes) * 100}
+                                sx={{ height: 6, borderRadius: 3 }}
                             />
                         </Box>
-                        <LinearProgress 
-                            variant="determinate" 
-                            value={progresso} 
-                            sx={{ height: 6, borderRadius: 3 }}
-                        />
-                    </Box>
-                )}
+                    )}
+                </Box>
 
-                {/* Status de Alerta */}
+                {/* Alertas */}
                 {record.temAlertaAtivo && (
                     <Box sx={{ mb: 2 }}>
-                        <Chip
-                            icon={<Warning />}
-                            label={`Alerta: ${record.tipoAlerta}`}
-                            color="error"
-                            size="small"
-                            sx={{ fontWeight: 600 }}
-                        />
-                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Warning sx={{ fontSize: 16, color: 'warning.main' }} />
+                            <Typography variant="body2" color="warning.main" sx={{ fontWeight: 500 }}>
+                                Alerta: {record.tipoAlerta}
+                            </Typography>
+                        </Box>
+                        <Typography variant="caption" color="text.secondary">
                             {formatDate(record.dataUltimoAlerta)}
                         </Typography>
                     </Box>
                 )}
 
-                <Divider sx={{ my: 2 }} />
-
-                {/* Botões de Ação */}
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Tooltip title="Ver Detalhes">
-                        <IconButton 
-                            size="small" 
-                            onClick={() => onShow(record.id)}
-                            sx={{ color: 'primary.main' }}
-                        >
-                            <Visibility />
-                        </IconButton>
-                    </Tooltip>
-                    
-                    <Tooltip title="Editar">
-                        <IconButton 
-                            size="small" 
-                            onClick={() => onEdit(record.id)}
-                            sx={{ color: 'warning.main' }}
-                        >
-                            <Edit />
-                        </IconButton>
-                    </Tooltip>
-                    
-                    <Tooltip title="Registrar Presença">
-                        <IconButton 
-                            size="small" 
-                            onClick={() => onRegistrarPresenca(record.id)}
-                            sx={{ color: 'success.main' }}
-                        >
-                            <CheckCircle />
-                        </IconButton>
-                    </Tooltip>
-                    
-                    <Tooltip title="Excluir">
-                        <IconButton 
-                            size="small" 
-                            onClick={() => onDelete(record.id)}
-                            sx={{ color: 'error.main' }}
-                        >
-                            <Delete />
-                        </IconButton>
-                    </Tooltip>
-                </Box>
+                {/* Botão de Registrar Presença */}
+                <Button
+                    variant="outlined"
+                    startIcon={<CheckCircle />}
+                    onClick={() => onRegistrarPresenca(record.id)}
+                    fullWidth
+                    sx={{ mt: 'auto' }}
+                >
+                    Registrar Presença
+                </Button>
             </CardContent>
         </Card>
     );
 };
 
-// Filtros para a lista
-const postFilters = [
-    <TextInput 
-        label="Buscar por nome, telefone ou email" 
-        source="nomeCompleto" 
-        alwaysOn 
-        variant="outlined"
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <Search />
-                </InputAdornment>
-            ),
-        }}
-    />,
-    <SelectInput 
-        label="Tipo" 
-        source="tipo" 
-        choices={[
-            { id: 'MEMBRO', name: 'Membro' },
-            { id: 'VISITANTE', name: 'Visitante' },
-            { id: 'INTERESSADO', name: 'Interessado' },
-            { id: 'CONGREGADO', name: 'Congregado' }
-        ]}
-        variant="outlined"
-    />,
-    <SelectInput 
-        label="Status" 
-        source="status" 
-        choices={[
-            { id: 'ATIVO', name: 'Ativo' },
-            { id: 'INATIVO', name: 'Inativo' },
-            { id: 'PENDENTE', name: 'Pendente' }
-        ]}
-        variant="outlined"
-    />
-];
-
-// Componente principal da lista
 const PessoaCardList = (props) => {
     const redirect = useRedirect();
     const notify = useNotify();
     const [deleteOne] = useDelete();
+    const { statusOptions, tipoOptions, loading } = usePessoaEnumOptions();
 
     const handleEdit = (id) => {
         redirect('edit', 'pessoa', id);
@@ -335,6 +278,34 @@ const PessoaCardList = (props) => {
     const handleRegistrarPresenca = (id) => {
         redirect('create', 'presenca', undefined, { pessoaId: id });
     };
+
+    const postFilters = [
+        <TextInput 
+            label="Buscar por nome, telefone ou email" 
+            source="nomeCompleto" 
+            alwaysOn 
+            variant="outlined"
+            InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <Search />
+                    </InputAdornment>
+                ),
+            }}
+        />,
+        <SelectInput 
+            label="Tipo" 
+            source="tipo" 
+            choices={tipoOptions}
+            variant="outlined"
+        />,
+        <SelectInput 
+            label="Status" 
+            source="status" 
+            choices={statusOptions}
+            variant="outlined"
+        />
+    ];
 
     return (
         <List {...props} filters={postFilters} title="Acompanhamento de Visitas">

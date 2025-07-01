@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.os.unirios.entities.enums.StatusBatismo;
+import com.os.unirios.entities.enums.StatusPessoa;
+import com.os.unirios.entities.enums.TipoPessoa;
 import com.os.unirios.event.AuditEventListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,54 +25,61 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
             
 @Entity
-@Table(name = "PESSOA")
+@Table(name = "pessoa")
 @NoArgsConstructor  @Getter @Setter
 @EntityListeners(AuditEventListener.class)
 public class Pessoa extends BaseEntity implements Serializable{
-            
-            
+
+
 private static final long serialVersionUID = 1L;
-            
+
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name="PESSOA_ID")
+        @Column(name="id")
         private  Long id;
 
-        @Column(name="PESSOA_NOME COMPLETO")
+        @Column(name="nome_completo")
         private  String nomeCompleto;
-        @Column(name="PESSOA_DATA NASCIMENTO")
+        @Column(name="data_nascimento")
         private  Date dataNascimento;
-        @Column(name="PESSOA_TELEFONE")
+        @Column(name="telefone")
         private  String telefone;
-        @Column(name="PESSOA_EMAIL")
+        @Column(name="email")
         private  String email;
-        @Column(name="PESSOA_ENDERECO")
+        @Column(name="endereco")
         private  String endereco;
-        @Column(name="PESSOA_STATUS")
-        private  String status;
-        @Column(name="PESSOA_TIPO")
-        private  String tipo;
-        @Column(name="PESSOA_STATUS BATISMO")
-        private  String statusBatismo;
-        @Column(name="PESSOA_DATA INTERESSE BATISMO")
+        
+        @Enumerated(EnumType.STRING)
+        @Column(name="status")
+        private  StatusPessoa status;
+        
+        @Enumerated(EnumType.STRING)
+        @Column(name="tipo")
+        private  TipoPessoa tipo;
+        
+        @Enumerated(EnumType.STRING)
+        @Column(name="status_batismo")
+        private  StatusBatismo statusBatismo;
+        
+        @Column(name="data_interesse_batismo")
         private  Date dataInteresseBatismo;
-        @Column(name="PESSOA_DATA BATISMO")
+        @Column(name="data_batismo")
         private  Date dataBatismo;
-        @Column(name="PESSOA_OBSERVACOES")
+        @Column(name="observacoes")
         private  String observacoes;
 
         @ManyToOne
-        @JoinColumn(name="ACOMPANHAMENTOESTUDO_ID")
+        @JoinColumn(name="acompanhamento_estudo_id")
         private AcompanhamentoEstudo acompanhamentoEstudo;
         @ManyToOne
-        @JoinColumn(name="ALERTAS_ID")
+        @JoinColumn(name="alertas_id")
         private Alertas alertas;
         @ManyToOne
-        @JoinColumn(name="PRESENCA_ID")
+        @JoinColumn(name="presenca_id")
         @JsonBackReference
         private Presenca presenca;
 
-    public Pessoa  ( Long id ,String nomeCompleto ,Date dataNascimento ,String telefone ,String email ,String endereco ,String status ,String tipo ,String statusBatismo ,Date dataInteresseBatismo ,Date dataBatismo ,String observacoes ){
+    public Pessoa  ( Long id ,String nomeCompleto ,Date dataNascimento ,String telefone ,String email ,String endereco ,StatusPessoa status ,TipoPessoa tipo ,StatusBatismo statusBatismo ,Date dataInteresseBatismo ,Date dataBatismo ,String observacoes ){
         
         this.id = id;
         

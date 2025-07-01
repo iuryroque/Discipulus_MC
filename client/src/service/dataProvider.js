@@ -38,10 +38,20 @@ export default {
       
       url += `?linesPerPage=${perPage}&orderBy=${field}&direction=${order}&page=${page-1}&filter=${filter}`;
       
-       return httpClient(url).then((response) => ({
-           data: response.json.content,
-           total: response.json.totalPages
-       }));
+      return httpClient(url).then((response) => {
+        // Se a resposta for um array simples (ex: enums), retorna direto
+        if (Array.isArray(response.json)) {
+          return {
+            data: response.json,
+            total: response.json.length
+          };
+        }
+        // Resposta paginada padrão
+        return {
+          data: response.json.content,
+          total: response.json.totalElements
+        };
+      });
     },
 
     getOne: (resource, params) =>

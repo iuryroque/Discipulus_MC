@@ -14,19 +14,16 @@ import org.springframework.stereotype.Service;
 
 import com.os.unirios.entities.AcompanhamentoEstudo;
 import com.os.unirios.entities.Alertas;
-import com.os.unirios.entities.CurriculoEstudo;
-import com.os.unirios.entities.LicoesConcluidasPessoa;
-import com.os.unirios.entities.LicoesCurriculo;
+import com.os.unirios.entities.Culto;
 import com.os.unirios.entities.Pessoa;
 import com.os.unirios.entities.Presenca;
-import com.os.unirios.entities.Culto;
 import com.os.unirios.payload.response.PessoaCardResponse;
+import com.os.unirios.repositories.CultoRepository;
 import com.os.unirios.repositories.CurriculoEstudoRepository;
 import com.os.unirios.repositories.LicoesConcluidasPessoaRepository;
 import com.os.unirios.repositories.LicoesCurriculoRepository;
 import com.os.unirios.repositories.PessoaRepository;
 import com.os.unirios.repositories.PresencaRepository;
-import com.os.unirios.repositories.CultoRepository;
 import com.os.unirios.services.exceptions.DataIntegrityException;
 import com.os.unirios.services.exceptions.ObjectNotFoundException;
 
@@ -210,8 +207,8 @@ public class PessoaService {
         // Dados básicos da pessoa
         card.setId(pessoa.getId());
         card.setNomeCompleto(pessoa.getNomeCompleto());
-        card.setTipo(pessoa.getTipo());
-        card.setStatus(pessoa.getStatus());
+        card.setTipo(pessoa.getTipo() != null ? pessoa.getTipo().name() : null);
+        card.setStatus(pessoa.getStatus() != null ? pessoa.getStatus().name() : null);
         card.setTelefone(pessoa.getTelefone());
         card.setEmail(pessoa.getEmail());
         

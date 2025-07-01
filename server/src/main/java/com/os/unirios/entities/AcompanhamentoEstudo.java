@@ -19,34 +19,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
             
 @Entity
-@Table(name = "ACOMPANHAMENTOESTUDO")
+@Table(name = "acompanhamento_estudo")
 @NoArgsConstructor  @Getter @Setter
 @EntityListeners(AuditEventListener.class)
 public class AcompanhamentoEstudo  implements Serializable{
-            
-            
+
+
 private static final long serialVersionUID = 1L;
-            
-    
-            
+
+
+
                 @Id
                 @GeneratedValue(strategy = GenerationType.IDENTITY)
-                @Column(name="ACOMPANHAMENTOESTUDO_ID")
-                
+                @Column(name="id")
+
             private  Long id;
-            @Column(name="ACOMPANHAMENTOESTUDO_STATUS")
+            @Column(name="status")
             private  String status;
-            @Column(name="ACOMPANHAMENTOESTUDO_DATA INICIO")
+            @Column(name="data_inicio")
             private  Date dataInicio;
-            @Column(name="ACOMPANHAMENTOESTUDO_DATA CONCLUSAO")
+            @Column(name="data_conclusao")
             private  Date dataConclusao;
-            @Column(name="ACOMPANHAMENTOESTUDO_CRIADO EM")
+            @Column(name="criado_em")
             private  Date criadoEm;
-            @Column(name="ACOMPANHAMENTOESTUDO_ALTERADO EM")
+            @Column(name="alterado_em")
             private  Date alteradoEm;
-    
+
             @ManyToOne
-            @JoinColumn(name="LICOESCONCLUIDASPESSOA_ID")
+            @JoinColumn(name="licoes_concluidas_pessoa_id")
             private LicoesConcluidasPessoa licoesConcluidasPessoa;
 
     public AcompanhamentoEstudo  ( Long id ,String status ,Date dataInicio ,Date dataConclusao ,Date criadoEm ,Date alteradoEm ){

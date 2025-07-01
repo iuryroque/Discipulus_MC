@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
             
 @Entity
-@Table(name = "PRESENCA")
+@Table(name = "presenca")
 @NoArgsConstructor  @Getter @Setter
 @EntityListeners(AuditEventListener.class)
 public class Presenca extends BaseEntity implements Serializable{
@@ -31,16 +31,16 @@ private static final long serialVersionUID = 1L;
             
                 @Id
                 @GeneratedValue(strategy = GenerationType.IDENTITY)
-                @Column(name="PRESENCA_ID")
+                @Column(name="id")
                 
             private  Long id;
-            @Column(name="PRESENCA_PRESENTE")
+            @Column(name="presente")
             private  String presente;
-            @Column(name="PRESENCA_OBSERVACOES")
+            @Column(name="observacoes")
             private  String observacoes;
     
             @ManyToOne
-            @JoinColumn(name="PESSOA_ID")
+            @JoinColumn(name="pessoa_id")
             @JsonManagedReference
             private Pessoa pessoa;
 

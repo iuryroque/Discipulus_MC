@@ -1,9 +1,10 @@
 import {
+    WaterDrop as BaptismIcon,
     Email as EmailIcon,
     Info as InfoIcon,
     Person as PersonIcon
 } from '@mui/icons-material';
-import { Card, CardContent, Grid, Typography } from '@mui/material';
+import { Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material';
 import React from 'react';
 import {
     Create,
@@ -12,11 +13,25 @@ import {
     SimpleForm,
     TextInput
 } from 'react-admin';
+import { usePessoaEnumOptions } from '../../hooks/useEnumOptions';
 import { pessoaCondicionalSchema } from '../../validation/schemas';
 import { useZodValidation } from '../../validation/useZodValidation';
 
 const PessoaCreate = props => {
     const validate = useZodValidation(pessoaCondicionalSchema);
+    const { statusOptions, tipoOptions, statusBatismoOptions, loading, error } = usePessoaEnumOptions();
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                <CircularProgress />
+            </div>
+        );
+    }
+
+    if (error) {
+        console.error('Erro ao carregar opções dos enums:', error);
+    }
 
     return (
         <Create {...props} title="Nova Pessoa">
@@ -92,11 +107,7 @@ const PessoaCreate = props => {
                                         <SelectInput 
                                             source="status" 
                                             label="Status"
-                                            choices={[
-                                                { id: 'ATIVO', name: 'Ativo' },
-                                                { id: 'INATIVO', name: 'Inativo' },
-                                                { id: 'PENDENTE', name: 'Pendente' }
-                                            ]}
+                                            choices={statusOptions}
                                             variant="outlined"
                                             fullWidth
                                             helperText="Selecione o status da pessoa"
@@ -107,11 +118,7 @@ const PessoaCreate = props => {
                                         <SelectInput 
                                             source="tipo" 
                                             label="Tipo"
-                                            choices={[
-                                                { id: 'MEMBRO', name: 'Membro' },
-                                                { id: 'VISITANTE', name: 'Visitante' },
-                                                { id: 'CONGREGADO', name: 'Congregado' }
-                                            ]}
+                                            choices={tipoOptions}
                                             variant="outlined"
                                             fullWidth
                                             helperText="Selecione o tipo da pessoa (email obrigatório para membros)"
@@ -175,7 +182,7 @@ const PessoaCreate = props => {
                                     gap: 1,
                                     mb: 3 
                                 }}>
-                                    <InfoIcon />
+                                    <BaptismIcon />
                                     Informações de Batismo
                                 </Typography>
                                 
@@ -184,11 +191,7 @@ const PessoaCreate = props => {
                                         <SelectInput 
                                             source="statusBatismo" 
                                             label="Status do Batismo"
-                                            choices={[
-                                                { id: 'BATIZADO', name: 'Batizado' },
-                                                { id: 'NAO_BATIZADO', name: 'Não Batizado' },
-                                                { id: 'INTERESSADO', name: 'Interessado' }
-                                            ]}
+                                            choices={statusBatismoOptions}
                                             variant="outlined"
                                             fullWidth
                                             helperText="Selecione o status do batismo"
@@ -199,8 +202,8 @@ const PessoaCreate = props => {
                                         <DateInput 
                                             source="dataInteresseBatismo" 
                                             variant="outlined"
-                                            label="Data de Interesse"
-                                            helperText="Data de interesse no batismo (opcional)"
+                                            label="Data de Interesse no Batismo"
+                                            helperText="Data em que demonstrou interesse (opcional)"
                                             fullWidth
                                         />
                                     </Grid>
@@ -210,7 +213,7 @@ const PessoaCreate = props => {
                                             source="dataBatismo" 
                                             variant="outlined"
                                             label="Data do Batismo"
-                                            helperText="Data do batismo (opcional)"
+                                            helperText="Data em que foi batizado (opcional)"
                                             fullWidth
                                         />
                                     </Grid>
@@ -238,7 +241,7 @@ const PessoaCreate = props => {
                                     source="observacoes" 
                                     variant="outlined"
                                     label="Observações"
-                                    helperText="Adicione observações sobre a pessoa (opcional)"
+                                    helperText="Informações adicionais sobre a pessoa (opcional)"
                                     multiline
                                     rows={4}
                                     fullWidth
@@ -249,9 +252,9 @@ const PessoaCreate = props => {
                 </Grid>
             </SimpleForm>
         </Create>
-    )
-}
+    );
+};
 
-export default PessoaCreate
+export default PessoaCreate;
 
     

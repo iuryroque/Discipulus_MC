@@ -1,33 +1,35 @@
 package com.os.unirios.controllers;
 
 import java.net.URI;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.os.unirios.entities.Pessoa;
-import com.os.unirios.payload.response.PessoaCardResponse;
-import com.os.unirios.services.PessoaService;
-import com.os.unirios.entities.Presenca;
-import com.os.unirios.entities.Culto;
-import com.os.unirios.repositories.PresencaRepository;
-import com.os.unirios.repositories.CultoRepository;
-    
-    
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.os.unirios.entities.Culto;
+import com.os.unirios.entities.Pessoa;
+import com.os.unirios.entities.Presenca;
+import com.os.unirios.entities.enums.StatusBatismo;
+import com.os.unirios.entities.enums.StatusPessoa;
+import com.os.unirios.entities.enums.TipoPessoa;
+import com.os.unirios.payload.response.PessoaCardResponse;
+import com.os.unirios.repositories.CultoRepository;
+import com.os.unirios.repositories.PresencaRepository;
+import com.os.unirios.services.PessoaService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -60,6 +62,42 @@ public class PessoaController {
         return ResponseEntity.ok().body(list);
     }
     
+    @GetMapping(value = "/enums/status")
+    public ResponseEntity<List<Map<String, String>>> getStatusOptions() {
+        List<Map<String, String>> options = new ArrayList<>();
+        for (StatusPessoa status : StatusPessoa.values()) {
+            Map<String, String> option = new HashMap<>();
+            option.put("id", status.name());
+            option.put("name", status.getDescricao());
+            options.add(option);
+        }
+        return ResponseEntity.ok().body(options);
+    }
+    
+    @GetMapping(value = "/enums/tipo")
+    public ResponseEntity<List<Map<String, String>>> getTipoOptions() {
+        List<Map<String, String>> options = new ArrayList<>();
+        for (TipoPessoa tipo : TipoPessoa.values()) {
+            Map<String, String> option = new HashMap<>();
+            option.put("id", tipo.name());
+            option.put("name", tipo.getDescricao());
+            options.add(option);
+        }
+        return ResponseEntity.ok().body(options);
+    }
+    
+    @GetMapping(value = "/enums/statusBatismo")
+    public ResponseEntity<List<Map<String, String>>> getStatusBatismoOptions() {
+        List<Map<String, String>> options = new ArrayList<>();
+        for (StatusBatismo status : StatusBatismo.values()) {
+            Map<String, String> option = new HashMap<>();
+            option.put("id", status.name());
+            option.put("name", status.getDescricao());
+            options.add(option);
+        }
+        return ResponseEntity.ok().body(options);
+    }
+    
     @GetMapping(value = "/cards")
     public Map<String, Object> getPessoasCards() {
         List<Pessoa> pessoas = service.findAll();
@@ -68,8 +106,8 @@ public class PessoaController {
                 PessoaCardResponse card = new PessoaCardResponse();
                 card.setId(pessoa.getId());
                 card.setNomeCompleto(pessoa.getNomeCompleto());
-                card.setTipo(pessoa.getTipo());
-                card.setStatus(pessoa.getStatus());
+                card.setTipo(pessoa.getTipo() != null ? pessoa.getTipo().name() : null);
+                card.setStatus(pessoa.getStatus() != null ? pessoa.getStatus().name() : null);
                 card.setTelefone(pessoa.getTelefone());
                 card.setEmail(pessoa.getEmail());
                 

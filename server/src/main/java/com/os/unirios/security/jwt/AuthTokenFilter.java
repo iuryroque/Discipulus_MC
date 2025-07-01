@@ -42,7 +42,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 		String requestURI = request.getRequestURI();
 
-		String[] urisPublics = { "/api/auth/", "/api/test/","/v3/api-docs","/swagger-ui/","/swagger-ui.html"};
+		String[] urisPublics = { "/api/auth/", "/api/test/","/v3/api-docs","/swagger-ui/","/swagger-ui.html", "/redoc", "/redoc/"};
 		
 		for (String uri : urisPublics) {
 			if (requestURI.startsWith(uri)) {

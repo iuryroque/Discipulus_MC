@@ -26,12 +26,12 @@ export const pessoaSchema = z.object({
   status: z.enum(['ATIVO', 'INATIVO', 'PENDENTE'], {
     errorMap: () => ({ message: 'Status deve ser ATIVO, INATIVO ou PENDENTE' })
   }).default('ATIVO'),
-  tipo: z.enum(['MEMBRO', 'VISITANTE', 'CONGREGADO'], {
-    errorMap: () => ({ message: 'Tipo deve ser MEMBRO, VISITANTE ou CONGREGADO' })
+  tipo: z.enum(['MEMBRO', 'VISITANTE', 'CONGREGADO', 'INTERESSADO'], {
+    errorMap: () => ({ message: 'Tipo deve ser MEMBRO, VISITANTE, CONGREGADO ou INTERESSADO' })
   }).default('VISITANTE'),
-  statusBatismo: z.enum(['BATIZADO', 'NAO_BATIZADO', 'INTERESSADO'], {
-    errorMap: () => ({ message: 'Status do batismo deve ser BATIZADO, NAO_BATIZADO ou INTERESSADO' })
-  }).default('NAO_BATIZADO'),
+  statusBatismo: z.enum(['BATIZADO', 'NO BATIZADO', 'INTERESSADO'], {
+    errorMap: () => ({ message: 'Status do batismo deve ser BATIZADO, NÃO BATIZADO ou INTERESSADO' })
+  }).default('NÃO BATIZADO'),
   dataInteresseBatismo: z.string()
     .optional()
     .refine((val) => !val || !isNaN(Date.parse(val)), {
@@ -55,46 +55,46 @@ export const pessoaCondicionalSchema = z.object({
     .min(3, 'Nome deve ter pelo menos 3 caracteres')
     .max(100, 'Nome deve ter no máximo 100 caracteres'),
   dataNascimento: z.string()
-    .optional()
-    .refine((val) => !val || !isNaN(Date.parse(val)), {
-      message: 'Data de nascimento deve ser uma data válida'
-    }),
+    .nullable()
+    .optional(),
   telefone: z.string()
     .min(1, 'Telefone é obrigatório')
     .regex(/^[\d\s\-\(\)\+]+$/, 'Telefone deve conter apenas números, espaços, hífens, parênteses e +'),
   email: z.string()
     .email('Email deve ser válido')
-    .optional()
-    .or(z.literal('')),
+    .nullable()
+    .optional(),
   endereco: z.string()
     .max(200, 'Endereço deve ter no máximo 200 caracteres')
-    .optional()
-    .or(z.literal('')),
+    .nullable()
+    .optional(),
   status: z.enum(['ATIVO', 'INATIVO', 'PENDENTE'], {
     errorMap: () => ({ message: 'Status deve ser ATIVO, INATIVO ou PENDENTE' })
   }).default('ATIVO'),
-  tipo: z.enum(['MEMBRO', 'VISITANTE', 'CONGREGADO'], {
-    errorMap: () => ({ message: 'Tipo deve ser MEMBRO, VISITANTE ou CONGREGADO' })
+  tipo: z.enum(['MEMBRO', 'VISITANTE', 'CONGREGADO', 'INTERESSADO'], {
+    errorMap: () => ({ message: 'Tipo deve ser MEMBRO, VISITANTE, CONGREGADO ou INTERESSADO' })
   }).default('VISITANTE'),
   statusBatismo: z.enum(['BATIZADO', 'NAO_BATIZADO', 'INTERESSADO'], {
-    errorMap: () => ({ message: 'Status do batismo deve ser BATIZADO, NAO_BATIZADO ou INTERESSADO' })
+    errorMap: () => ({ message: 'Status do batismo deve ser BATIZADO, NÃO BATIZADO ou INTERESSADO' })
   }).default('NAO_BATIZADO'),
   dataInteresseBatismo: z.string()
+    .nullable()
     .optional()
-    .refine((val) => !val || !isNaN(Date.parse(val)), {
+    .refine((val) => !val || val === '' || !isNaN(Date.parse(val)), {
       message: 'Data de interesse no batismo deve ser uma data válida'
     }),
   dataBatismo: z.string()
+    .nullable()
     .optional()
-    .refine((val) => !val || !isNaN(Date.parse(val)), {
+    .refine((val) => !val || val === '' || !isNaN(Date.parse(val)), {
       message: 'Data do batismo deve ser uma data válida'
     }),
   observacoes: z.string()
     .max(500, 'Observações devem ter no máximo 500 caracteres')
+    .nullable()
     .optional()
-    .or(z.literal(''))
 }).superRefine((data, ctx) => {
-  // Se for membro, email é obrigatório
+  // Validação condicional: email obrigatório apenas para membros
   if (data.tipo === 'MEMBRO' && (!data.email || data.email.trim() === '')) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -192,7 +192,7 @@ export const presencaSchema = z.object({
       .min(1, 'Pessoa é obrigatória')
   }),
   presente: z.enum(['SIM', 'NAO', 'JUSTIFICADO'], {
-    errorMap: () => ({ message: 'Status de presença deve ser SIM, NAO ou JUSTIFICADO' })
+    errorMap: () => ({ message: 'Status de presença deve ser SIM, NÃO ou JUSTIFICADO' })
   }),
   observacoes: z.string()
     .max(500, 'Observações devem ter no máximo 500 caracteres')
