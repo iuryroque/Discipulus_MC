@@ -1,0 +1,2 @@
+# Ignorar arquivos de configuração do Spring Boot
+server/src/main/resources/application*.properties 
