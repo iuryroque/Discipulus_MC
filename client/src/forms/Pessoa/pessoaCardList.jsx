@@ -251,17 +251,24 @@ const PessoaCardList = (props) => {
     const redirect = useRedirect();
     const notify = useNotify();
     const [deleteOne] = useDelete();
+    const cardListRef = React.useRef();
 
     const handleEdit = (id) => {
+        // Salvar o ID da pessoa sendo editada para atualizar depois
+        sessionStorage.setItem('editingPessoaId', id);
         redirect('edit', 'pessoa', id);
     };
 
     const handleDelete = async (id) => {
         try {
             await deleteOne('pessoa', { id });
-            notify('Pessoa excluída com sucesso!', { type: 'success' });
+            notify('Visitante excluído com sucesso!', { type: 'success' });
+            // Atualizar a lista após exclusão
+            if (cardListRef.current) {
+                cardListRef.current.refreshData();
+            }
         } catch (error) {
-            notify('Erro ao excluir pessoa', { type: 'error' });
+            notify('Erro ao excluir visitante', { type: 'error' });
         }
     };
 
@@ -270,12 +277,43 @@ const PessoaCardList = (props) => {
     };
 
     const handleCreate = () => {
+        // Marcar que uma nova pessoa será criada
+        sessionStorage.setItem('creatingNewPessoa', 'true');
         redirect('create', 'pessoa');
     };
 
     const handleRegistrarPresenca = (id) => {
         redirect('create', 'presenca', undefined, { pessoaId: id });
     };
+
+    // Efeito para verificar se houve mudanças quando retorna à tela
+    React.useEffect(() => {
+        const checkForUpdates = () => {
+            const editingId = sessionStorage.getItem('editingPessoaId');
+            const creatingNew = sessionStorage.getItem('creatingNewPessoa');
+            
+            if (editingId || creatingNew) {
+                // Limpar os marcadores
+                sessionStorage.removeItem('editingPessoaId');
+                sessionStorage.removeItem('creatingNewPessoa');
+                
+                // Atualizar os dados
+                if (cardListRef.current) {
+                    setTimeout(() => {
+                        cardListRef.current.refreshData();
+                    }, 500); // Pequeno delay para garantir que a operação foi concluída
+                }
+            }
+        };
+
+        // Verificar a cada 2 segundos se houve mudanças
+        const interval = setInterval(checkForUpdates, 2000);
+        
+        // Verificar imediatamente ao montar o componente
+        checkForUpdates();
+
+        return () => clearInterval(interval);
+    }, []);
 
     const postFilters = [
         <TextInput 
@@ -294,7 +332,10 @@ const PessoaCardList = (props) => {
     ];
 
     return (
-        <List {...props} filters={postFilters} title="Acompanhamento de Visitantes">
+        <List {...props} 
+            // filters={postFilters} 
+            title="Acompanhamento de Visitantes"
+        >
             <Box sx={{ p: 3 }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -336,6 +377,7 @@ const PessoaCardList = (props) => {
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <PessoaCardListContent 
+                            ref={cardListRef}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
                             onShow={handleShow}
@@ -349,10 +391,20 @@ const PessoaCardList = (props) => {
 };
 
 // Componente para renderizar os cards
-const PessoaCardListContent = ({ onEdit, onDelete, onShow, onRegistrarPresenca, showStats = false }) => {
-    const { data: pessoas, isLoading, error } = useGetList('pessoa/cards', {
+const PessoaCardListContent = React.forwardRef(({ onEdit, onDelete, onShow, onRegistrarPresenca, showStats = false }, ref) => {
+    const { data: pessoas, isLoading, error, refetch } = useGetList('pessoa/cards', {
         pagination: { page: 1, perPage: 1000 }
     });
+
+    // Função para atualizar os dados
+    const handleDataUpdate = () => {
+        refetch();
+    };
+
+    // Expor a função de atualização para o componente pai
+    React.useImperativeHandle(ref, () => ({
+        refreshData: handleDataUpdate
+    }));
 
     // Se houver erro, mostrar mensagem
     if (error) {
@@ -490,11 +542,6 @@ const PessoaCardListContent = ({ onEdit, onDelete, onShow, onRegistrarPresenca, 
                                         <Edit />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Excluir">
-                                    <IconButton size="small" onClick={() => onDelete(pessoa.id)}>
-                                        <Delete />
-                                    </IconButton>
-                                </Tooltip>
                             </Box>
                         </Box>
                         {/* Informações de contato */}
@@ -533,6 +580,6 @@ const PessoaCardListContent = ({ onEdit, onDelete, onShow, onRegistrarPresenca, 
             ))}
         </Grid>
     );
-};
+});
 
 export default PessoaCardList; 
