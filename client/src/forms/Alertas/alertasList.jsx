@@ -9,17 +9,19 @@ const AlertasList = props => {
 
     return (
 
-        <List {...props} filters={postFilters}>
+        <List {...props} 
+        // filters={postFilters}
+        >
             <Datagrid>
                 <NumberField source="id" variant="outlined"/>
-<TextField source="tipo" variant="outlined" />
-<TextField source="titulo" variant="outlined" />
-<TextField source="mensagem" variant="outlined" />
-<TextField source="resolvido" variant="outlined" />
-<DateField  source="dataAlerta" variant="outlined"/>
-<DateField  source="dataResolucao" variant="outlined"/>
-<DateField  source="criadoEm" variant="outlined"/>
-<DateField  source="alteradoEm" variant="outlined"/>
+                <TextField source="tipo" variant="outlined" />
+                <TextField source="titulo" variant="outlined" />
+                <TextField source="mensagem" variant="outlined" />
+                <TextField source="resolvido" variant="outlined" />
+                <DateField  source="dataAlerta" variant="outlined"/>
+                <DateField  source="dataResolucao" variant="outlined"/>
+                <DateField  source="criadoEm" variant="outlined"/>
+                <DateField  source="alteradoEm" variant="outlined"/>
                 <ShowButton />
                 <EditButton />
                 <DeleteButton />

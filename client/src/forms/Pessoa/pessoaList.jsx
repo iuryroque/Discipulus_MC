@@ -63,7 +63,10 @@ const PessoaList = props => {
     ]; 
 
     return (
-        <List {...props} filters={postFilters} title="Lista de Pessoas">
+        <List {...props} 
+            // filters={postFilters}
+            title="Lista de Pessoas"
+        >
             <Datagrid>
                 <TextField source="nomeCompleto" label="Nome Completo" />
                 <TextField source="telefone" label="Telefone" />

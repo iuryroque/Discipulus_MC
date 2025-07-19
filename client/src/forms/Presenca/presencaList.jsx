@@ -50,7 +50,7 @@ const PresencaList = props => {
     return (
         <List 
             {...props} 
-            filters={<PresencaFilter />}
+            // filters={<PresencaFilter />}
             title="Lista de Presenças"
             sort={{ field: 'id', order: 'DESC' }}
         >
