@@ -74,7 +74,7 @@ function App() {
           O nosso menu customizado apenas controla como os links para eles são exibidos.
         */}
         <Resource name="pessoa" list={pessoaList} create={pessoaCreate} edit={pessoaEdit} show={pessoaShow} icon={People} options={{ label: 'Pessoas' }} />
-        <Resource name="pessoa/cards" list={pessoaCardList} icon={People} options={{ label: 'Acompanhamento de Visitas' }} />
+        <Resource name="pessoa/cards" list={pessoaCardList} icon={People} options={{ label: 'Acompanhamento de Visitantes' }} />
         <Resource name="presenca" list={presencaList} create={presencaCreate} edit={presencaEdit} show={presencaShow} icon={CheckCircle} options={{ label: 'Controle de Presença' }} />
         <Resource name="culto" list={cultoList} create={cultoCreate} edit={cultoEdit} icon={Event} options={{ label: 'Cultos e Eventos' }} />
         <Resource name="acompanhamentoEstudo" list={acompanhamentoEstudoList} create={acompanhamentoEstudoCreate} edit={acompanhamentoEstudoEdit} icon={School} options={{ label: 'Acompanhamento de Estudos' }} />

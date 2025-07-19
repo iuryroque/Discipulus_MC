@@ -165,6 +165,7 @@ const ptMessages = {
         'Não foi possível carregar as traduções para a linguagem especificada',
       canceled: 'Ação cancelada',
       logged_out: 'Sua sessão foi finalizada, por favor reconecte.',
+      'Login realizado com sucesso!': 'Login realizado com sucesso!',
     },
     validation: {
       required: 'Obrigatório',

@@ -32,14 +32,12 @@ import {
 import React from 'react';
 import {
     List,
-    SelectInput,
     TextInput,
     useDelete,
     useGetList,
     useNotify,
     useRedirect
 } from 'react-admin';
-import { usePessoaEnumOptions } from '../../hooks/useEnumOptions';
 
 // Componente para exibir pessoa em formato de card
 const PessoaCard = ({ record, onEdit, onDelete, onShow, onRegistrarPresenca }) => {
@@ -113,8 +111,8 @@ const PessoaCard = ({ record, onEdit, onDelete, onShow, onRegistrarPresenca }) =
                 {/* Header do Card */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
-                            {record.nomeCompleto?.charAt(0)?.toUpperCase() || 'P'}
+                        <Avatar sx={{ bgcolor: 'warning.main', width: 40, height: 40 }}>
+                            {record.nomeCompleto?.charAt(0)?.toUpperCase() || 'V'}
                         </Avatar>
                         <Box>
                             <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
@@ -122,11 +120,12 @@ const PessoaCard = ({ record, onEdit, onDelete, onShow, onRegistrarPresenca }) =
                             </Typography>
                             <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                                 <Chip
-                                    icon={getTipoIcon(record.tipo)}
-                                    label={record.tipo}
+                                    icon={<Person />}
+                                    label="Visitante"
                                     size="small"
-                                    color={getTipoColor(record.tipo)}
-                                    variant="outlined"
+                                    color="warning"
+                                    variant="filled"
+                                    sx={{ fontWeight: 600 }}
                                 />
                                 <Chip
                                     label={record.status}
@@ -252,7 +251,6 @@ const PessoaCardList = (props) => {
     const redirect = useRedirect();
     const notify = useNotify();
     const [deleteOne] = useDelete();
-    const { statusOptions, tipoOptions, loading } = usePessoaEnumOptions();
 
     const handleEdit = (id) => {
         redirect('edit', 'pessoa', id);
@@ -281,7 +279,7 @@ const PessoaCardList = (props) => {
 
     const postFilters = [
         <TextInput 
-            label="Buscar por nome, telefone ou email" 
+            label="Buscar visitante por nome, telefone ou email" 
             source="nomeCompleto" 
             alwaysOn 
             variant="outlined"
@@ -292,29 +290,22 @@ const PessoaCardList = (props) => {
                     </InputAdornment>
                 ),
             }}
-        />,
-        <SelectInput 
-            label="Tipo" 
-            source="tipo" 
-            choices={tipoOptions}
-            variant="outlined"
-        />,
-        <SelectInput 
-            label="Status" 
-            source="status" 
-            choices={statusOptions}
-            variant="outlined"
         />
     ];
 
     return (
-        <List {...props} filters={postFilters} title="Acompanhamento de Visitas">
+        <List {...props} filters={postFilters} title="Acompanhamento de Visitantes">
             <Box sx={{ p: 3 }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography variant="h4" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-                        Acompanhamento de Visitas
-                    </Typography>
+                    <Box>
+                        <Typography variant="h4" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                            Acompanhamento de Visitantes
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                            Gerencie e acompanhe o progresso dos visitantes da igreja
+                        </Typography>
+                    </Box>
                     <Button
                         variant="contained"
                         startIcon={<Add />}
@@ -326,8 +317,19 @@ const PessoaCardList = (props) => {
                             }
                         }}
                     >
-                        Nova Pessoa
+                        Novo Visitante
                     </Button>
+                </Box>
+
+                {/* Estatísticas */}
+                <Box sx={{ mb: 3 }}>
+                    <PessoaCardListContent 
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onShow={handleShow}
+                        onRegistrarPresenca={handleRegistrarPresenca}
+                        showStats={true}
+                    />
                 </Box>
 
                 {/* Lista de Pessoas */}
@@ -347,15 +349,91 @@ const PessoaCardList = (props) => {
 };
 
 // Componente para renderizar os cards
-const PessoaCardListContent = ({ onEdit, onDelete, onShow, onRegistrarPresenca }) => {
-    const { data: pessoas, isLoading } = useGetList('pessoa/cards', {
+const PessoaCardListContent = ({ onEdit, onDelete, onShow, onRegistrarPresenca, showStats = false }) => {
+    const { data: pessoas, isLoading, error } = useGetList('pessoa/cards', {
         pagination: { page: 1, perPage: 1000 }
     });
+
+    // Se houver erro, mostrar mensagem
+    if (error) {
+        return (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Warning sx={{ fontSize: 64, color: 'error.main', mb: 2 }} />
+                <Typography variant="h6" color="error.main" gutterBottom>
+                    Erro ao carregar visitantes
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {error.message || 'Verifique sua conexão e tente novamente.'}
+                </Typography>
+            </Box>
+        );
+    }
+
+    // Se showStats for true, renderizar apenas estatísticas
+    if (showStats) {
+        if (isLoading) return null;
+        
+        const totalVisitantes = pessoas?.length || 0;
+        const visitantesAtivos = pessoas?.filter(p => p.status === 'ATIVO')?.length || 0;
+        const visitantesInativos = pessoas?.filter(p => p.status === 'INATIVO')?.length || 0;
+
+        // Ícones
+        const TotalIcon = <Group sx={{ fontSize: 32, color: '#1976D2' }} />;
+        const AtivosIcon = <Group sx={{ fontSize: 32, color: '#fff' }} />;
+        const InativosIcon = <Group sx={{ fontSize: 32, color: '#B0B0B0' }} />;
+
+        return (
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
+                {/* Total de Visitantes */}
+                <Card sx={{ minWidth: 220, flex: 1, bgcolor: '#fff', boxShadow: 0, border: '1px solid #E5EAF2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                Total de Visitantes
+                            </Typography>
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#222' }}>
+                                {totalVisitantes}
+                            </Typography>
+                        </Box>
+                        {TotalIcon}
+                    </CardContent>
+                </Card>
+                {/* Visitantes Ativos (destaque azul) */}
+                <Card sx={{ minWidth: 220, flex: 1, bgcolor: '#1976D2', color: '#fff', boxShadow: 0, border: '1px solid #1976D2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
+                            <Typography variant="body2" sx={{ mb: 0.5, color: '#fff' }}>
+                                Visitantes Ativos
+                            </Typography>
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#fff' }}>
+                                {visitantesAtivos}
+                            </Typography>
+                        </Box>
+                        {AtivosIcon}
+                    </CardContent>
+                </Card>
+                {/* Visitantes Inativos */}
+                <Card sx={{ minWidth: 220, flex: 1, bgcolor: '#fff', boxShadow: 0, border: '1px solid #E5EAF2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                Visitantes Inativos
+                            </Typography>
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#222' }}>
+                                {visitantesInativos}
+                            </Typography>
+                        </Box>
+                        {InativosIcon}
+                    </CardContent>
+                </Card>
+            </Box>
+        );
+    }
 
     if (isLoading) {
         return (
             <Box sx={{ p: 3 }}>
-                <Typography>Carregando pessoas...</Typography>
+                <Typography>Carregando visitantes...</Typography>
             </Box>
         );
     }
@@ -365,26 +443,92 @@ const PessoaCardListContent = ({ onEdit, onDelete, onShow, onRegistrarPresenca }
             <Box sx={{ textAlign: 'center', py: 8 }}>
                 <Person sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Nenhuma pessoa encontrada
+                    Nenhum visitante encontrado
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                    Comece adicionando a primeira pessoa.
+                    Comece adicionando o primeiro visitante.
                 </Typography>
             </Box>
         );
     }
 
+    // Cards de visitantes
     return (
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
             {pessoas.map((pessoa) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={pessoa.id}>
-                    <PessoaCard
-                        record={pessoa}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onShow={onShow}
-                        onRegistrarPresenca={onRegistrarPresenca}
-                    />
+                <Grid item xs={12} md={6} key={pessoa.id}>
+                    <Card sx={{ borderRadius: 3, boxShadow: '0 2px 8px #F0F1F2', p: 2, border: '1px solid #E5EAF2' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar sx={{ bgcolor: '#1976D2', width: 48, height: 48, fontWeight: 700, fontSize: 22 }}>
+                                    {pessoa.nomeCompleto?.charAt(0)?.toUpperCase() || 'V'}
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#222', mb: 0.5 }}>
+                                        {pessoa.nomeCompleto}
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Chip label="Visitante" size="small" sx={{ bgcolor: '#1976D2', color: '#fff', fontWeight: 600 }} />
+                                        {pessoa.status === 'ATIVO' && (
+                                            <Chip label="ATIVO" size="small" sx={{ bgcolor: '#22C55E', color: '#fff', fontWeight: 600 }} />
+                                        )}
+                                        {pessoa.status === 'INATIVO' && (
+                                            <Chip label="INATIVO" size="small" sx={{ bgcolor: '#F87171', color: '#fff', fontWeight: 600 }} />
+                                        )}
+                                    </Box>
+                                </Box>
+                            </Box>
+                            {/* Ícones de ação */}
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Tooltip title="Visualizar">
+                                    <IconButton size="small" onClick={() => onShow(pessoa.id)}>
+                                        <Visibility />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Editar">
+                                    <IconButton size="small" onClick={() => onEdit(pessoa.id)}>
+                                        <Edit />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Excluir">
+                                    <IconButton size="small" onClick={() => onDelete(pessoa.id)}>
+                                        <Delete />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                        </Box>
+                        {/* Informações de contato */}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Phone sx={{ fontSize: 18, color: '#1976D2' }} />
+                                <Typography variant="body2" color="text.secondary">
+                                    {pessoa.telefone || 'N/A'}
+                                </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Email sx={{ fontSize: 18, color: '#1976D2' }} />
+                                <Typography variant="body2" color="text.secondary">
+                                    {pessoa.email || 'N/A'}
+                                </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Event sx={{ fontSize: 18, color: '#1976D2' }} />
+                                <Typography variant="body2" color="text.secondary">
+                                    {pessoa.ultimoCultoNome || 'N/A'}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        {/* Botão Registrar Presença */}
+                        <Button
+                            variant="contained"
+                            startIcon={<CheckCircle />}
+                            onClick={() => onRegistrarPresenca(pessoa.id)}
+                            fullWidth
+                            sx={{ mt: 1, bgcolor: '#1976D2', color: '#fff', fontWeight: 600, fontSize: 16, py: 1.2, borderRadius: 2, '&:hover': { bgcolor: '#115293' } }}
+                        >
+                            Registrar Presença
+                        </Button>
+                    </Card>
                 </Grid>
             ))}
         </Grid>

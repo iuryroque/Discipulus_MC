@@ -1,10 +1,10 @@
 import {
-  CheckCircle,
-  Event,
-  Home,
-  Notifications,
-  People,
-  ViewModule
+    CheckCircle,
+    Event,
+    Home,
+    Notifications,
+    People,
+    ViewModule
 } from '@mui/icons-material';
 import { Collapse, List } from '@mui/material';
 import React, { useState } from 'react';
@@ -26,7 +26,7 @@ const MyMenu = ({ onMenuClick }) => {
 
       {/* Itens de menu que continuarão no nível principal */}
       <MenuItemLink to="/pessoa" primaryText="Pessoas" leftIcon={<People />} onClick={onMenuClick} sidebarIsOpen={open} />
-      <MenuItemLink to="/pessoa/cards" primaryText="Visitas" leftIcon={<ViewModule />} onClick={onMenuClick} sidebarIsOpen={open} />
+      <MenuItemLink to="/pessoa/cards" primaryText="Visitantes" leftIcon={<ViewModule />} onClick={onMenuClick} sidebarIsOpen={open} />
       <MenuItemLink to="/presenca" primaryText="Controle de Presença" leftIcon={<CheckCircle />} onClick={onMenuClick} sidebarIsOpen={open} />
       <MenuItemLink to="/culto" primaryText="Cultos e Eventos" leftIcon={<Event />} onClick={onMenuClick} sidebarIsOpen={open} />
       {/* <MenuItemLink to="/acompanhamentoEstudo" primaryText="Acompanhamento de Estudos" leftIcon={<School />} onClick={onMenuClick} sidebarIsOpen={open} /> */}

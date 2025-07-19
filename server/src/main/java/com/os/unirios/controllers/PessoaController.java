@@ -99,9 +99,15 @@ public class PessoaController {
     }
     
     @GetMapping(value = "/cards")
-    public Map<String, Object> getPessoasCards() {
-        List<Pessoa> pessoas = service.findAll();
-        List<PessoaCardResponse> cards = pessoas.stream()
+    public ResponseEntity<Map<String, Object>> getPessoasCards() {
+        try {
+            List<Pessoa> pessoas = service.findAll();
+            // Filtrar apenas visitantes
+            List<Pessoa> visitantes = pessoas.stream()
+                .filter(pessoa -> pessoa.getTipo() != null && pessoa.getTipo().name().equals("VISITANTE"))
+                .collect(Collectors.toList());
+        
+        List<PessoaCardResponse> cards = visitantes.stream()
             .map(pessoa -> {
                 PessoaCardResponse card = new PessoaCardResponse();
                 card.setId(pessoa.getId());
@@ -156,7 +162,12 @@ public class PessoaController {
         Map<String, Object> result = new HashMap<>();
         result.put("data", cards);
         result.put("total", cards.size());
-        return result;
+        return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Erro ao buscar visitantes: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
     
     @GetMapping(value = "/{id}")
