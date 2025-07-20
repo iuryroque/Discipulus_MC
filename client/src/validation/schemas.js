@@ -242,6 +242,129 @@ export const acompanhamentoEstudoSchema = z.object({
     .or(z.literal(''))
 });
 
+// Esquema para Culto Recorrente
+export const cultoRecorrenteSchema = z.object({
+  titulo: z.string()
+    .min(1, 'Título é obrigatório')
+    .min(3, 'Título deve ter pelo menos 3 caracteres')
+    .max(100, 'Título deve ter no máximo 100 caracteres'),
+  hora: z.union([
+    // Aceita string
+    z.string()
+      .min(1, 'Hora é obrigatória')
+      .refine((val) => {
+        // Remove espaços em branco
+        const cleanVal = val.trim();
+        
+        // Verifica se está vazio
+        if (!cleanVal) {
+          return false;
+        }
+        
+        // Aceita formatos: HH:MM, H:MM, HH:MM:SS, HH:MM:SS.SSS
+        // Também aceita formatos com T (ISO) como 19:30:00.000Z
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\.[0-9]{3})?)?(Z)?$/;
+        
+        if (!timeRegex.test(cleanVal)) {
+          return false;
+        }
+        
+        // Extrai as partes da hora
+        const timePart = cleanVal.split('T')[0]; // Remove parte T se existir
+        const parts = timePart.split(':');
+        const hours = parseInt(parts[0], 10);
+        const minutes = parseInt(parts[1], 10);
+        
+        // Validação de horas e minutos
+        if (hours < 0 || hours > 23) {
+          return false;
+        }
+        
+        if (minutes < 0 || minutes > 59) {
+          return false;
+        }
+        
+        // Se tem segundos, valida também
+        if (parts.length > 2) {
+          const seconds = parseInt(parts[2], 10);
+          if (seconds < 0 || seconds > 59) {
+            return false;
+          }
+        }
+        
+        return true;
+      }, 'Formato de hora inválido. Use HH:MM (ex: 19:30)'),
+    
+    // Aceita objeto Date (que o TimeInput pode retornar)
+    z.date()
+      .refine((date) => {
+        return date instanceof Date && !isNaN(date.getTime());
+      }, 'Data/hora inválida')
+  ])
+  .transform((val) => {
+    // Se é um objeto Date, converte para string HH:MM
+    if (val instanceof Date) {
+      const hours = val.getHours().toString().padStart(2, '0');
+      const minutes = val.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    
+    // Se é string, normaliza para HH:MM
+    const cleanVal = val.trim();
+    const timePart = cleanVal.split('T')[0];
+    const parts = timePart.split(':');
+    
+    // Retorna apenas HH:MM
+    return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+  }),
+  local: z.string()
+    .min(1, 'Local é obrigatório')
+    .max(100, 'Local deve ter no máximo 100 caracteres'),
+  descricao: z.string()
+    .max(500, 'Descrição deve ter no máximo 500 caracteres')
+    .optional()
+    .or(z.literal('')),
+  pregador: z.string()
+    .max(100, 'Pregador deve ter no máximo 100 caracteres')
+    .optional()
+    .or(z.literal('')),
+  status: z.enum(['Agendado', 'Realizado', 'Cancelado'], {
+    errorMap: () => ({ message: 'Status deve ser Agendado, Realizado ou Cancelado' })
+  }).default('Agendado'),
+  observacoes: z.string()
+    .max(1000, 'Observações devem ter no máximo 1000 caracteres')
+    .optional()
+    .or(z.literal('')),
+  diaSemana: z.enum(['DOMINGO', 'SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO'], {
+    errorMap: () => ({ message: 'Selecione um dia da semana válido' })
+  }),
+  dataInicio: z.string()
+    .min(1, 'Data de início é obrigatória')
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: 'Data de início deve ser uma data válida'
+    }),
+  dataFim: z.string()
+    .optional()
+    .refine((val) => !val || !isNaN(Date.parse(val)), {
+      message: 'Data de fim deve ser uma data válida'
+    })
+    .or(z.literal('')),
+  ativo: z.boolean().default(true)
+}).superRefine((data, ctx) => {
+  // Validação: se dataFim fornecida, deve ser posterior à dataInicio
+  if (data.dataFim && data.dataInicio) {
+    const inicio = new Date(data.dataInicio);
+    const fim = new Date(data.dataFim);
+    if (fim <= inicio) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'A data de fim deve ser posterior à data de início',
+        path: ['dataFim']
+      });
+    }
+  }
+});
+
 // Esquema para Alertas
 export const alertasSchema = z.object({
   pessoa: z.object({

@@ -103,14 +103,15 @@ export default {
         }).then(({ json }) => ({ data: json }));
     },
 
-    create: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}`, {
+    create: (resource, params) => {
+        // Endpoint padrão para criação
+        return httpClient(`${apiUrl}/${resource}`, {
             method: 'POST',
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({
             data: { ...params.data, id: json.id },
-           
-        })),
+        }));
+    },
 
     delete: (resource, params) =>
         
@@ -124,5 +125,32 @@ export default {
             method: 'DELETE',
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({ data: json }));
+    },
+
+    // Método customizado para operações especiais
+    custom: (resource, params) => {
+        // Geração de cultos para uma configuração específica
+        if (resource === 'culto-recorrente' && params.action.includes('/gerar-cultos')) {
+            const configId = params.action.split('/')[0];
+            return httpClient(`${apiUrl}/culto-recorrente/${configId}/gerar-cultos`, {
+                method: 'POST',
+                body: JSON.stringify(params.data),
+            }).then(({ json }) => ({
+                data: json,
+            }));
+        }
+        
+        // Geração de cultos para o próximo mês
+        if (resource === 'culto-recorrente' && params.action === 'gerar-cultos-proximo-mes') {
+            return httpClient(`${apiUrl}/culto-recorrente/gerar-cultos-proximo-mes`, {
+                method: 'POST',
+                body: JSON.stringify(params.data),
+            }).then(({ json }) => ({
+                data: json,
+            }));
+        }
+        
+        // Fallback para outras operações customizadas
+        return Promise.reject(new Error(`Operação customizada não suportada: ${params.action}`));
     },
 };
