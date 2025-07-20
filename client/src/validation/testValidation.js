@@ -108,3 +108,73 @@ if (typeof window !== 'undefined') {
   window.testValidationMessages = testValidationMessages;
   window.testSchema = testSchema;
 } 
+
+// Teste de validação para culto recorrente
+import { cultoRecorrenteSchema } from './schemas';
+
+// Teste de validação de hora
+const testHoraValidation = () => {
+  console.log('=== Teste de Validação de Hora ===');
+  
+  const testCases = [
+    '19:30',
+    '09:15',
+    '23:59',
+    '00:00',
+    '7:30',
+    '19:30:00',
+    '25:00', // inválido
+    '19:60', // inválido
+    '19', // inválido
+    '19:30:45', // válido
+    ''
+  ];
+
+  testCases.forEach(hora => {
+    try {
+      const result = cultoRecorrenteSchema.shape.hora.parse(hora);
+      console.log(`✅ "${hora}" - VÁLIDO`);
+    } catch (error) {
+      console.log(`❌ "${hora}" - INVÁLIDO: ${error.message}`);
+    }
+  });
+};
+
+// Teste completo do schema
+const testCompleteSchema = () => {
+  console.log('\n=== Teste Completo do Schema ===');
+  
+  const validData = {
+    titulo: 'Culto de Domingo',
+    hora: '19:30',
+    local: 'Templo Principal',
+    descricao: 'Culto dominical',
+    pregador: 'Pr. João',
+    status: 'Agendado',
+    observacoes: 'Observações do culto',
+    diaSemana: 'DOMINGO',
+    dataInicio: '2025-01-01',
+    dataFim: '2025-12-31',
+    ativo: true
+  };
+
+  try {
+    const result = cultoRecorrenteSchema.parse(validData);
+    console.log('✅ Schema válido:', result);
+  } catch (error) {
+    console.log('❌ Erro no schema:', error.errors);
+  }
+};
+
+// Executar testes
+if (typeof window !== 'undefined') {
+  // Executar no browser
+  window.testHoraValidation = testHoraValidation;
+  window.testCompleteSchema = testCompleteSchema;
+  
+  console.log('Testes disponíveis:');
+  console.log('- testHoraValidation()');
+  console.log('- testCompleteSchema()');
+}
+
+export { testCompleteSchema, testHoraValidation };

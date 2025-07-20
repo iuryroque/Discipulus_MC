@@ -23,17 +23,18 @@ import {
     Typography
 } from '@mui/material';
 import React, { useState } from 'react';
-import { useLogin, useNotify } from 'react-admin';
+import { useLogin, useNotify, useTranslate } from 'react-admin';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     
     const login = useLogin();
     const notify = useNotify();
+    const translate = useTranslate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,7 +43,7 @@ const LoginPage = () => {
 
         try {
             await login({ username, password });
-            notify('Login realizado com sucesso!', { type: 'success' });
+            notify(translate('ra.notification.login_success'), { type: 'success' });
         } catch (error) {
             setError('Usuário ou senha incorretos. Tente novamente.');
             notify('Erro na autenticação', { type: 'error' });

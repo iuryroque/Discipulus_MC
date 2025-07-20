@@ -92,10 +92,11 @@ const CurriculoEstudoCreate = (props) => {
     };
 
     return (
-        <Create {...props} onSuccess={onSuccess}>
+        <Create {...props}>
             <SimpleForm 
                 onSubmit={handleSubmit}
                 onChange={handleFormChange}
+                onSuccess={onSuccess}
                 toolbar={<CustomToolbar />}
                 sx={{
                     '& .RaSimpleFormForm': {

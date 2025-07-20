@@ -19,9 +19,11 @@ import {
     Typography
 } from '@mui/material';
 import React from 'react';
-import { useGetList } from 'react-admin';
+import { useGetList, useTranslate } from 'react-admin';
 
 const Dashboard = () => {
+    const translate = useTranslate();
+
     // Buscar dados para o dashboard
     const { data: pessoas, isLoading: loadingPessoas } = useGetList('pessoa', {
         pagination: { page: 1, perPage: 1000 }
@@ -38,16 +40,6 @@ const Dashboard = () => {
     const { data: alertas, isLoading: loadingAlertas } = useGetList('alertas', {
         pagination: { page: 1, perPage: 1000 }
     });
-
-    const isLoading = loadingPessoas || loadingCultos || loadingAcompanhamentos || loadingAlertas;
-
-    if (isLoading) {
-        return (
-            <Box sx={{ p: 3 }}>
-                <LinearProgress />
-            </Box>
-        );
-    }
 
     // Calcular estatísticas
     const totalPessoas = pessoas?.length || 0;
@@ -259,10 +251,10 @@ const Dashboard = () => {
                                             <activity.icon />
                                         </Avatar>
                                         <Box sx={{ flex: 1 }}>
-                                            <Typography variant="body2" fontWeight={600}>
+                                            <Typography variant="subtitle2" fontWeight={600}>
                                                 {activity.title}
                                             </Typography>
-                                            <Typography variant="caption" color="text.secondary">
+                                            <Typography variant="body2" color="text.secondary">
                                                 {activity.description}
                                             </Typography>
                                         </Box>

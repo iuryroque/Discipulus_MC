@@ -94,8 +94,8 @@ const AlertasCreate = props => {
     };
 
     return (
-        <Create {...props} onSuccess={onSuccess}>
-            <SimpleForm onSubmit={handleSubmit} onChange={handleFormChange} toolbar={<CustomToolbar />}>
+        <Create {...props}>
+            <SimpleForm onSubmit={handleSubmit} onChange={handleFormChange} onSuccess={onSuccess} toolbar={<CustomToolbar />}>
                 <Box sx={{ p: 3 }}>
                     {/* Header */}
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

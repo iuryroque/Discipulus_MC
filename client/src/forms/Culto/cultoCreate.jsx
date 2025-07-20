@@ -107,9 +107,10 @@ const CultoCreate = (props) => {
     };
 
     return (
-        <Create {...props} onSuccess={onSuccess}>
+        <Create {...props}>
             <SimpleForm 
                 validate={validateCulto}
+                onSuccess={onSuccess}
                 toolbar={<CustomToolbar />}
                 sx={{
                     '& .RaSimpleFormForm': {
