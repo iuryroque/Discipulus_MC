@@ -21,6 +21,7 @@ import {
     LibraryBooks,
     Notifications,
     People,
+    Repeat,
     School,
     TaskAlt
 } from '@mui/icons-material';
@@ -35,6 +36,9 @@ import alertasList from './forms/Alertas/alertasList';
 import cultoCreate from './forms/Culto/cultoCreate';
 import cultoEdit from './forms/Culto/cultoEdit';
 import cultoList from './forms/Culto/cultoList';
+import cultoRecorrenteCreate from './forms/Culto/cultoRecorrenteCreate';
+import cultoRecorrenteEdit from './forms/Culto/cultoRecorrenteEdit';
+import cultoRecorrenteList from './forms/Culto/cultoRecorrenteList';
 import curriculoEstudoCreate from './forms/CurriculoEstudo/curriculoEstudoCreate';
 import curriculoEstudoEdit from './forms/CurriculoEstudo/curriculoEstudoEdit';
 import curriculoEstudoList from './forms/CurriculoEstudo/curriculoEstudoList';
@@ -77,6 +81,7 @@ function App() {
         <Resource name="pessoa/cards" list={pessoaCardList} icon={People} options={{ label: 'Acompanhamento de Visitantes' }} />
         <Resource name="presenca" list={presencaList} create={presencaCreate} edit={presencaEdit} show={presencaShow} icon={CheckCircle} options={{ label: 'Controle de Presença' }} />
         <Resource name="culto" list={cultoList} create={cultoCreate} edit={cultoEdit} icon={Event} options={{ label: 'Cultos e Eventos' }} />
+        <Resource name="culto-recorrente" list={cultoRecorrenteList} create={cultoRecorrenteCreate} edit={cultoRecorrenteEdit} icon={Repeat} options={{ label: 'Cultos Recorrentes' }} />
         <Resource name="acompanhamentoEstudo" list={acompanhamentoEstudoList} create={acompanhamentoEstudoCreate} edit={acompanhamentoEstudoEdit} icon={School} options={{ label: 'Acompanhamento de Estudos' }} />
         <Resource name="curriculoEstudo" list={curriculoEstudoList} create={curriculoEstudoCreate} edit={curriculoEstudoEdit} icon={LibraryBooks} options={{ label: 'Estudos' }} />
         <Resource name="licoesCurriculo" list={licoesCurriculoList} create={licoesCurriculoCreate} edit={licoesCurriculoEdit} icon={Book} options={{ label: 'Lições' }} />

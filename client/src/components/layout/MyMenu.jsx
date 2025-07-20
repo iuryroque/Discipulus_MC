@@ -1,10 +1,11 @@
 import {
-    CheckCircle,
-    Event,
-    Home,
-    Notifications,
-    People,
-    ViewModule
+  CheckCircle,
+  Event,
+  Home,
+  Notifications,
+  People,
+  Repeat,
+  ViewModule
 } from '@mui/icons-material';
 import { Collapse, List } from '@mui/material';
 import React, { useState } from 'react';
@@ -29,6 +30,7 @@ const MyMenu = ({ onMenuClick }) => {
       <MenuItemLink to="/pessoa/cards" primaryText="Visitantes" leftIcon={<ViewModule />} onClick={onMenuClick} sidebarIsOpen={open} />
       <MenuItemLink to="/presenca" primaryText="Controle de Presença" leftIcon={<CheckCircle />} onClick={onMenuClick} sidebarIsOpen={open} />
       <MenuItemLink to="/culto" primaryText="Cultos e Eventos" leftIcon={<Event />} onClick={onMenuClick} sidebarIsOpen={open} />
+      <MenuItemLink to="/culto-recorrente" primaryText="Cultos Recorrentes" leftIcon={<Repeat />} onClick={onMenuClick} sidebarIsOpen={open} />
       {/* <MenuItemLink to="/acompanhamentoEstudo" primaryText="Acompanhamento de Estudos" leftIcon={<School />} onClick={onMenuClick} sidebarIsOpen={open} /> */}
       
       {/* --- Início do Submenu de Currículo --- */}
