@@ -1,0 +1,62 @@
+-- Script para criar a tabela CULTO_RECORRENTE
+-- Execute este script no seu banco de dados
+
+CREATE TABLE CULTO_RECORRENTE (
+    CULTO_RECORRENTE_ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+    CULTO_RECORRENTE_TITULO VARCHAR(100) NOT NULL,
+    CULTO_RECORRENTE_NOME VARCHAR(100),
+    CULTO_RECORRENTE_TIPO VARCHAR(50),
+    CULTO_RECORRENTE_HORA VARCHAR(5) NOT NULL, -- Formato HH:mm
+    CULTO_RECORRENTE_LOCAL VARCHAR(100) NOT NULL,
+    CULTO_RECORRENTE_DESCRICAO TEXT,
+    CULTO_RECORRENTE_PREGADOR VARCHAR(100) NOT NULL,
+    CULTO_RECORRENTE_STATUS VARCHAR(20) DEFAULT 'Agendado',
+    CULTO_RECORRENTE_OBSERVACOES TEXT,
+    CULTO_RECORRENTE_DIAS_SEMANA TEXT NOT NULL, -- JSON array com dias da semana
+    CULTO_RECORRENTE_DATA_INICIO DATE NOT NULL,
+    CULTO_RECORRENTE_DATA_FIM DATE NULL,
+    CULTO_RECORRENTE_ATIVO BOOLEAN DEFAULT TRUE,
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CREATED_BY VARCHAR(100),
+    UPDATED_BY VARCHAR(100)
+);
+
+-- Índices para melhor performance
+CREATE INDEX idx_culto_recorrente_ativo ON CULTO_RECORRENTE(CULTO_RECORRENTE_ATIVO);
+CREATE INDEX idx_culto_recorrente_data_inicio ON CULTO_RECORRENTE(CULTO_RECORRENTE_DATA_INICIO);
+CREATE INDEX idx_culto_recorrente_data_fim ON CULTO_RECORRENTE(CULTO_RECORRENTE_DATA_FIM);
+
+-- Comentários sobre a estrutura
+-- CULTO_RECORRENTE_DIAS_SEMANA: Armazena um array JSON com os dias da semana
+-- Exemplo: [1,4,7] representa Domingo, Quarta e Sábado
+-- 1 = Domingo, 2 = Segunda, 3 = Terça, 4 = Quarta, 5 = Quinta, 6 = Sexta, 7 = Sábado
+
+-- CULTO_RECORRENTE_HORA: Formato HH:mm (ex: 19:30, 09:00)
+
+-- Exemplo de inserção de dados de teste:
+-- INSERT INTO CULTO_RECORRENTE (
+--     CULTO_RECORRENTE_TITULO,
+--     CULTO_RECORRENTE_NOME,
+--     CULTO_RECORRENTE_TIPO,
+--     CULTO_RECORRENTE_HORA,
+--     CULTO_RECORRENTE_LOCAL,
+--     CULTO_RECORRENTE_DESCRICAO,
+--     CULTO_RECORRENTE_PREGADOR,
+--     CULTO_RECORRENTE_STATUS,
+--     CULTO_RECORRENTE_DIAS_SEMANA,
+--     CULTO_RECORRENTE_DATA_INICIO,
+--     CULTO_RECORRENTE_DATA_FIM
+-- ) VALUES (
+--     'Culto de Domingo',
+--     'Culto Dominical',
+--     'Culto',
+--     '19:30',
+--     'Templo Principal',
+--     'Culto dominical com louvor e pregação',
+--     'Pr. João Silva',
+--     'Agendado',
+--     '[1]',
+--     '2024-01-01',
+--     '2024-12-31'
+-- ); 
