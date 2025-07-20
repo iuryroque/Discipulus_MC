@@ -42,15 +42,28 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 		String requestURI = request.getRequestURI();
 
-		String[] urisPublics = { "/api/auth/", "/api/test/","/v3/api-docs","/swagger-ui/","/swagger-ui.html", "/redoc", "/redoc/"};
+		// Lista de URIs públicas que não precisam de autenticação
+		String[] urisPublics = { 
+			"/api/auth/", 
+			"/api/test/",
+			"/v3/api-docs",
+			"/swagger-ui/",
+			"/swagger-ui.html", 
+			"/redoc", 
+			"/redoc/", 
+			"/culto-recorrente/"
+		};
 		
+		// Verifica se a URI atual é pública
 		for (String uri : urisPublics) {
 			if (requestURI.startsWith(uri)) {
-				filterChain.doFilter(request, response); // Passa para o próximo filtro sem fazer nada
+				// Para endpoints públicos, passa direto sem verificar JWT
+				filterChain.doFilter(request, response);
 				return;
 			}
 		}
 
+		// Para endpoints que não são públicos, verifica o token JWT
 		String jwt = parseJwt(request);
 		
 		if (jwt == null || !jwtUtils.validateJwtToken(jwt)) {
@@ -65,15 +78,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		// Recupera a URI e o método HTTP
-		String uri = request.getRequestURI();
-		String httpMethod = request.getMethod();
-
 		User user = userRepository.findByUsername(username).orElseThrow(() -> new UnAuthenticated("Invalid or missing JWT token for User."));
 
-		
 		if (!user.isAdmin()) {
-			if (!hasAccess(user.getProfiles(), uri, httpMethod)) {
+			if (!hasAccess(user.getProfiles(), requestURI, request.getMethod())) {
 				throw new UnAuthorized("User does not have access to the resource.");
 			}
 		}

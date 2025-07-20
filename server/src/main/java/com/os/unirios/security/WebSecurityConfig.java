@@ -65,13 +65,14 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
           auth.requestMatchers("/api/auth/**").permitAll()
               .requestMatchers("/api/test/**").permitAll()
               .requestMatchers("/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html", "/redoc", "/redoc/**").permitAll()
+              .requestMatchers("/culto-recorrente/**").permitAll()
               .anyRequest().authenticated()
         );
     
     http.authenticationProvider(authenticationProvider());
 
+    // Aplica o filtro JWT apenas para endpoints que não são públicos
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
 
     return http.build();
   }
