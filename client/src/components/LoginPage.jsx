@@ -22,6 +22,7 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
 import { useLogin, useNotify, useTranslate } from 'react-admin';
 
@@ -35,6 +36,7 @@ const LoginPage = () => {
     const login = useLogin();
     const notify = useNotify();
     const translate = useTranslate();
+    const theme = useTheme();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -43,7 +45,7 @@ const LoginPage = () => {
 
         try {
             await login({ username, password });
-            notify(translate('ra.notification.login_success'), { type: 'success' });
+            notify('ra.notification.login_success', { type: 'success' });
         } catch (error) {
             setError('Usuário ou senha incorretos. Tente novamente.');
             notify('Erro na autenticação', { type: 'error' });
@@ -65,7 +67,7 @@ const LoginPage = () => {
         <Box
             sx={{
                 minHeight: '100vh',
-                backgroundColor: '#1976D2',
+                backgroundColor: theme.palette.primary.main,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -99,7 +101,7 @@ const LoginPage = () => {
                                     width: 80,
                                     height: 80,
                                     borderRadius: '50%',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: theme.palette.background.paper,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -109,7 +111,7 @@ const LoginPage = () => {
                             >
                                 <img src={'/favicon.png'} alt="Ícone de pessoas" style={{ width: 48, height: 48 }} />
                             </Box>
-                            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: '#2c3e50' }}>
+                            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
                                 Discipulus
                             </Typography>
                             <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
@@ -173,9 +175,9 @@ const LoginPage = () => {
                                 sx={{
                                     py: 1.5,
                                     borderRadius: 2,
-                                    backgroundColor: '#1976D2',
+                                    backgroundColor: theme.palette.primary.main,
                                     '&:hover': {
-                                        backgroundColor: '#0D47A1'
+                                        backgroundColor: theme.palette.primary.dark
                                     }
                                 }}
                             >
@@ -186,6 +188,31 @@ const LoginPage = () => {
                                 )}
                             </Button>
                         </form>
+
+                        {/* Botão de login rápido */}
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            color="primary"
+                            sx={{ mt: 2, py: 1.5, borderRadius: 2, fontWeight: 700 }}
+                            onClick={async () => {
+                                setUsername('master');
+                                setPassword('1');
+                                setLoading(true);
+                                setError('');
+                                try {
+                                    await login({ username: 'master', password: '1' });
+                                    notify(translate('ra.notification.login_success'), { type: 'success' });
+                                } catch (error) {
+                                    setError('Usuário ou senha incorretos. Tente novamente.');
+                                    notify('Erro na autenticação', { type: 'error' });
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }}
+                        >
+                            Login rápido (master/1)
+                        </Button>
 
                         {/* Footer */}
                         <Box sx={{ textAlign: 'center', mt: 3 }}>
@@ -208,7 +235,7 @@ const LoginPage = () => {
                         display: { xs: 'none', lg: 'block' }
                     }}
                 >
-                    <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, color: '#2c3e50', mb: 3 }}>
+                    <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 3 }}>
                         Recursos do Sistema
                     </Typography>
                     
@@ -237,7 +264,7 @@ const LoginPage = () => {
                                         width: 50,
                                         height: 50,
                                         borderRadius: '50%',
-                                        backgroundColor: '#1976D2',
+                                        backgroundColor: theme.palette.primary.main,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -247,7 +274,7 @@ const LoginPage = () => {
                                     <feature.icon sx={{ fontSize: 24, color: 'white' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50', mb: 0.5 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 0.5 }}>
                                         {feature.title}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">

@@ -166,6 +166,9 @@ const ptMessages = {
       canceled: 'Ação cancelada',
       logged_out: 'Sua sessão foi finalizada, por favor reconecte.',
       login_success: 'Login realizado com sucesso!',
+      'login_success': 'Login realizado com sucesso!',
+      'Login realizado com sucesso!': 'Login realizado com sucesso!',
+      'ra.notification.login_success': 'Login realizado com sucesso!',
       "Configuração de culto recorrente criada com sucesso!": "Configuração de culto recorrente criada com sucesso!",
     },
     validation: {
@@ -185,8 +188,6 @@ const ptMessages = {
 
 
 
-const i18nProvider = polyglotI18nProvider(locale => 
-  ptMessages
-);
+const i18nProvider = polyglotI18nProvider(() => ptMessages, 'pt');
 
 export default i18nProvider

@@ -1,10 +1,11 @@
+import { deepmerge } from '@mui/utils';
 import { defaultTheme } from 'react-admin';
 
 const myTheme = {
     ...defaultTheme,
-    palette: {
+    palette: deepmerge(defaultTheme.palette, {
         primary: {
-            main: '#1976D2', // Azul sólido - confiança e estabilidade
+            main: '#2563eb', // Azul sólido - NOVA cor principal
             light: '#42A5F5',
             dark: '#0D47A1',
             contrastText: '#ffffff',
@@ -27,23 +28,42 @@ const myTheme = {
             main: '#4CAF50', // Verde sólido para sucesso
             light: '#81C784',
             dark: '#388E3C',
+            contrastText: '#fff',
         },
         warning: {
             main: '#FF9800', // Laranja sólido para aviso
             light: '#FFB74D',
             dark: '#F57C00',
+            contrastText: '#fff',
         },
         error: {
             main: '#F44336', // Vermelho sólido para erro
             light: '#E57373',
             dark: '#D32F2F',
+            contrastText: '#fff',
         },
         info: {
             main: '#2196F3', // Azul claro sólido para informação
             light: '#64B5F6',
             dark: '#1976D2',
+            contrastText: '#fff',
         },
-    },
+        common: {
+            white: '#fff',
+            black: '#000',
+        },
+        avatar: {
+            laranja: '#f59e42',
+            azul: '#2563eb',
+            roxo: '#6366f1',
+        },
+        chip: {
+            visitante: '#f59e42',
+            membro: '#2563eb',
+            ativo: '#4CAF50',
+            inativo: '#F44336',
+        },
+    }),
     typography: {
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
         h1: {
@@ -98,8 +118,8 @@ const myTheme = {
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#1976D2',
-                    boxShadow: '0 2px 10px rgba(25, 118, 210, 0.3)',
+                    backgroundColor: '#2563eb',
+                    boxShadow: '0 2px 10px rgba(37, 99, 235, 0.3)',
                 },
             },
         },
@@ -115,16 +135,16 @@ const myTheme = {
                     },
                 },
                 contained: {
-                    backgroundColor: '#1976D2',
+                    backgroundColor: '#2563eb',
                     '&:hover': {
                         backgroundColor: '#0D47A1',
                     },
                 },
                 outlined: {
-                    borderColor: '#1976D2',
-                    color: '#1976D2',
+                    borderColor: '#2563eb',
+                    color: '#2563eb',
                     '&:hover': {
-                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
                     },
                 },
             },
