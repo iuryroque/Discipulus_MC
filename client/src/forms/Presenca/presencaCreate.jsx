@@ -10,17 +10,27 @@ import {
     ReferenceInput,
     SelectInput,
     SimpleForm,
-    TextInput
+    TextInput,
+    useGetList
 } from 'react-admin'
+import { useLocation } from 'react-router-dom'
 import { presencaSchema } from '../../validation/schemas'
 import { useZodValidation } from '../../validation/useZodValidation'
 
 const PresencaCreate = props => {
     const validate = useZodValidation(presencaSchema);
+    const location = useLocation();
+    const cultoIdParam = location?.state?.cultoId || '';
+
+    // Buscar cultos agendados
+    const { data: cultos = [], isLoading: loadingCultos } = useGetList('culto', {
+        pagination: { page: 1, perPage: 100 },
+        filter: { status: 'Agendado' }
+    });
 
     return (
         <Create {...props} title="Nova Presença">
-            <SimpleForm validate={validate}>
+            <SimpleForm validate={validate} defaultValues={{ culto: cultoIdParam ? { id: cultoIdParam } : undefined, pessoa: location?.state?.pessoaId ? { id: location.state.pessoaId } : undefined }}>
                 <Grid container spacing={3}>
                     {/* Informações Principais */}
                     <Grid item xs={12} md={8}>
@@ -36,12 +46,12 @@ const PresencaCreate = props => {
                                     <EventIcon />
                                     Informações da Presença
                                 </Typography>
-                                
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={6}>
                                         <ReferenceInput 
                                             source="pessoa.id" 
                                             reference="pessoa"
+                                            defaultValue={location?.state?.pessoaId}
                                         >
                                             <SelectInput 
                                                 optionText="nomeCompleto" 
@@ -52,7 +62,22 @@ const PresencaCreate = props => {
                                             />
                                         </ReferenceInput>
                                     </Grid>
-                                    
+                                    <Grid item xs={12} sm={6}>
+                                        <ReferenceInput
+                                            source="culto.id"
+                                            reference="culto"
+                                            label="Culto"
+                                            defaultValue={cultoIdParam}
+                                            disabled={!!cultoIdParam}
+                                        >
+                                            <SelectInput 
+                                                optionText={r => `${r.titulo} - ${new Date(r.dataHora).toLocaleString('pt-BR')}`}
+                                                variant="outlined"
+                                                helperText="Selecione o culto"
+                                                fullWidth
+                                            />
+                                        </ReferenceInput>
+                                    </Grid>
                                     <Grid item xs={12} sm={6}>
                                         <SelectInput 
                                             source="presente" 
@@ -86,7 +111,6 @@ const PresencaCreate = props => {
                                     <NoteIcon />
                                     Observações
                                 </Typography>
-                                
                                 <TextInput 
                                     source="observacoes" 
                                     variant="outlined"
@@ -114,7 +138,6 @@ const PresencaCreate = props => {
                                     <PersonIcon />
                                     Informações do Sistema
                                 </Typography>
-                                
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={6} md={4}>
                                         <Box sx={{ 
@@ -132,7 +155,6 @@ const PresencaCreate = props => {
                                             </Typography>
                                         </Box>
                                     </Grid>
-                                    
                                     <Grid item xs={12} sm={6} md={4}>
                                         <Box sx={{ 
                                             p: 2, 
@@ -149,7 +171,6 @@ const PresencaCreate = props => {
                                             </Typography>
                                         </Box>
                                     </Grid>
-                                    
                                     <Grid item xs={12} sm={6} md={4}>
                                         <Box sx={{ 
                                             p: 2, 

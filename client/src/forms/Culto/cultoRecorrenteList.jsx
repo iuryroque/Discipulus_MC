@@ -23,6 +23,8 @@ import {
     Tooltip,
     Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 import {
     CreateButton,
@@ -108,6 +110,7 @@ const ActionButtons = () => {
     const dataProvider = useDataProvider();
     const notify = useNotify();
     const [loading, setLoading] = useState(false);
+    const theme = useTheme();
 
     const handleGerarCultos = async () => {
         setLoading(true);
@@ -152,9 +155,9 @@ const ActionButtons = () => {
                     disabled={loading}
                     size="small"
                     sx={{ 
-                        color: '#4CAF50',
+                        color: theme.palette.success?.main || '#4CAF50',
                         '&:hover': {
-                            backgroundColor: 'rgba(76, 175, 80, 0.1)'
+                            backgroundColor: theme.palette.success?.light || '#81C784'
                         }
                     }}
                 >
@@ -165,43 +168,47 @@ const ActionButtons = () => {
     );
 };
 
-const StatisticsCard = ({ title, value, icon, color, subtitle }) => (
-    <Card elevation={1} sx={{ height: '100%' }}>
-        <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ 
-                    backgroundColor: `${color}.light`, 
-                    color: `${color}.main`,
-                    p: 1, 
-                    borderRadius: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    {icon}
-                </Box>
-                <Box>
-                    <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: `${color}.main` }}>
-                        {value}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                        {title}
-                    </Typography>
-                    {subtitle && (
-                        <Typography variant="caption" color="text.secondary">
-                            {subtitle}
+const StatisticsCard = ({ title, value, icon, color, subtitle }) => {
+    const theme = useTheme();
+    return (
+        <Card elevation={1} sx={{ height: '100%' }}>
+            <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ 
+                        backgroundColor: theme.palette[color]?.light || theme.palette.primary.light, 
+                        color: theme.palette[color]?.main || theme.palette.primary.main,
+                        p: 1, 
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        {icon}
+                    </Box>
+                    <Box>
+                        <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: theme.palette[color]?.main || theme.palette.primary.main }}>
+                            {value}
                         </Typography>
-                    )}
+                        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                            {title}
+                        </Typography>
+                        {subtitle && (
+                            <Typography variant="caption" color="text.secondary">
+                                {subtitle}
+                            </Typography>
+                        )}
+                    </Box>
                 </Box>
-            </Box>
-        </CardContent>
-    </Card>
-);
+            </CardContent>
+        </Card>
+    );
+};
 
 const CultoRecorrenteList = props => {
     const dataProvider = useDataProvider();
     const notify = useNotify();
     const [loading, setLoading] = useState(false);
+    const theme = useTheme();
 
     // Buscar dados para estatísticas
     const { data: configs, isLoading: loadingConfigs } = useGetList('culto-recorrente', {
@@ -279,9 +286,9 @@ const CultoRecorrenteList = props => {
                                         onClick={handleGerarCultosProximoMes}
                                         disabled={loading}
                                         sx={{
-                                            backgroundColor: '#4CAF50',
+                                            backgroundColor: theme.palette.success?.main || '#4CAF50',
                                             '&:hover': {
-                                                backgroundColor: '#45a049'
+                                                backgroundColor: theme.palette.success?.dark || '#388E3C'
                                             }
                                         }}
                                     >
@@ -298,12 +305,12 @@ const CultoRecorrenteList = props => {
 
                                 {/* Informações sobre Jobs Agendados */}
                                 <Box sx={{ 
-                                    backgroundColor: 'rgba(25, 118, 210, 0.05)', 
+                                    backgroundColor: theme.palette.background.default, 
                                     p: 2, 
                                     borderRadius: 2,
-                                    border: '1px solid rgba(25, 118, 210, 0.1)'
+                                    border: `1px solid ${theme.palette.divider}`
                                 }}>
-                                    <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ color: '#1976D2' }}>
+                                    <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ color: theme.palette.primary.main }}>
                                         🕐 Jobs Agendados Ativos:
                                     </Typography>
                                     <Grid container spacing={1}>
@@ -399,7 +406,6 @@ const CultoRecorrenteList = props => {
                     <TextField 
                         source="titulo" 
                         label="Título" 
-                        alwaysOn
                         sx={{ fontWeight: 600 }}
                     />,
                     <TextField source="local" label="Local" />,
@@ -417,7 +423,7 @@ const CultoRecorrenteList = props => {
                 ]}
                 sx={{
                     '& .RaList-content': {
-                        backgroundColor: '#fafafa'
+                        backgroundColor: theme.palette.background.default
                     }
                 }}
             >
@@ -427,11 +433,11 @@ const CultoRecorrenteList = props => {
                     sx={{
                         '& .RaDatagrid-row': {
                             '&:hover': {
-                                backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                                backgroundColor: theme.palette.action.hover
                             }
                         },
                         '& .RaDatagrid-headerCell': {
-                            backgroundColor: '#f5f5f5',
+                            backgroundColor: theme.palette.grey[100],
                             fontWeight: 600
                         }
                     }}
@@ -444,19 +450,44 @@ const CultoRecorrenteList = props => {
                     
                     <FunctionField
                         label="Dia & Hora"
-                        render={record => (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Event color="action" fontSize="small" />
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500}>
-                                        {diasSemanaMap[record.diaSemana] || record.diaSemana}
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        {record.hora}
-                                    </Typography>
+                        render={record => {
+                            // Formatar dataInicio e hora
+                            let data = '';
+                            if (record.dataInicio) {
+                                try {
+                                    data = format(new Date(record.dataInicio), 'dd/MM/yyyy');
+                                } catch {}
+                            }
+                            let hora = record.hora;
+                            // Se vier como string ISO, tenta extrair hora
+                            if (typeof hora === 'string' && hora.includes('T')) {
+                                try {
+                                    const d = new Date(hora);
+                                    hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                                } catch {}
+                            } else if (typeof hora === 'string') {
+                                // Se vier como '19:45:00' ou '19:45', pega só os dois primeiros blocos
+                                const parts = hora.split(':');
+                                if (parts.length >= 2) {
+                                    hora = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+                                }
+                            } else if (hora instanceof Date) {
+                                hora = hora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                            }
+                            return (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Event color="action" fontSize="small" />
+                                    <Box>
+                                        <Typography variant="body2" fontWeight={500}>
+                                            {diasSemanaMap[record.diaSemana] || record.diaSemana} {data}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {hora}
+                                        </Typography>
+                                    </Box>
                                 </Box>
-                            </Box>
-                        )}
+                            );
+                        }}
                     />
                     
                     <FunctionField

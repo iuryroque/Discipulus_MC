@@ -16,6 +16,7 @@ import {
     Grid,
     Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
 import {
     BooleanInput,
@@ -36,7 +37,7 @@ import { useZodValidation } from '../../validation/useZodValidation';
 // Componente de toolbar customizado
 const CustomToolbar = () => {
     const redirect = useRedirect();
-    
+    const theme = useTheme();
     return (
         <Toolbar>
             <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
@@ -52,9 +53,9 @@ const CustomToolbar = () => {
                     label="Salvar Configuração"
                     icon={<Save />}
                     sx={{
-                        backgroundColor: '#1976D2',
+                        backgroundColor: theme.palette.primary.main,
                         '&:hover': {
-                            backgroundColor: '#0D47A1'
+                            backgroundColor: theme.palette.primary.dark
                         }
                     }}
                 />
@@ -75,7 +76,13 @@ const CultoRecorrenteCreate = (props) => {
     const handleValidate = (values) => {
         console.log('Valores recebidos pelo validate:', JSON.stringify(values, null, 2));
         console.log('Valor da hora:', values.hora, 'Tipo:', typeof values.hora);
-        
+        if (values.hora instanceof Date) {
+            console.log('Hora é um Date:', values.hora.toISOString());
+        } else if (typeof values.hora === 'string') {
+            console.log('Hora é uma string:', values.hora);
+        } else {
+            console.log('Hora em formato inesperado:', values.hora);
+        }
         const result = validate(values);
         setFormErrors(result);
         

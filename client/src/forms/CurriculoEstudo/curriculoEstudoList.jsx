@@ -35,12 +35,14 @@ import {
     TextField as RaTextField,
     ShowButton,
     useGetList,
-    useRedirect
+    useRedirect,
+    useTheme
 } from 'react-admin';
 import AuditList from '../../components/AuditList';
 
 // Componente para exibir currículo em formato de card
 const CurriculoCard = ({ record, onEdit, onDelete, onShow }) => {
+    const theme = useTheme();
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'ativo': return 'success';
@@ -83,7 +85,7 @@ const CurriculoCard = ({ record, onEdit, onDelete, onShow }) => {
             <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                        <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                             {record.nome}
                         </Typography>
                         <Chip
@@ -96,9 +98,9 @@ const CurriculoCard = ({ record, onEdit, onDelete, onShow }) => {
                     </Box>
                     <Avatar 
                         sx={{ 
-                            bgcolor: getStatusColor(record.status) === 'success' ? 'success.main' : 
-                                   getStatusColor(record.status) === 'error' ? 'error.main' : 
-                                   getStatusColor(record.status) === 'warning' ? 'warning.main' : 'grey.500'
+                            bgcolor: getStatusColor(record.status) === 'success' ? theme.palette.success.light : 
+                                   getStatusColor(record.status) === 'error' ? theme.palette.error.light : 
+                                   getStatusColor(record.status) === 'warning' ? theme.palette.warning.light : theme.palette.grey[200]
                         }}
                     >
                         <Book />
@@ -150,21 +152,21 @@ const CurriculoCard = ({ record, onEdit, onDelete, onShow }) => {
                     <IconButton 
                         size="small" 
                         onClick={() => onShow(record.id)}
-                        sx={{ color: 'primary.main' }}
+                        sx={{ color: theme.palette.primary.main }}
                     >
                         <Visibility />
                     </IconButton>
                     <IconButton 
                         size="small" 
                         onClick={() => onEdit(record.id)}
-                        sx={{ color: 'warning.main' }}
+                        sx={{ color: theme.palette.warning.main }}
                     >
                         <Edit />
                     </IconButton>
                     <IconButton 
                         size="small" 
                         onClick={() => onDelete(record.id)}
-                        sx={{ color: 'error.main' }}
+                        sx={{ color: theme.palette.error.main }}
                     >
                         <Delete />
                     </IconButton>
@@ -181,6 +183,7 @@ const CurriculoEstudoList = (props) => {
     const [statusFilter, setStatusFilter] = useState('');
     const [nivelFilter, setNivelFilter] = useState('');
     const redirect = useRedirect();
+    const theme = useTheme();
 
     const { data: curriculos, isLoading } = useGetList('curriculoEstudo', {
         pagination: { page: 1, perPage: 1000 }
@@ -236,7 +239,7 @@ const CurriculoEstudoList = (props) => {
             {/* Header */}
             <Box sx={{ mb: 4 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, color: '#2c3e50' }}>
+                    <Typography variant="h4" component="h1" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
                         Currículos de Estudo
                     </Typography>
                     <Button
@@ -332,7 +335,7 @@ const CurriculoEstudoList = (props) => {
             {/* Estatísticas Rápidas */}
             <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid item xs={12} sm={4}>
-                    <Card elevation={1} sx={{ backgroundColor: 'rgba(76, 175, 80, 0.1)' }}>
+                    <Card elevation={1} sx={{ backgroundColor: theme.palette.success.light }}>
                         <CardContent sx={{ textAlign: 'center' }}>
                             <Typography variant="h4" color="success.main" sx={{ fontWeight: 700 }}>
                                 {ativos}
@@ -344,7 +347,7 @@ const CurriculoEstudoList = (props) => {
                     </Card>
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                    <Card elevation={1} sx={{ backgroundColor: 'rgba(244, 67, 54, 0.1)' }}>
+                    <Card elevation={1} sx={{ backgroundColor: theme.palette.error.light }}>
                         <CardContent sx={{ textAlign: 'center' }}>
                             <Typography variant="h4" color="error.main" sx={{ fontWeight: 700 }}>
                                 {inativos}
@@ -356,7 +359,7 @@ const CurriculoEstudoList = (props) => {
                     </Card>
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                    <Card elevation={1} sx={{ backgroundColor: 'rgba(255, 152, 0, 0.1)' }}>
+                    <Card elevation={1} sx={{ backgroundColor: theme.palette.warning.light }}>
                         <CardContent sx={{ textAlign: 'center' }}>
                             <Typography variant="h4" color="warning.main" sx={{ fontWeight: 700 }}>
                                 {emDesenvolvimento}
@@ -402,7 +405,7 @@ const CurriculoEstudoList = (props) => {
 
             {filteredCurriculos.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 8 }}>
-                    <Book sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                    <Book sx={{ fontSize: 64, color: theme.palette.text.secondary, mb: 2 }} />
                     <Typography variant="h6" color="text.secondary" gutterBottom>
                         Nenhum currículo encontrado
                     </Typography>

@@ -18,6 +18,7 @@ import {
     Stack,
     Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
 import {
     Create,
@@ -35,6 +36,7 @@ import { useZodValidation } from '../../validation/useZodValidation';
 // Componente de toolbar customizado
 const CustomToolbar = () => {
     const redirect = useRedirect();
+    const theme = useTheme();
     
     return (
         <Toolbar>
@@ -51,9 +53,9 @@ const CustomToolbar = () => {
                     label="Salvar Currículo"
                     icon={<Save />}
                     sx={{
-                        backgroundColor: '#1976D2',
+                        backgroundColor: theme.palette.primary.main,
                         '&:hover': {
-                            backgroundColor: '#0D47A1'
+                            backgroundColor: theme.palette.primary.dark
                         }
                     }}
                 />
@@ -66,6 +68,7 @@ const CurriculoEstudoCreate = (props) => {
     const redirect = useRedirect();
     const [showPreview, setShowPreview] = useState(false);
     const [formData, setFormData] = useState({});
+    const theme = useTheme();
 
     // Hook de validação Zod
     const { validate, errors, isValid } = useZodValidation(curriculoEstudoSchema);
@@ -107,7 +110,7 @@ const CurriculoEstudoCreate = (props) => {
                 <Box sx={{ p: 3 }}>
                     {/* Header */}
                     <Box sx={{ mb: 4 }}>
-                        <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: '#2c3e50' }}>
+                        <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
                             Novo Currículo de Estudo
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
@@ -135,7 +138,7 @@ const CurriculoEstudoCreate = (props) => {
                     )}
 
                     <Collapse in={showPreview && !isValid}>
-                        <Paper sx={{ p: 2, mb: 3, backgroundColor: '#fff3cd', border: '1px solid #ffeaa7' }}>
+                        <Paper sx={{ p: 2, mb: 3, backgroundColor: theme.palette.warning.light, border: `1px solid ${theme.palette.warning.main}` }}>
                             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
                                 Erros de Validação:
                             </Typography>
@@ -284,11 +287,11 @@ const CurriculoEstudoCreate = (props) => {
                     </Card>
 
                     {/* Card de Resumo */}
-                    <Card sx={{ mb: 3, backgroundColor: '#e8f5e8', border: '1px solid #4caf50' }}>
+                    <Card sx={{ mb: 3, backgroundColor: theme.palette.success.light, border: `1px solid ${theme.palette.success.main}` }}>
                         <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <Flag sx={{ color: '#4caf50', mr: 1 }} />
-                                <Typography variant="h6" sx={{ color: '#4caf50' }}>
+                                <Flag sx={{ color: theme.palette.success.main, mr: 1 }} />
+                                <Typography variant="h6" sx={{ color: theme.palette.success.main }}>
                                     Resumo do Currículo
                                 </Typography>
                             </Box>

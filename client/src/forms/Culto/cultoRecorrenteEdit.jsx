@@ -15,6 +15,7 @@ import {
     Grid,
     Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React from 'react';
 import {
     BooleanInput,
@@ -35,7 +36,7 @@ import { useZodValidation } from '../../validation/useZodValidation';
 // Componente de toolbar customizado
 const CustomToolbar = () => {
     const redirect = useRedirect();
-    
+    const theme = useTheme();
     return (
         <Toolbar>
             <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
@@ -52,9 +53,9 @@ const CustomToolbar = () => {
                     label="Salvar Alterações"
                     icon={<Save />}
                     sx={{
-                        backgroundColor: '#1976D2',
+                        backgroundColor: theme.palette.primary.main,
                         '&:hover': {
-                            backgroundColor: '#0D47A1'
+                            backgroundColor: theme.palette.primary.dark
                         }
                     }}
                 />
