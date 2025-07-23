@@ -2,6 +2,7 @@ package com.os.unirios.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -9,145 +10,129 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.os.unirios.entities.Culto;
 import com.os.unirios.entities.Pessoa;
 import com.os.unirios.entities.Presenca;
+import com.os.unirios.entities.enums.StatusPresenca;
+// 1. Importações dos repositórios
+import com.os.unirios.repositories.CultoRepository;
+import com.os.unirios.repositories.PessoaRepository;
 import com.os.unirios.repositories.PresencaRepository;
 import com.os.unirios.services.exceptions.DataIntegrityException;
 import com.os.unirios.services.exceptions.ObjectNotFoundException;
 
-        
 @Service
 public class PresencaService {
 
     @Autowired
     private PresencaRepository repo;
 
+    // 2. Garanta que os repositórios corretos estão sendo injetados
     @Autowired
-    private PessoaService pessoaService;
+    private PessoaRepository pessoaRepository;
 
-   
+    @Autowired
+    private CultoRepository cultoRepository;
 
-   private final GenericSpecificationUtil<Presenca> specUtil = new GenericSpecificationUtil<>();
+    private final GenericSpecificationUtil<Presenca> specUtil = new GenericSpecificationUtil<>();
 
-            
     public List<Presenca> findAll(){
         return repo.findAll();
     }
 
     public Page<Presenca> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
-
-		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		
-		return repo.presencaPage(pageRequest);
-	
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+        return repo.presencaPage(pageRequest);
     }
 
     public Page<Presenca> findPageWithFilters(Integer page, Integer linesPerPage, String orderBy, String direction, String filter) {
-        
-  
         return specUtil.findWithFilters(page, linesPerPage, orderBy, direction, filter, repo);
     }
 
     public Presenca findById(Long id){
         Optional<Presenca> obj = repo.findById(id);
         return obj.orElseThrow(() -> new ObjectNotFoundException(
-				"Objeto não encontrado! Id: " + id + ", Tipo: " + Presenca.class.getName()));
+                "Objeto não encontrado! Id: " + id + ", Tipo: " + Presenca.class.getName()));
     }
 
+    @Transactional
     public Presenca insert(Presenca obj){
-        
-        // Buscar a pessoa se ela foi fornecida
-        if (obj.getPessoa() != null && obj.getPessoa().getId() != null) {
-            try {
-                Pessoa pessoa = pessoaService.findById(obj.getPessoa().getId());
-                obj.setPessoa(pessoa);
-            } catch (Exception e) {
-                throw new ObjectNotFoundException("Pessoa não encontrada com ID: " + obj.getPessoa().getId());
-            }
-        } else {
+        // 3. Use o pessoaRepository, não o pessoaService
+        if (obj.getPessoa() == null || obj.getPessoa().getId() == null) {
             throw new IllegalArgumentException("Pessoa é obrigatória para criar uma presença");
         }
+        Pessoa pessoa = pessoaRepository.findById(obj.getPessoa().getId())
+            .orElseThrow(() -> new ObjectNotFoundException("Pessoa não encontrada com ID: " + obj.getPessoa().getId()));
+        obj.setPessoa(pessoa);
+
+        if (obj.getCulto() == null || obj.getCulto().getId() == null) {
+             throw new IllegalArgumentException("Culto é obrigatório para registrar a presença");
+        }
+        Culto culto = cultoRepository.findById(obj.getCulto().getId())
+            .orElseThrow(() -> new ObjectNotFoundException("Culto não encontrado com ID: " + obj.getCulto().getId()));
+        obj.setCulto(culto);
         
-        // Validar e normalizar o campo presente
-        if (obj.getPresente() == null || obj.getPresente().trim().isEmpty()) {
+        if (obj.getPresente() == null) {
             throw new IllegalArgumentException("Status de presença é obrigatório");
-        }
-        
-        // Normalizar o valor do campo presente
-        String presente = obj.getPresente().trim().toUpperCase();
-        if (!presente.equals("SIM") && !presente.equals("NAO") && !presente.equals("JUSTIFICADO")) {
-            throw new IllegalArgumentException("Status de presença deve ser SIM, NAO ou JUSTIFICADO");
-        }
-        obj.setPresente(presente);
-        
-        // Limpar observações se estiver vazio
-        if (obj.getObservacoes() != null && obj.getObservacoes().trim().isEmpty()) {
-            obj.setObservacoes(null);
         }
         
         obj.setId(null);
-        obj = repo.save(obj); // salvar e obter objeto monitorado
-        return obj;
+        return repo.save(obj);
     }
         
     public Presenca delete(Long id) {
-        Presenca obj = findById(id);//ou existe, ou irá gerar exception
-         try {
-			repo.deleteById(id);
-		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrityException(
-					"Não é possível excluir este registro de Presenca pois possui vinculos com outros registros");
-		}
+        Presenca obj = findById(id);
+        try {
+            repo.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityException(
+                    "Não é possível excluir este registro de Presenca pois possui vinculos com outros registros");
+        }
         return obj;
     }
         
+    @Transactional
     public Presenca update(Presenca obj) {
-        
-        // Buscar a pessoa se ela foi fornecida
-        if (obj.getPessoa() != null && obj.getPessoa().getId() != null) {
-            try {
-                Pessoa pessoa = pessoaService.findById(obj.getPessoa().getId());
-                obj.setPessoa(pessoa);
-            } catch (Exception e) {
-                throw new ObjectNotFoundException("Pessoa não encontrada com ID: " + obj.getPessoa().getId());
-            }
-        } else {
-            throw new IllegalArgumentException("Pessoa é obrigatória para atualizar uma presença");
-        }
-        
-        // Validar e normalizar o campo presente
-        if (obj.getPresente() == null || obj.getPresente().trim().isEmpty()) {
-            throw new IllegalArgumentException("Status de presença é obrigatório");
-        }
-        
-        // Normalizar o valor do campo presente
-        String presente = obj.getPresente().trim().toUpperCase();
-        if (!presente.equals("SIM") && !presente.equals("NAO") && !presente.equals("JUSTIFICADO")) {
-            throw new IllegalArgumentException("Status de presença deve ser SIM, NAO ou JUSTIFICADO");
-        }
-        obj.setPresente(presente);
-        
-        // Limpar observações se estiver vazio
-        if (obj.getObservacoes() != null && obj.getObservacoes().trim().isEmpty()) {
-            obj.setObservacoes(null);
-        }
-
         Presenca newObj = findById(obj.getId());
-        
-        
-
         updateData(newObj, obj);
-        
         return repo.save(newObj);          
     }
 
     private void updateData(Presenca newObj, Presenca obj) {
-        
-        newObj.setId(obj.getId());
+        if (obj.getPessoa() != null && obj.getPessoa().getId() != null) {
+            Pessoa pessoa = pessoaRepository.findById(obj.getPessoa().getId())
+                .orElseThrow(() -> new ObjectNotFoundException("Pessoa não encontrada com ID: " + obj.getPessoa().getId()));
+            newObj.setPessoa(pessoa);
+        }
+         if (obj.getCulto() != null && obj.getCulto().getId() != null) {
+            Culto culto = cultoRepository.findById(obj.getCulto().getId())
+                .orElseThrow(() -> new ObjectNotFoundException("Culto não encontrado com ID: " + obj.getCulto().getId()));
+            newObj.setCulto(culto);
+        }
         newObj.setPresente(obj.getPresente());
         newObj.setObservacoes(obj.getObservacoes());
-        newObj.setPessoa(obj.getPessoa());
+    }
+
+    @Transactional
+    public void insertBulk(List<Presenca> presencas) {
+        List<Presenca> presencasValidadas = presencas.stream().map(p -> {
+            if (p.getPessoa() == null || p.getPessoa().getId() == null) throw new IllegalArgumentException("ID da Pessoa é obrigatório.");
+            Pessoa pessoa = pessoaRepository.findById(p.getPessoa().getId())
+                .orElseThrow(() -> new ObjectNotFoundException("Pessoa não encontrada com ID: " + p.getPessoa().getId()));
             
+            if (p.getCulto() == null || p.getCulto().getId() == null) throw new IllegalArgumentException("ID do Culto é obrigatório.");
+            Culto culto = cultoRepository.findById(p.getCulto().getId())
+                .orElseThrow(() -> new ObjectNotFoundException("Culto não encontrado com ID: " + p.getCulto().getId()));
+
+            p.setPessoa(pessoa);
+            p.setCulto(culto);
+            p.setPresente(StatusPresenca.SIM);
+            p.setId(null);
+            return p;
+        }).collect(Collectors.toList());
+
+        repo.saveAll(presencasValidadas);
     }
 }

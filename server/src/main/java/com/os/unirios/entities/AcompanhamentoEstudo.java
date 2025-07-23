@@ -46,7 +46,7 @@ private static final long serialVersionUID = 1L;
             private  Date alteradoEm;
 
             @ManyToOne
-            @JoinColumn(name="licoes_concluidas_pessoa_id")
+            @JoinColumn(name="LICOES_CONCLUIDAS_PESSOA_ID")
             private LicoesConcluidasPessoa licoesConcluidasPessoa;
 
     public AcompanhamentoEstudo  ( Long id ,String status ,Date dataInicio ,Date dataConclusao ,Date criadoEm ,Date alteradoEm ){

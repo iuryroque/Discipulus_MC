@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
             
 @Entity
-@Table(name = "LICOESCONCLUIDASPESSOA")
+@Table(name = "LICOES_CONCLUIDAS_PESSOA")
 @NoArgsConstructor  @Getter @Setter
 @EntityListeners(AuditEventListener.class)
 public class LicoesConcluidasPessoa  implements Serializable{
@@ -29,16 +29,16 @@ private static final long serialVersionUID = 1L;
             
                 @Id
                 @GeneratedValue(strategy = GenerationType.IDENTITY)
-                @Column(name="LICOESCONCLUIDASPESSOA_ID")
+                @Column(name="LICOES_CONCLUIDAS_PESSOA_ID")
                 
             private  Long id;
-            @Column(name="LICOESCONCLUIDASPESSOA_DATA CONCLUSAO")
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_DATA_CONCLUSAO")
             private  Date dataConclusao;
-            @Column(name="LICOESCONCLUIDASPESSOA_OBSERVACOES")
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_OBSERVACOES")
             private  String observacoes;
-            @Column(name="LICOESCONCLUIDASPESSOA_CRIADO EM")
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_CRIADO_EM")
             private  Date criadoEm;
-            @Column(name="LICOESCONCLUIDASPESSOA_ATUALIZADO EM")
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_ATUALIZADO_EM")
             private  Date atualizadoEm;
     
 

@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
             
 @Entity
-@Table(name = "LICOESCURRICULO")
+@Table(name = "LICOES_CURRICULO")
 @NoArgsConstructor  @Getter @Setter
 @EntityListeners(AuditEventListener.class)
 public class LicoesCurriculo extends BaseEntity implements Serializable{
@@ -28,37 +28,37 @@ private static final long serialVersionUID = 1L;
             
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="LICOESCURRICULO_ID")
+    @Column(name="LICOES_CURRICULO_ID")
     private Long id;
     
-    @Column(name="LICOESCURRICULO_NUMERO_LICAO")
+    @Column(name="LICOES_CURRICULO_NUMERO_LICAO")
     private Integer numeroLicao;
     
-    @Column(name="LICOESCURRICULO_TITULO")
+    @Column(name="LICOES_CURRICULO_TITULO")
     private String titulo;
     
-    @Column(name="LICOESCURRICULO_CONTEUDO")
+    @Column(name="LICOES_CURRICULO_CONTEUDO")
     private String conteudo;
     
-    @Column(name="LICOESCURRICULO_DURACAO")
+    @Column(name="LICOES_CURRICULO_DURACAO")
     private String duracao;
     
-    @Column(name="LICOESCURRICULO_OBJETIVOS")
+    @Column(name="LICOES_CURRICULO_OBJETIVOS")
     private String objetivos;
     
-    @Column(name="LICOESCURRICULO_MATERIAIS")
+    @Column(name="LICOES_CURRICULO_MATERIAIS")
     private String materiais;
     
-    @Column(name="LICOESCURRICULO_ORDEM")
+    @Column(name="LICOES_CURRICULO_ORDEM")
     private Integer ordem;
     
     @ManyToOne
-    @JoinColumn(name="CURRICULOESTUDO_ID")
+    @JoinColumn(name="CURRICULO_ESTUDO_ID")
     @JsonBackReference
     private CurriculoEstudo curriculoEstudo;
     
     @ManyToOne
-    @JoinColumn(name="LICOESCONCLUIDASPESSOA_ID")
+    @JoinColumn(name="LICOES_CONCLUIDAS_PESSOA_ID")
     private LicoesConcluidasPessoa licoesConcluidasPessoa;
 
     public LicoesCurriculo(Long id, Integer numeroLicao, String titulo, String conteudo, 

@@ -27,20 +27,37 @@ public class GenericSpecificationUtil<T> {
             String filter,
             JpaSpecificationExecutor<T> repository) {
 
-        // Converte a string JSON em um Map<String, String>
-        final Map<String, String> mapFilters;
+        final Map<String, Object> mapFilters; // Alterado para Map<String, Object>
         ObjectMapper objectMapper = new ObjectMapper();
 
         Page<T> list = null;
         try {
-            mapFilters = objectMapper.readValue(filter, new TypeReference<Map<String, String>>() {});
+            // Alterado para TypeReference<Map<String, Object>> para aceitar objetos
+            mapFilters = objectMapper.readValue(filter, new TypeReference<Map<String, Object>>() {});
 
             Pageable pageable = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
 
             Specification<T> spec = (root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
-                mapFilters.forEach(
-                        (field, value) -> predicates.add(criteriaBuilder.like(root.get(field), "%" + value + "%")));
+                mapFilters.forEach((field, value) -> {
+                    // AQUI ESTÁ A CORREÇÃO
+                    // Se o valor for um Map (como {"id":123}), é um relacionamento
+                    if (value instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> relatedObject = (Map<String, Object>) value;
+                        // Filtramos pelo ID do objeto relacionado
+                        if (relatedObject.containsKey("id")) {
+                            predicates.add(criteriaBuilder.equal(root.get(field).get("id"), relatedObject.get("id")));
+                        }
+                    } else { // Senão, é um campo normal (String, número, etc.)
+                        Class<?> fieldType = root.get(field).getJavaType();
+                        if (fieldType.equals(String.class)) {
+                            predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
+                        } else {
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
+                        }
+                    }
+                });
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
             };
 
@@ -48,10 +65,8 @@ public class GenericSpecificationUtil<T> {
 
         } catch (IOException e) {
             e.printStackTrace();
-           
         }
 
         return list;
     }
-
 }

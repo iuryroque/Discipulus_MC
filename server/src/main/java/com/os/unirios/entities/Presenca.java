@@ -3,11 +3,14 @@ package com.os.unirios.entities;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.os.unirios.entities.enums.StatusPresenca;
 import com.os.unirios.event.AuditEventListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,8 +37,9 @@ private static final long serialVersionUID = 1L;
                 @Column(name="id")
                 
             private  Long id;
-            @Column(name="presente")
-            private  String presente;
+            @Enumerated(EnumType.STRING)
+            @Column(name="presente", nullable = false)
+            private StatusPresenca presente;
             @Column(name="observacoes")
             private  String observacoes;
     
@@ -44,14 +48,21 @@ private static final long serialVersionUID = 1L;
             @JsonManagedReference
             private Pessoa pessoa;
 
-    public Presenca  ( Long id ,String presente ,String observacoes ){
-        
-            this.id = id;
-            
-            this.presente = presente;
-            
-            this.observacoes = observacoes;
-            
+            @ManyToOne
+            @JoinColumn(name="culto_id")
+            private Culto culto;
+
+    public Presenca(Long id, StatusPresenca presente, String observacoes) {
+        this.id = id;
+        this.presente = presente;
+        this.observacoes = observacoes;
+    }
+
+    public StatusPresenca getPresente() {
+        return presente;
+    }
+    public void setPresente(StatusPresenca presente) {
+        this.presente = presente;
     }
 
     }

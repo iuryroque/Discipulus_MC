@@ -11,6 +11,7 @@ import com.os.unirios.entities.AcompanhamentoEstudo;
 import com.os.unirios.entities.Alertas;
 import com.os.unirios.entities.Presenca;
 import com.os.unirios.entities.User;
+import com.os.unirios.entities.enums.StatusPresenca;
 import com.os.unirios.repositories.AcompanhamentoEstudoRepository;
 import com.os.unirios.repositories.AlertasRepository;
 import com.os.unirios.repositories.PresencaRepository;
@@ -70,7 +71,7 @@ public class Init implements CommandLineRunner {
         // Criar dados iniciais para Presenca
         if (presencaRepository.count() == 0) {
             Presenca presenca = new Presenca();
-            presenca.setPresente("Sim");
+            presenca.setPresente(StatusPresenca.valueOf("SIM".trim().toUpperCase()));
             presenca.setObservacoes("Presença padrão");
             presencaRepository.save(presenca);
         }

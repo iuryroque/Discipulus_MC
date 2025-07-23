@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
             
 @Entity
-@Table(name = "CURRICULOESTUDO")
+@Table(name = "CURRICULO_ESTUDO")
 @NoArgsConstructor  @Getter @Setter
 @EntityListeners(AuditEventListener.class)
 public class CurriculoEstudo extends BaseEntity implements Serializable{
@@ -31,32 +31,32 @@ private static final long serialVersionUID = 1L;
             
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="CURRICULOESTUDO_ID")
+    @Column(name="CURRICULO_ESTUDO_ID")
     private Long id;
     
-    @Column(name="CURRICULOESTUDO_NOME")
+    @Column(name="CURRICULO_ESTUDO_NOME")
     private String nome;
     
-    @Column(name="CURRICULOESTUDO_DESCRICAO")
+    @Column(name="CURRICULO_ESTUDO_DESCRICAO")
     private String descricao;
     
-    @Column(name="CURRICULOESTUDO_OBJETIVOS")
+    @Column(name="CURRICULO_ESTUDO_OBJETIVOS")
     private String objetivos;
     
-    @Column(name="CURRICULOESTUDO_DURACAO")
+    @Column(name="CURRICULO_ESTUDO_DURACAO")
     private String duracao;
     
-    @Column(name="CURRICULOESTUDO_NIVEL")
+    @Column(name="CURRICULO_ESTUDO_NIVEL")
     private String nivel;
     
-    @Column(name="CURRICULOESTUDO_STATUS")
+    @Column(name="CURRICULO_ESTUDO_STATUS")
     private String status;
     
-    @Column(name="CURRICULOESTUDO_OBSERVACOES")
+    @Column(name="CURRICULO_ESTUDO_OBSERVACOES")
     private String observacoes;
     
     @OneToOne()
-    @JoinColumn(name="ACOMPANHAMENTOESTUDO_ID")
+    @JoinColumn(name="ACOMPANHAMENTO_ESTUDO_ID")
     private AcompanhamentoEstudo acompanhamentoEstudo;
     
     @OneToMany(mappedBy = "curriculoEstudo")
