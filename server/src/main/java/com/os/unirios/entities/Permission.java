@@ -1,6 +1,5 @@
 package com.os.unirios.entities;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.os.unirios.event.AuditEventListener;
 
@@ -28,7 +27,7 @@ import lombok.Setter;
 @EntityListeners(AuditEventListener.class)
 @Table(
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"profile", "resource"})
+        @UniqueConstraint(columnNames = {"profile_id ", "resource_id"})
     }
 )
 public class Permission {
@@ -36,7 +35,6 @@ public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     @JsonIgnore
     @ManyToOne

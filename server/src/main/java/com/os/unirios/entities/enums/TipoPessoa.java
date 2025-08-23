@@ -5,9 +5,9 @@ package com.os.unirios.entities.enums;
  */
 public enum TipoPessoa {
     MEMBRO("Membro"),
-    VISITANTE("Visitante"),
-    CONGREGADO("Congregado"),
-    INTERESSADO("Interessado");
+    VISITANTE("Visitante");
+    // CONGREGADO("Congregado"),
+    // INTERESSADO("Interessado");
 
     private final String descricao;
 

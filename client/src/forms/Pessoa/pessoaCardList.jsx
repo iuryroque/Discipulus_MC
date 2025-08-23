@@ -10,7 +10,7 @@ const PessoaCardList = (props) => {
 
     const handleEdit = (id) => redirect('edit', 'pessoa', id);
     const handleShow = (id) => redirect('show', 'pessoa', id);
-    const handleCreate = () => redirect('create', 'pessoa');
+    const handleCreate = () => redirect('create', 'pessoa', "", {}, { record: { tipo: "VISITANTE" } });
 
     const handleDelete = (id) => {
         deleteOne('pessoa', { id }, {

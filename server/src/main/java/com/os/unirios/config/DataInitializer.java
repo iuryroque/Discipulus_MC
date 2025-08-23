@@ -75,7 +75,7 @@ public class DataInitializer {
             pessoa3.setEmail("pedro.almeida@email.com");
             pessoa3.setEndereco("Rua Augusta, 789 - São Paulo/SP");
             pessoa3.setStatus(StatusPessoa.ATIVO);
-            pessoa3.setTipo(TipoPessoa.CONGREGADO);
+            pessoa3.setTipo( TipoPessoa.MEMBRO);
             pessoa3.setStatusBatismo(StatusBatismo.NAO_BATIZADO);
             pessoa3.setObservacoes("Congregado há 2 anos, ainda não batizado");
             
@@ -87,7 +87,7 @@ public class DataInitializer {
             pessoa4.setEmail("ana.ferreira@email.com");
             pessoa4.setEndereco("Rua Consolação, 321 - São Paulo/SP");
             pessoa4.setStatus(StatusPessoa.PENDENTE);
-            pessoa4.setTipo(TipoPessoa.INTERESSADO);
+            pessoa4.setTipo( TipoPessoa.VISITANTE);
             pessoa4.setStatusBatismo(StatusBatismo.NAO_BATIZADO);
             pessoa4.setObservacoes("Interessada em estudos bíblicos");
             
@@ -124,7 +124,7 @@ public class DataInitializer {
             pessoa7.setEmail("roberto.carlos@email.com");
             pessoa7.setEndereco("Av. Brigadeiro Faria Lima, 147 - São Paulo/SP");
             pessoa7.setStatus(StatusPessoa.ATIVO);
-            pessoa7.setTipo(TipoPessoa.CONGREGADO);
+            pessoa7.setTipo( TipoPessoa.MEMBRO);
             pessoa7.setStatusBatismo(StatusBatismo.INTERESSADO);
             pessoa7.setDataInteresseBatismo(sdf.parse("2024-01-15"));
             pessoa7.setObservacoes("Congregado interessado em batismo, participando dos estudos");

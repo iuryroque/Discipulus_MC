@@ -5,7 +5,6 @@ import {
     Person as PersonIcon
 } from '@mui/icons-material';
 import { Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material';
-import React from 'react';
 import {
     Create,
     DateInput,

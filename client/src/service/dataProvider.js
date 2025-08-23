@@ -104,6 +104,18 @@ export default {
     },
 
     create: (resource, params) => {
+        // Endpoint especial para criação em massa de presenças
+        if (resource === 'presenca/bulk') {
+            const url = `${apiUrl}/presenca/bulk`;
+            return fetchUtils.fetchJson(url, {
+                method: 'POST',
+                body: JSON.stringify(params.data),
+            }).then(() => {
+                // Para uma resposta 204 (No Content), retornamos um objeto
+                // de dados vazio para satisfazer o React Admin.
+                return { data: { id: 0 } }; // Retorna um objeto dummy com id
+            });
+        }
         // Endpoint padrão para criação
         return httpClient(`${apiUrl}/${resource}`, {
             method: 'POST',

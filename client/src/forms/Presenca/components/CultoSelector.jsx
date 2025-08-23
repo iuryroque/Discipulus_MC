@@ -7,7 +7,7 @@ export const CultoSelector = ({ cultoId, setCultoId, cultos }) => {
     const theme = useTheme();
 
     return (
-        <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 3 }}>
+        <Box sx={{ mx: 'auto', mb: 3 }}>
             <Typography variant="h4" sx={{ fontWeight: 700, color: '#222', mb: 0.5 }}>Controle de Presença</Typography>
             <Typography variant="subtitle1" sx={{ color: 'text.secondary', mb: 3 }}>Registre a presença dos membros e visitantes</Typography>
             <Card sx={{ borderRadius: 3, boxShadow: '0 2px 8px #E5EAF2', p: 0, border: '1px solid #E5EAF2' }}>
@@ -31,7 +31,7 @@ export const CultoSelector = ({ cultoId, setCultoId, cultos }) => {
                         >
                             {cultos.map(culto => (
                                 <MenuItem key={culto.id} value={culto.id}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                               ,     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <EventIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
                                         <span>{culto.titulo} - {new Date(culto.dataHora).toLocaleString('pt-BR')}</span>
                                     </Box>
