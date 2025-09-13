@@ -158,16 +158,6 @@ pipeline {
                 '''
             }
         }
-                        echo "✅ npm encontrado:"
-                        npm --version
-                    else
-                        echo "⚠️ npm não encontrado no host (será usado dentro do container de build)"
-                    fi
-
-                    echo "=== Todas as dependências verificadas com sucesso! ==="
-                '''
-            }
-        }
 
         stage('Load Environment') {
             steps {
