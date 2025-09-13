@@ -194,6 +194,31 @@ EOF
             }
         }
 
+        stage('Build Build Images') {
+            steps {
+                echo '🏗️ Construindo imagens de build...'
+                script {
+                    // Construir imagem de build do backend
+                    sh """
+                        echo '🔨 Construindo imagem de build do backend...'
+                        docker build -f Dockerfile.build.backend -t ${BUILD_BACKEND_IMAGE}:latest .
+                        echo '✅ Imagem de build do backend criada com sucesso!'
+                    """
+
+                    // Construir imagem de build do frontend (se existir)
+                    if (fileExists('Dockerfile.build.frontend')) {
+                        sh """
+                            echo '🔨 Construindo imagem de build do frontend...'
+                            docker build -f Dockerfile.build.frontend -t ${BUILD_FRONTEND_IMAGE}:latest .
+                            echo '✅ Imagem de build do frontend criada com sucesso!'
+                        """
+                    } else {
+                        echo '⚠️ Dockerfile.build.frontend não encontrado, pulando construção da imagem de build do frontend'
+                    }
+                }
+            }
+        }
+
         stage('Build Backend') {
             steps {
                 echo '📦 Build do backend Spring Boot em container...'
