@@ -225,12 +225,22 @@ EOF
                 script {
                     // Build usando container dedicado
                     sh '''
+                        echo "📂 Diretório atual: $(pwd)"
+                        echo "📂 Conteúdo do diretório server:"
+                        ls -la ${BACKEND_DIR}/
+                        echo "📂 Verificando se pom.xml existe:"
+                        ls -la ${BACKEND_DIR}/pom.xml || echo "❌ pom.xml não encontrado"
+                        
                         docker run --rm \
                             -v $(pwd)/${BACKEND_DIR}:/app \
                             -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
                             -w /app \
                             ${BUILD_BACKEND_IMAGE}:latest \
                             bash -c "
+                                echo '📂 Conteúdo do /app no container:'
+                                ls -la
+                                echo '📂 Verificando pom.xml no container:'
+                                ls -la pom.xml || echo '❌ pom.xml não encontrado no container'
                                 echo '📋 Versão do Java:' && java -version
                                 echo '📋 Versão do Maven:' && mvn -version
                                 echo '🔨 Iniciando build do backend...'
