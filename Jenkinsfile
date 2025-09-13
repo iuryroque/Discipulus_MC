@@ -87,7 +87,7 @@ pipeline {
 
         stage('Verify Dependencies') {
             steps {
-                echo '� Verificando dependências do sistema...'
+                echo '🔍 Verificando dependências do sistema...'
                 sh '''
                     echo "=== Verificação de Dependências ==="
 
