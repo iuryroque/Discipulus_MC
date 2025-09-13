@@ -114,7 +114,8 @@ pipeline {
                     fi
 
                     # Verificar Maven
-                    if command -v mvn &> /dev/null; then
+                    echo "Verificando Maven..."
+                    if which mvn >/dev/null 2>&1; then
                         echo "✅ Maven encontrado:"
                         mvn -version
                     else
@@ -122,7 +123,8 @@ pipeline {
                     fi
 
                     # Verificar Node.js
-                    if command -v node &> /dev/null; then
+                    echo "Verificando Node.js..."
+                    if which node >/dev/null 2>&1; then
                         echo "✅ Node.js encontrado:"
                         node --version
                     else
@@ -130,7 +132,8 @@ pipeline {
                     fi
 
                     # Verificar npm
-                    if command -v npm &> /dev/null; then
+                    echo "Verificando npm..."
+                    if which npm >/dev/null 2>&1; then
                         echo "✅ npm encontrado:"
                         npm --version
                     else
