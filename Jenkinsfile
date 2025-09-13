@@ -226,13 +226,18 @@ EOF
                     // Build usando container dedicado
                     sh '''
                         echo "📂 Diretório atual: $(pwd)"
+                        echo "📂 WORKSPACE: ${WORKSPACE}"
                         echo "📂 Conteúdo do diretório server:"
                         ls -la ${BACKEND_DIR}/
                         echo "📂 Verificando se pom.xml existe:"
                         ls -la ${BACKEND_DIR}/pom.xml || echo "❌ pom.xml não encontrado"
                         
+                        # Usar caminho absoluto para o volume
+                        BACKEND_PATH="${WORKSPACE}/${BACKEND_DIR}"
+                        echo "📂 Caminho absoluto do backend: ${BACKEND_PATH}"
+                        
                         docker run --rm \
-                            -v $(pwd)/${BACKEND_DIR}:/app \
+                            -v "${BACKEND_PATH}:/app" \
                             -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
                             -w /app \
                             ${BUILD_BACKEND_IMAGE}:latest \
@@ -241,12 +246,19 @@ EOF
                                 ls -la
                                 echo '📂 Verificando pom.xml no container:'
                                 ls -la pom.xml || echo '❌ pom.xml não encontrado no container'
+                                echo '📂 Conteúdo detalhado do /app:'
+                                find /app -maxdepth 2 -ls || echo '❌ Erro ao listar arquivos'
                                 echo '📋 Versão do Java:' && java -version
                                 echo '📋 Versão do Maven:' && mvn -version
                                 echo '🔨 Iniciando build do backend...'
-                                mvn clean compile -DskipTests
-                                mvn package -DskipTests
-                                echo '✅ Build do backend concluído!'
+                                if [ -f pom.xml ]; then
+                                    mvn clean compile -DskipTests
+                                    mvn package -DskipTests
+                                    echo '✅ Build do backend concluído!'
+                                else
+                                    echo '❌ ERRO: pom.xml não encontrado no container!'
+                                    exit 1
+                                fi
                             "
                     '''
                     
