@@ -225,23 +225,24 @@ EOF
                 script {
                     // Build usando container dedicado
                     sh '''
+                        set -euo pipefail
                         echo "📂 Diretório atual: $(pwd)"
                         echo "📂 WORKSPACE: ${WORKSPACE}"
                         echo "📂 Conteúdo do diretório server:"
-                        ls -la ${BACKEND_DIR}/
+                        ls -la ${BACKEND_DIR}/ || true
                         echo "📂 Verificando se pom.xml existe:"
                         ls -la ${BACKEND_DIR}/pom.xml || echo "❌ pom.xml não encontrado"
-                        
+
                         # Usar caminho absoluto para o volume
                         BACKEND_PATH="${WORKSPACE}/${BACKEND_DIR}"
                         echo "📂 Caminho absoluto do backend: ${BACKEND_PATH}"
-                        
+
                         # Verificar permissões do diretório
                         echo "🔍 Verificando permissões do diretório host:"
-                        ls -ld "${BACKEND_PATH}"
+                        ls -ld "${BACKEND_PATH}" || true
                         echo "🔍 Verificando permissões dos arquivos:"
-                        ls -la "${BACKEND_PATH}/" | head -10
-                        
+                        ls -la "${BACKEND_PATH}/" | head -10 || true
+
                         # Verificar se há SELinux ou AppArmor
                         echo "🔍 Verificando SELinux/AppArmor:"
                         if command -v getenforce >/dev/null 2>&1; then
@@ -249,13 +250,13 @@ EOF
                         else
                             echo "SELinux não encontrado"
                         fi
-                        
+
                         if command -v apparmor_status >/dev/null 2>&1; then
                             echo "AppArmor encontrado"
                         else
                             echo "AppArmor não encontrado"
                         fi
-                        
+
                         # Tentar abordagem alternativa se volume mounting falhar
                         echo "🔄 Tentando build com volume mounting..."
                         if docker run --rm \
@@ -265,13 +266,13 @@ EOF
                             ${BUILD_BACKEND_IMAGE}:latest \
                             bash -c "
                                 echo '📂 Conteúdo do /app no container:'
-                                ls -la
+                                ls -la || true
                                 echo '📂 Verificando pom.xml no container:'
                                 ls -la pom.xml || echo '❌ pom.xml não encontrado no container'
                                 echo '📂 Conteúdo detalhado do /app:'
                                 find /app -maxdepth 2 -ls 2>/dev/null || echo '❌ Erro ao listar arquivos'
-                                echo '📋 Versão do Java:' && java -version
-                                echo '📋 Versão do Maven:' && mvn -version
+                                echo '📋 Versão do Java:' && java -version || true
+                                echo '📋 Versão do Maven:' && mvn -version || true
                                 echo '🔨 Iniciando build do backend...'
                                 if [ -f pom.xml ]; then
                                     mvn clean compile -DskipTests
@@ -286,56 +287,89 @@ EOF
                             echo "✅ Build com volume mounting bem-sucedido!"
                         else
                             echo "❌ Volume mounting falhou, tentando abordagem alternativa..."
-                            
+
                             # Abordagem simplificada usando docker run com container persistente
                             CONTAINER_NAME="discipulus-build-${BUILD_NUMBER}"
-                            
+
+                            cleanup_container() {
+                                docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+                            }
+
+                            trap cleanup_container EXIT
+
                             # Criar e iniciar container em background
                             echo "📦 Criando container temporário..."
-                            docker run -d --name ${CONTAINER_NAME} \
+                            docker run -d --name "${CONTAINER_NAME}" \
                                 -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
                                 ${BUILD_BACKEND_IMAGE}:latest \
                                 tail -f /dev/null
-                            
+
                             # Copiar arquivos do host para o container
-                            echo "📋 Copiando arquivos para o container..."
-                            docker cp "${BACKEND_PATH}/." ${CONTAINER_NAME}:/app/
-                            
-                            # Executar build no container
-                            echo "🔨 Executando build no container..."
-                            if docker exec ${CONTAINER_NAME} bash -c "
-                                cd /app
-                                echo '📂 Conteúdo do /app após cópia:'
-                                ls -la
-                                echo '📋 Versão do Java:' && java -version
-                                echo '📋 Versão do Maven:' && mvn -version
-                                echo '🔨 Iniciando build do backend...'
-                                mvn clean compile -DskipTests
-                                mvn package -DskipTests
-                                echo '✅ Build do backend concluído!'
-                            "; then
-                                # Copiar artefatos de volta para o host
-                                echo "📤 Copiando artefatos de volta para o host..."
-                                docker cp ${CONTAINER_NAME}:/app/target/. "${BACKEND_PATH}/target/"
-                                echo "✅ Artefatos copiados com sucesso!"
-                            else
-                                echo "❌ Falha no build dentro do container"
-                                docker logs ${CONTAINER_NAME}
+                            # Nota: usamos docker cp como fallback quando o volume mount falha (AppArmor/SELinux podem bloquear mounts).
+                            #      docker cp evita problemas de profile de segurança, mas é mais lento e consome IO.
+                            echo "$(date +'%Y-%m-%d %T') - 📋 Copiando arquivos para o container (com retries)..."
+                            COPY_OK=0
+                            for i in 1 2 3; do
+                                docker cp "${BACKEND_PATH}/." "${CONTAINER_NAME}:/app/" && { COPY_OK=1; break; } || {
+                                    echo "$(date +'%Y-%m-%d %T') - ⚠️ Tentativa $i de docker cp falhou, aguardando antes de tentar novamente..."
+                                    sleep 2
+                                }
+                            done
+                            if [ "$COPY_OK" -ne 1 ]; then
+                                echo "$(date +'%Y-%m-%d %T') - ❌ Todas as tentativas de docker cp falharam"
+                                docker logs "${CONTAINER_NAME}" || true
                                 exit 1
                             fi
-                            
-                            # Limpar container
-                            docker stop ${CONTAINER_NAME}
-                            docker rm ${CONTAINER_NAME}
-                            echo "🧹 Container temporário removido"
-                        fi
+
+                            # Executar build no container com timeout no host para evitar hangs infinitos
+                            echo "$(date +'%Y-%m-%d %T') - 🔨 Executando build no container (timeout 1200s)..."
+                            if timeout 1200 docker exec "${CONTAINER_NAME}" bash -c "
+                                set -euo pipefail
+                                cd /app
+                                echo '$(date +'%Y-%m-%d %T') - 📂 Conteúdo do /app após cópia:'
+                                ls -la || true
+                                echo '$(date +'%Y-%m-%d %T') - 📋 Versão do Java:' && java -version || true
+                                echo '$(date +'%Y-%m-%d %T') - 📋 Versão do Maven:' && mvn -version || true
+                                echo '$(date +'%Y-%m-%d %T') - 🔨 Iniciando build do backend...'
+                                mvn clean compile -DskipTests
+                                mvn package -DskipTests
+                                echo '$(date +'%Y-%m-%d %T') - ✅ Build do backend concluído!'
+                            "; then
+                                # Copiar artefatos de volta para o host (com retries)
+                                echo "$(date +'%Y-%m-%d %T') - 📤 Copiando artefatos de volta para o host (com retries)..."
+                                mkdir -p "${BACKEND_PATH}/target/"
+                                COPY_BACK_OK=0
+                                for j in 1 2 3; do
+                                    docker cp "${CONTAINER_NAME}:/app/target/." "${BACKEND_PATH}/target/" && { COPY_BACK_OK=1; break; } || {
+                                        echo "$(date +'%Y-%m-%d %T') - ⚠️ Tentativa $j de docker cp (back) falhou, aguardando..."
+                                        sleep 2
+                                    }
+                                done
+                                if [ "$COPY_BACK_OK" -ne 1 ]; then
+                                    echo "$(date +'%Y-%m-%d %T') - ❌ Falha ao copiar artefatos de volta após 3 tentativas"
+                                    docker logs "${CONTAINER_NAME}" || true
+                                    exit 1
+                                fi
+                                echo "$(date +'%Y-%m-%d %T') - ✅ Artefatos copiados com sucesso!"
+                            else
+                                echo "$(date +'%Y-%m-%d %T') - ❌ Falha ou timeout no build dentro do container"
+                                echo "--- Logs do container ---"
+                                docker logs "${CONTAINER_NAME}" || true
+                                exit 1
+                            fi
+
+                            # Limpeza final do container (trap também garante remoção)
+                            cleanup_container || true
+                            trap - EXIT
+                            echo "$(date +'%Y-%m-%d %T') - 🧹 Container temporário removido"
                         fi
                     '''
-                    
-                    // Copiar artefatos do container para o host (para volume mounting)
+
+                    // Verificar se o WAR foi criado e copiar/arquivar
                     sh '''
-                        # Verificar se o JAR foi criado
-                        if [ -f ${BACKEND_DIR}/target/*.war ]; then
+                        set -euo pipefail
+                        # Verificar se o WAR foi criado
+                        if ls ${BACKEND_DIR}/target/*.war >/dev/null 2>&1; then
                             echo "✅ Arquivo WAR encontrado!"
                             ls -la ${BACKEND_DIR}/target/*.war
                         else
