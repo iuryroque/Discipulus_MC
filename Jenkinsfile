@@ -118,8 +118,7 @@ pipeline {
                         echo "✅ Maven encontrado:"
                         mvn -version
                     else
-                        echo "❌ Maven não encontrado!"
-                        exit 1
+                        echo "⚠️ Maven não encontrado no host (será usado dentro do container de build)"
                     fi
 
                     # Verificar Node.js
@@ -127,8 +126,7 @@ pipeline {
                         echo "✅ Node.js encontrado:"
                         node --version
                     else
-                        echo "❌ Node.js não encontrado!"
-                        exit 1
+                        echo "⚠️ Node.js não encontrado no host (será usado dentro do container de build)"
                     fi
 
                     # Verificar npm
@@ -136,8 +134,7 @@ pipeline {
                         echo "✅ npm encontrado:"
                         npm --version
                     else
-                        echo "❌ npm não encontrado!"
-                        exit 1
+                        echo "⚠️ npm não encontrado no host (será usado dentro do container de build)"
                     fi
 
                     echo "=== Todas as dependências verificadas com sucesso! ==="
