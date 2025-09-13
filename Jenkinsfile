@@ -1,3 +1,5 @@
+// Jenkinsfile - Discipulus V1 CI/CD Pipeline
+// Last updated: 2025-09-13 - Fixed syntax errors and cache issues
 pipeline {
     agent any
 
