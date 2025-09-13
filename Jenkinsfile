@@ -118,16 +118,6 @@ pipeline {
                     echo "🧠 Memória disponível:"
                     free -h | grep "^Mem:" || echo "Comando free não disponível"
 
-                    echo "=== Todas as dependências verificadas com sucesso! ==="
-                '''
-            }
-        }
-                        docker-compose --version
-                    else
-                        echo "❌ Docker Compose não encontrado!"
-                        exit 1
-                    fi
-
                     # Verificar Java
                     if command -v java &> /dev/null; then
                         echo "✅ Java encontrado:"
@@ -158,6 +148,16 @@ pipeline {
                     # Verificar npm
                     echo "Verificando npm..."
                     if which npm >/dev/null 2>&1; then
+                        echo "✅ npm encontrado:"
+                        npm --version
+                    else
+                        echo "⚠️ npm não encontrado no host (será usado dentro do container de build)"
+                    fi
+
+                    echo "=== Todas as dependências verificadas com sucesso! ==="
+                '''
+            }
+        }
                         echo "✅ npm encontrado:"
                         npm --version
                     else
