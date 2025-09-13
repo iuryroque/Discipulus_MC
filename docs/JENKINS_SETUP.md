@@ -21,17 +21,51 @@ No Jenkins, vá para:
    - Pipeline
    - Blue Ocean (recomendado)
 
-## Configuração de Credenciais
+## Configuração de Credenciais com Secret Files
 
-### Credenciais Necessárias
-Como estamos usando apenas imagens Docker locais, você só precisa configurar as credenciais do banco de dados e JWT (se aplicável):
+### Usando Secret Files no Jenkins
+Agora as credenciais são gerenciadas através de **Secret Files** no Jenkins, que é mais seguro que variáveis de ambiente.
 
-1. **POSTGRES_PASSWORD**: Senha do PostgreSQL
-2. **JWT_SECRET**: Chave secreta para JWT (opcional)
+### 1. Gerar Arquivo Único de Credenciais
+Execute o script para gerar o arquivo unificado de credenciais:
 
-### Como Configurar
-1. Vá para **Manage Jenkins** → **Manage Credentials**
-2. Adicione as credenciais necessárias como **Secret text**
+```bash
+# Configurar o arquivo .env primeiro
+cp env.example .env
+# Editar .env com suas credenciais reais
+
+# Gerar arquivo unificado de credenciais
+./scripts/generate-jenkins-secrets.sh
+```
+
+Isso criará o diretório `jenkins-credentials/` com o arquivo:
+- `discipulus-credentials.txt` - **Arquivo único** com todas as credenciais
+
+### 2. Configurar Secret File no Jenkins
+
+#### Método 1: Interface Web
+1. **Acesse:** Manage Jenkins → Manage Credentials
+2. **Clique em:** System → Global credentials → Add Credentials
+3. **Configure:**
+   - **Kind:** Secret file
+   - **File:** Selecione `discipulus-credentials.txt`
+   - **ID:** `discipulus-credentials`
+   - **Description:** Unified credentials file for Discipulus
+
+#### Método 2: Script de Upload
+Execute o script de upload no servidor Jenkins:
+
+```bash
+cd jenkins-credentials
+./upload-config.sh
+```
+
+### 3. Verificar Configuração
+Após configurar, os pipelines Jenkins irão automaticamente:
+- ✅ Carregar o arquivo unificado de credenciais
+- ✅ Parse das variáveis CHAVE=VALOR
+- ✅ Mapear para variáveis de ambiente
+- ✅ Usar as credenciais em todo o pipeline
 
 ### 2. Credenciais do Banco de Dados (Opcional)
 Se quiser parametrizar as credenciais do banco:

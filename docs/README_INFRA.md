@@ -203,9 +203,37 @@ mvn spring-boot:run
 - Restart policies configuradas no Docker Compose
 - Volumes persistentes para dados do banco
 
+## CI/CD com Jenkins
+
+### ✅ Implementado
+- **Jenkins Pipelines** configurados para build automatizado
+- **Containerização** com Docker para builds consistentes
+- **Secret Files** para gerenciamento seguro de credenciais
+- **Builds paralelos** para frontend e backend
+- **Deploy automatizado** com Docker Compose
+
+### Pipelines Disponíveis
+1. **Jenkinsfile** - Pipeline completo com containerização
+2. **Jenkinsfile.container-build** - Build focado em containers
+3. **Jenkinsfile.simple** - Build simplificado para desenvolvimento
+
+### Gerenciamento de Credenciais
+- Credenciais armazenadas como **Secret Files** no Jenkins
+- Arquivos gerados automaticamente via script
+- IDs padronizados: `discipulus-postgres-creds`, `discipulus-jwt-creds`
+
+### Como Usar
+```bash
+# Gerar arquivos de credenciais
+./scripts/generate-jenkins-secrets.sh
+
+# Configurar no Jenkins como Secret Files
+# Ver documentação: docs/JENKINS_SECRET_FILES.md
+```
+
 ## Próximos Passos
 
-- Implementar CI/CD completo
+- ✅ **CI/CD completo** implementado com Jenkins
 - Adicionar testes automatizados
 - Configurar monitoramento (Prometheus/Grafana)
 - Implementar cache (Redis)

@@ -4,18 +4,82 @@ pipeline {
     agent any
 
     environment {
-        // Configurações das imagens Docker (locais)
-        IMAGE_PREFIX = 'discipulus'
-        VERSION = "${env.BUILD_NUMBER ?: 'latest'}"
-
         // Configurações do projeto
         BACKEND_DIR = 'server'
         FRONTEND_DIR = 'client'
-        
+
         // Imagens de build
         BUILD_BACKEND_IMAGE = 'discipulus-build-backend'
         BUILD_FRONTEND_IMAGE = 'discipulus-build-frontend'
+
+        // Configurações das imagens Docker (locais)
+        IMAGE_PREFIX = 'discipulus'
+        VERSION = "${env.BUILD_NUMBER ?: 'latest'}"
     }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '🔄 Fazendo checkout do código...'
+                checkout scm
+            }
+        }
+
+        stage('Load Secrets') {
+            steps {
+                echo '🔐 Carregando arquivo unificado de credenciais...'
+                script {
+                    // Carregar arquivo único de credenciais
+                    def credsFile = credentials('discipulus-credentials')
+                    def credsContent = readFile(file: credsFile).trim()
+                    
+                    // Parse do arquivo de credenciais (formato CHAVE=VALOR)
+                    def credsLines = credsContent.split('\n')
+                    credsLines.each { line ->
+                        line = line.trim()
+                        if (line.contains('=') && !line.startsWith('#')) {
+                            def parts = line.split('=', 2)
+                            if (parts.length == 2) {
+                                def key = parts[0].trim()
+                                def value = parts[1].trim()
+                                
+                                // Mapear para variáveis de ambiente
+                                switch(key) {
+                                    case 'POSTGRES_PASSWORD':
+                                        env.POSTGRES_PASSWORD = value
+                                        break
+                                    case 'JWT_SECRET':
+                                        env.JWT_SECRET = value
+                                        break
+                                    case 'MAVEN_OPTS':
+                                        env.MAVEN_OPTS = value
+                                        break
+                                    case 'NODE_ENV':
+                                        env.NODE_ENV = value
+                                        break
+                                    case 'DEPLOY_ENVIRONMENT':
+                                        env.DEPLOY_ENVIRONMENT = value
+                                        break
+                                    case 'HEALTH_CHECK_TIMEOUT':
+                                        env.HEALTH_CHECK_TIMEOUT = value
+                                        break
+                                    case 'CLEANUP_BUILD_CACHE':
+                                        env.CLEANUP_BUILD_CACHE = value
+                                        break
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Valores padrão para configurações não encontradas
+                    env.MAVEN_OPTS = env.MAVEN_OPTS ?: '-Xmx1024m'
+                    env.NODE_ENV = env.NODE_ENV ?: 'production'
+                    env.DEPLOY_ENVIRONMENT = env.DEPLOY_ENVIRONMENT ?: 'staging'
+                    env.HEALTH_CHECK_TIMEOUT = env.HEALTH_CHECK_TIMEOUT ?: '60'
+                    env.CLEANUP_BUILD_CACHE = env.CLEANUP_BUILD_CACHE ?: 'true'
+                }
+            }
+        }
 
     stages {
         stage('Checkout') {
