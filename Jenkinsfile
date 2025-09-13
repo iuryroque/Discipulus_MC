@@ -225,7 +225,7 @@ EOF
                 script {
                     // Build usando container dedicado
                     sh '''
-                        set -euo pipefail
+                        set -eu
                         echo "📂 Diretório atual: $(pwd)"
                         echo "📂 WORKSPACE: ${WORKSPACE}"
                         echo "📂 Conteúdo do diretório server:"
@@ -324,7 +324,7 @@ EOF
                             # Executar build no container com timeout no host para evitar hangs infinitos
                             echo "$(date +'%Y-%m-%d %T') - 🔨 Executando build no container (timeout 1200s)..."
                             if timeout 1200 docker exec "${CONTAINER_NAME}" bash -c "
-                                set -euo pipefail
+                                set -eu
                                 cd /app
                                 echo '$(date +'%Y-%m-%d %T') - 📂 Conteúdo do /app após cópia:'
                                 ls -la || true
@@ -367,7 +367,7 @@ EOF
 
                     // Verificar se o WAR foi criado e copiar/arquivar
                     sh '''
-                        set -euo pipefail
+                        set -eu
                         # Verificar se o WAR foi criado
                         if ls ${BACKEND_DIR}/target/*.war >/dev/null 2>&1; then
                             echo "✅ Arquivo WAR encontrado!"
