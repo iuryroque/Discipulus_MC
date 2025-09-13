@@ -236,7 +236,29 @@ EOF
                         BACKEND_PATH="${WORKSPACE}/${BACKEND_DIR}"
                         echo "📂 Caminho absoluto do backend: ${BACKEND_PATH}"
                         
-                        docker run --rm \
+                        # Verificar permissões do diretório
+                        echo "🔍 Verificando permissões do diretório host:"
+                        ls -ld "${BACKEND_PATH}"
+                        echo "🔍 Verificando permissões dos arquivos:"
+                        ls -la "${BACKEND_PATH}/" | head -10
+                        
+                        # Verificar se há SELinux ou AppArmor
+                        echo "🔍 Verificando SELinux/AppArmor:"
+                        if command -v getenforce >/dev/null 2>&1; then
+                            echo "SELinux status: $(getenforce)"
+                        else
+                            echo "SELinux não encontrado"
+                        fi
+                        
+                        if command -v apparmor_status >/dev/null 2>&1; then
+                            echo "AppArmor encontrado"
+                        else
+                            echo "AppArmor não encontrado"
+                        fi
+                        
+                        # Tentar abordagem alternativa se volume mounting falhar
+                        echo "🔄 Tentando build com volume mounting..."
+                        if docker run --rm \
                             -v "${BACKEND_PATH}:/app" \
                             -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
                             -w /app \
@@ -247,7 +269,7 @@ EOF
                                 echo '📂 Verificando pom.xml no container:'
                                 ls -la pom.xml || echo '❌ pom.xml não encontrado no container'
                                 echo '📂 Conteúdo detalhado do /app:'
-                                find /app -maxdepth 2 -ls || echo '❌ Erro ao listar arquivos'
+                                find /app -maxdepth 2 -ls 2>/dev/null || echo '❌ Erro ao listar arquivos'
                                 echo '📋 Versão do Java:' && java -version
                                 echo '📋 Versão do Maven:' && mvn -version
                                 echo '🔨 Iniciando build do backend...'
@@ -255,14 +277,49 @@ EOF
                                     mvn clean compile -DskipTests
                                     mvn package -DskipTests
                                     echo '✅ Build do backend concluído!'
+                                    exit 0
                                 else
                                     echo '❌ ERRO: pom.xml não encontrado no container!'
                                     exit 1
                                 fi
+                            "; then
+                            echo "✅ Build com volume mounting bem-sucedido!"
+                        else
+                            echo "❌ Volume mounting falhou, tentando abordagem alternativa..."
+                            
+                            # Criar container temporário e copiar arquivos
+                            CONTAINER_ID=$(docker create ${BUILD_BACKEND_IMAGE}:latest)
+                            echo "📦 Container temporário criado: ${CONTAINER_ID}"
+                            
+                            # Copiar arquivos do host para o container
+                            echo "📋 Copiando arquivos para o container..."
+                            docker cp "${BACKEND_PATH}/." ${CONTAINER_ID}:/app/
+                            
+                            # Executar build no container
+                            echo "🔨 Executando build no container..."
+                            docker start -i ${CONTAINER_ID} bash -c "
+                                cd /app
+                                echo '📂 Conteúdo do /app após cópia:'
+                                ls -la
+                                echo '📋 Versão do Java:' && java -version
+                                echo '📋 Versão do Maven:' && mvn -version
+                                echo '🔨 Iniciando build do backend...'
+                                mvn clean compile -DskipTests
+                                mvn package -DskipTests
+                                echo '✅ Build do backend concluído!'
                             "
+                            
+                            # Copiar artefatos de volta para o host
+                            echo "📤 Copiando artefatos de volta para o host..."
+                            docker cp ${CONTAINER_ID}:/app/target/. "${BACKEND_PATH}/target/"
+                            
+                            # Limpar container
+                            docker rm ${CONTAINER_ID}
+                            echo "🧹 Container temporário removido"
+                        fi
                     '''
                     
-                    // Copiar artefatos do container para o host
+                    // Copiar artefatos do container para o host (para volume mounting)
                     sh '''
                         # Verificar se o JAR foi criado
                         if [ -f ${BACKEND_DIR}/target/*.war ]; then
