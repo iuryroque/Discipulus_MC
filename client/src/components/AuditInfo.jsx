@@ -4,11 +4,11 @@ import {
     AccessTime as TimeIcon
 } from '@mui/icons-material';
 import { Box, Chip, Typography } from '@mui/material';
-import React from 'react';
+import PropTypes from 'prop-types';
 
 const AuditInfo = ({ record, showLabels = true, variant = 'default' }) => {
     if (!record) return null;
-
+    
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         
@@ -67,7 +67,7 @@ const AuditInfo = ({ record, showLabels = true, variant = 'default' }) => {
                 <CalendarIcon sx={{ fontSize: 16, color: 'primary.main' }} />
                 <Typography variant="body2" color="text.secondary">
                     {showLabels ? 'Criado em: ' : ''}
-                    {formatDate(record.criadoEm)}
+                    {formatDate(record.criadoEm)} por {record.criadoPor || 'Sistema'}
                 </Typography>
             </Box>
             
@@ -76,7 +76,7 @@ const AuditInfo = ({ record, showLabels = true, variant = 'default' }) => {
                     <EditIcon sx={{ fontSize: 16, color: 'warning.main' }} />
                     <Typography variant="body2" color="text.secondary">
                         {showLabels ? 'Alterado em: ' : ''}
-                        {formatDate(record.alteradoEm)}
+                        {formatDate(record.alteradoEm)} por {record.alteradoPor || 'Sistema'}
                     </Typography>
                 </Box>
             )}
@@ -116,4 +116,9 @@ const AuditInfo = ({ record, showLabels = true, variant = 'default' }) => {
     }
 };
 
-export default AuditInfo; 
+AuditInfo.propTypes = {
+    record: PropTypes.object,
+    showLabels: PropTypes.bool,
+    variant: PropTypes.oneOf(['default', 'compact', 'chips'])
+};
+export default AuditInfo;

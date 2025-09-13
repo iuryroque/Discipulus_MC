@@ -3,6 +3,8 @@ package com.os.unirios.security.jwt;
 import java.io.IOException;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
+	private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+	
 	@Autowired
 	private JwtUtils jwtUtils;
 
@@ -63,30 +67,39 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 			}
 		}
 
-		// Para endpoints que não são públicos, verifica o token JWT
-		String jwt = parseJwt(request);
-		
-		if (jwt == null || !jwtUtils.validateJwtToken(jwt)) {
-			throw new UnAuthenticated("Invalid or missing JWT token.");
-		}
-
-		String username = jwtUtils.getUserNameFromJwtToken(jwt);
-
-		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-				userDetails, null, null);
-		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		User user = userRepository.findByUsername(username).orElseThrow(() -> new UnAuthenticated("Invalid or missing JWT token for User."));
-
-		if (!user.isAdmin()) {
-			if (!hasAccess(user.getProfiles(), requestURI, request.getMethod())) {
-				throw new UnAuthorized("User does not have access to the resource.");
+		try {
+			// Para endpoints que não são públicos, verifica o token JWT
+			String jwt = parseJwt(request);
+			
+			if (jwt == null || !jwtUtils.validateJwtToken(jwt)) {
+				throw new UnAuthenticated("Invalid or missing JWT token.");
 			}
+
+			String username = jwtUtils.getUserNameFromJwtToken(jwt);
+
+			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+					userDetails, null, userDetails.getAuthorities());
+			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+
+			User user = userRepository.findByUsername(username).orElseThrow(() -> new UnAuthenticated("Invalid or missing JWT token for User."));
+
+			if (!user.isAdmin()) {
+				if (!hasAccess(user.getProfiles(), requestURI, request.getMethod())) {
+					throw new UnAuthorized("User does not have access to the resource.");
+				}
+			}
+			// Permite o acesso
+			filterChain.doFilter(request, response);
+		} catch (UnAuthenticated | UnAuthorized e) {
+			// Propaga a exceção para ser tratada pelo ControllerExceptionHandler
+			throw e;
+		} catch (Exception e) {
+			// Log do erro inesperado
+			logger.error("Erro inesperado no filtro de autenticação: {}", e.getMessage());
+			throw new UnAuthenticated("Erro de autenticação: " + e.getMessage());
 		}
-		// Permite o acesso
-		filterChain.doFilter(request, response);
 	}
 
 	private String parseJwt(HttpServletRequest request) {

@@ -1,5 +1,6 @@
 package com.os.unirios.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +36,9 @@ public class PresencaService {
 
     @Autowired
     private CultoRepository cultoRepository;
+
+    @Autowired
+    private FaltaService faltaService;
 
     private final GenericSpecificationUtil<Presenca> specUtil = new GenericSpecificationUtil<>();
 
@@ -117,6 +121,12 @@ public class PresencaService {
 
     @Transactional
     public void insertBulk(List<Presenca> presencas) {
+        List<Long> idsPessoasPresentes  = new ArrayList<>();
+       
+        // 2. Pega o Culto UMA VEZ, usando o primeiro item da lista.
+        // Isso evita buscar o mesmo culto várias vezes no loop.
+        Long cultoId = presencas.get(0).getCulto().getId();
+        
         List<Presenca> presencasValidadas = presencas.stream().map(p -> {
             if (p.getPessoa() == null || p.getPessoa().getId() == null) throw new IllegalArgumentException("ID da Pessoa é obrigatório.");
             Pessoa pessoa = pessoaRepository.findById(p.getPessoa().getId())
@@ -130,9 +140,14 @@ public class PresencaService {
             p.setCulto(culto);
             p.setPresente(StatusPresenca.SIM);
             p.setId(null);
+            idsPessoasPresentes.add(p.getPessoa().getId());
+
             return p;
         }).collect(Collectors.toList());
 
         repo.saveAll(presencasValidadas);
+        Culto culto = cultoRepository.findById(cultoId)
+        .orElseThrow(() -> new ObjectNotFoundException("Culto não encontrado com ID: " + cultoId));
+        // faltaService.computarFaltas(culto, idsPessoasPresentes);
     }
 }

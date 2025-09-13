@@ -1,7 +1,5 @@
 package com.os.unirios.controllers.exeptions;
 
-
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -9,7 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-
+import com.os.unirios.security.exceptions.UnAuthenticated;
+import com.os.unirios.security.exceptions.UnAuthorized;
 import com.os.unirios.services.exceptions.DataIntegrityException;
 import com.os.unirios.services.exceptions.ObjectNotFoundException;
 
@@ -43,6 +42,18 @@ public class ContollerExceptionHandler {
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(), "Integridade de dados", e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 	}
-
 	
+	@ExceptionHandler(UnAuthenticated.class)
+	public ResponseEntity<StandardError> unAuthenticated(UnAuthenticated e, HttpServletRequest request) {
+		
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.UNAUTHORIZED.value(), "Não autenticado", e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
+	}
+	
+	@ExceptionHandler(UnAuthorized.class)
+	public ResponseEntity<StandardError> unAuthorized(UnAuthorized e, HttpServletRequest request) {
+		
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.FORBIDDEN.value(), "Não autorizado", e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(err);
+	}
 }

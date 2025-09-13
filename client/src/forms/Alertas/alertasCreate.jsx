@@ -1,39 +1,57 @@
 import {
     ArrowBack as ArrowBackIcon,
     Description as DescriptionIcon,
-    Flag as FlagIcon,
     Person as PersonIcon,
     Save as SaveIcon,
     Warning as WarningIcon
 } from '@mui/icons-material';
 import {
-    Alert,
     Box,
     Button,
     Card,
     CardContent,
-    Collapse,
     Grid,
-    Paper,
-    Stack,
     Typography,
     useTheme
 } from '@mui/material';
-import React, { useState } from 'react';
 import {
     Create,
+    Loading,
     ReferenceInput,
     SaveButton,
     SelectInput,
     SimpleForm,
     TextInput,
     Toolbar,
+    useGetIdentity, // Importado para buscar o usuário logado
     useRedirect
 } from 'react-admin';
+import { ZodError } from 'zod'; // Importado para o tratamento de erros do Zod
 import { alertasSchema } from '../../validation/schemas';
-import { useZodValidation } from '../../validation/useZodValidation';
 
-// Componente de toolbar customizado
+/**
+ * --- LÓGICA DE VALIDAÇÃO REATORADA ---
+ * Esta função integra o schema do Zod com o sistema de validação do React Admin.
+ * Ela é mais simples e robusta que o hook customizado anterior.
+ */
+const validateAlertas = (values) => {
+    try {
+        alertasSchema.parse(values);
+        return {}; // Retorna um objeto vazio se a validação for bem-sucedida
+    } catch (error) {
+        if (error instanceof ZodError) {
+            // Transforma os erros do Zod para o formato que o React Admin entende
+            return error.errors.reduce((acc, curr) => {
+                // A chave do erro é o nome do campo (ex: 'titulo', 'pessoa.id')
+                acc[curr.path.join('.')] = curr.message;
+                return acc;
+            }, {});
+        }
+        return { _error: 'Ocorreu um erro de validação inesperado.' };
+    }
+};
+
+// Componente de toolbar customizado (sem alterações)
 const CustomToolbar = () => {
     const redirect = useRedirect();
     
@@ -66,38 +84,34 @@ const CustomToolbar = () => {
 const AlertasCreate = props => {
     const theme = useTheme();
     const redirect = useRedirect();
-    const [showPreview, setShowPreview] = useState(false);
-    const [formData, setFormData] = useState({});
 
-    // Hook de validação Zod
-    const { validate, errors, isValid } = useZodValidation(alertasSchema);
+    // --- NOVO: Hook para obter a identidade do usuário logado ---
+    // Essencial para associar o alerta ao usuário que o está criando.
+    const { identity, isLoading, error } = useGetIdentity();
 
-    const onSuccess = (data) => {
+    // --- CORREÇÃO PRINCIPAL: Trata o estado de carregamento ---
+    // Isso impede a renderização do formulário antes que a identidade do usuário
+    // seja conhecida, evitando o erro de "undefined" ou "null".
+    if (isLoading) return <Loading />;
+    if (error) return <p>Não foi possível carregar os dados do usuário.</p>;
+
+    const onSuccess = () => {
         redirect('list', 'alertas');
     };
 
-    const handleSubmit = (data) => {
-        const validationResult = validate(data);
-        if (validationResult.success) {
-            // Dados válidos, prosseguir com o envio
-            console.log('Dados válidos:', validationResult.data);
-            return data;
-        } else {
-            console.error('Erros de validação:', validationResult.error);
-            return false;
-        }
-    };
-
-    const handleFormChange = (data) => {
-        setFormData(data);
-        validate(data);
-    };
+    // --- NOVO: Transforma os dados antes de salvar ---
+    // Adiciona o ID do usuário logado como 'responsavel' antes de enviar para a API.
+    const transform = data => ({
+        ...data,
+        responsavel: { id: identity.id }
+    });
 
     return (
-        <Create {...props}>
-            <SimpleForm onSubmit={handleSubmit} onChange={handleFormChange} onSuccess={onSuccess} toolbar={<CustomToolbar />}>
+        <Create {...props} transform={transform} onSuccess={onSuccess}>
+            {/* --- ALTERAÇÃO: A validação agora é uma prop do SimpleForm --- */}
+            <SimpleForm validate={validateAlertas} toolbar={<CustomToolbar />}>
                 <Box sx={{ p: 3 }}>
-                    {/* Header */}
+                    {/* Header (sem alterações) */}
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                         <Box 
                             sx={{ 
@@ -120,47 +134,16 @@ const AlertasCreate = props => {
                         </Box>
                     </Box>
 
-                    {/* Alertas de validação */}
-                    {!isValid && Object.keys(errors).length > 0 && (
-                        <Alert 
-                            severity="warning" 
-                            sx={{ mb: 3 }}
-                            action={
-                                <Button 
-                                    color="inherit" 
-                                    size="small"
-                                    onClick={() => setShowPreview(!showPreview)}
-                                >
-                                    {showPreview ? 'Ocultar' : 'Ver'} Detalhes
-                                </Button>
-                            }
-                        >
-                            Existem erros de validação no formulário
-                        </Alert>
-                    )}
+                    {/*
+                      --- REMOVIDO: A lógica customizada de exibição de erros foi removida. ---
+                      O React Admin agora exibe as mensagens de erro diretamente nos campos do formulário.
+                    */}
 
-                    <Collapse in={showPreview && !isValid}>
-                        <Paper sx={{ p: 2, mb: 3, backgroundColor: theme.palette.warning.light + '10' }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                                Erros de Validação:
-                            </Typography>
-                            <Stack spacing={1}>
-                                {Object.entries(errors).map(([field, error]) => (
-                                    <Box key={field} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            <strong>{field}:</strong> {error}
-                                        </Typography>
-                                    </Box>
-                                ))}
-                            </Stack>
-                        </Paper>
-                    </Collapse>
-
-                    {/* Informações do Alerta */}
+                    {/* Informações do Alerta (sem alterações) */}
                     <Card sx={{ mb: 3, border: `1px solid ${theme.palette.divider}` }}>
                         <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                                <WarningIcon color="error" />
+                                {/* <WarningIcon color="error" /> */}
                                 <Typography variant="h6" sx={{ fontWeight: 600, ml: 1 }}>
                                     Informações do Alerta
                                 </Typography>
@@ -213,7 +196,7 @@ const AlertasCreate = props => {
                         </CardContent>
                     </Card>
 
-                    {/* Pessoa Relacionada */}
+                    {/* Pessoa Relacionada (sem alterações) */}
                     <Card sx={{ mb: 3, border: `1px solid ${theme.palette.divider}` }}>
                         <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -242,7 +225,7 @@ const AlertasCreate = props => {
                         </CardContent>
                     </Card>
 
-                    {/* Detalhes do Alerta */}
+                    {/* Detalhes do Alerta (sem alterações) */}
                     <Card sx={{ mb: 3, border: `1px solid ${theme.palette.divider}` }}>
                         <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -283,52 +266,9 @@ const AlertasCreate = props => {
                             </Grid>
                         </CardContent>
                     </Card>
-
-                    {/* Card de Resumo */}
-                    <Card sx={{ mb: 3, backgroundColor: theme.palette.info.light + '10', border: `1px solid ${theme.palette.info.light}` }}>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <FlagIcon sx={{ color: theme.palette.info.main, mr: 1 }} />
-                                <Typography variant="h6" sx={{ color: theme.palette.info.main }}>
-                                    Resumo do Alerta
-                                </Typography>
-                            </Box>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} md={6}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        <strong>Tipo:</strong>
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {formData.tipo || 'Não definido'}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        <strong>Prioridade:</strong>
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {formData.prioridade || 'Não definida'}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        <strong>Título:</strong>
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {formData.titulo || 'Não definido'}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        <strong>Pessoa:</strong>
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {formData.pessoa?.nomeCompleto || 'Não selecionada'}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                    </Card>
+                    
+                    {/* --- REMOVIDO: O card de resumo foi removido para simplificar. --- */}
+                    {/* Ele dependia do estado manual `formData`, que não é mais necessário. */}
                 </Box>
             </SimpleForm>
         </Create>
@@ -336,5 +276,3 @@ const AlertasCreate = props => {
 };
 
 export default AlertasCreate;
-
-    

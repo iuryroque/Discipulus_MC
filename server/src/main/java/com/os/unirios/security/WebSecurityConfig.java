@@ -28,10 +28,6 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
   @Autowired
   UserDetailsServiceImpl userDetailsService;
 
-
-
-
-
   @Bean
   public AuthTokenFilter authenticationJwtTokenFilter() {
     return new AuthTokenFilter();
@@ -66,6 +62,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
               .requestMatchers("/api/test/**").permitAll()
               .requestMatchers("/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html", "/redoc", "/redoc/**").permitAll()
               .requestMatchers("/culto-recorrente/**").permitAll()
+              .requestMatchers("/presenca/**").authenticated()
               .anyRequest().authenticated()
         );
     

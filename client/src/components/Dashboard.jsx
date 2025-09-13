@@ -1,6 +1,4 @@
 import {
-    Assignment,
-    Book,
     CheckCircle,
     Event,
     Notifications,
@@ -13,12 +11,9 @@ import {
     Box,
     Card,
     CardContent,
-    Chip,
     Grid,
-    LinearProgress,
     Typography
 } from '@mui/material';
-import React from 'react';
 import { useGetList, useTranslate } from 'react-admin';
 
 const Dashboard = () => {
@@ -171,7 +166,7 @@ const Dashboard = () => {
             {/* Progresso e Atividades */}
             <Grid container spacing={3}>
                 {/* Progresso de Estudos */}
-                <Grid item xs={12} md={6}>
+                {/* <Grid item xs={12} md={6}>
                     <Card elevation={2}>
                         <CardContent>
                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -216,7 +211,7 @@ const Dashboard = () => {
                             </Box>
                         </CardContent>
                     </Card>
-                </Grid>
+                </Grid> */}
 
                 {/* Atividades Recentes */}
                 <Grid item xs={12} md={6}>
