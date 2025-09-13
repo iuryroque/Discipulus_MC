@@ -287,7 +287,7 @@ EOF
                         else
                             echo "❌ Volume mounting falhou, tentando abordagem alternativa..."
                             
-                            # Criar container temporário e copiar arquivos
+                            # Abordagem simplificada usando volumes
                             CONTAINER_ID=$(docker create ${BUILD_BACKEND_IMAGE}:latest)
                             echo "📦 Container temporário criado: ${CONTAINER_ID}"
                             
