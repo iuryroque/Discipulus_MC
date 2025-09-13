@@ -287,19 +287,23 @@ EOF
                         else
                             echo "❌ Volume mounting falhou, tentando abordagem alternativa..."
                             
-                            # Abordagem simplificada usando volumes
-                            CONTAINER_ID=$(docker create ${BUILD_BACKEND_IMAGE}:latest)
-                            echo "📦 Container temporário criado: ${CONTAINER_ID}"
+                            # Abordagem simplificada usando docker run com container persistente
+                            CONTAINER_NAME="discipulus-build-${BUILD_NUMBER}"
+                            
+                            # Criar e iniciar container em background
+                            echo "📦 Criando container temporário..."
+                            docker run -d --name ${CONTAINER_NAME} \
+                                -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
+                                ${BUILD_BACKEND_IMAGE}:latest \
+                                tail -f /dev/null
                             
                             # Copiar arquivos do host para o container
                             echo "📋 Copiando arquivos para o container..."
-                            docker cp "${BACKEND_PATH}/." ${CONTAINER_ID}:/app/
+                            docker cp "${BACKEND_PATH}/." ${CONTAINER_NAME}:/app/
                             
-                            # Iniciar container e executar build
+                            # Executar build no container
                             echo "🔨 Executando build no container..."
-                            docker start ${CONTAINER_ID}
-                            sleep 2
-                            docker exec ${CONTAINER_ID} bash -c "
+                            if docker exec ${CONTAINER_NAME} bash -c "
                                 cd /app
                                 echo '📂 Conteúdo do /app após cópia:'
                                 ls -la
@@ -309,15 +313,22 @@ EOF
                                 mvn clean compile -DskipTests
                                 mvn package -DskipTests
                                 echo '✅ Build do backend concluído!'
-                            "
-                            
-                            # Copiar artefatos de volta para o host
-                            echo "📤 Copiando artefatos de volta para o host..."
-                            docker cp ${CONTAINER_ID}:/app/target/. "${BACKEND_PATH}/target/"
+                            "; then
+                                # Copiar artefatos de volta para o host
+                                echo "📤 Copiando artefatos de volta para o host..."
+                                docker cp ${CONTAINER_NAME}:/app/target/. "${BACKEND_PATH}/target/"
+                                echo "✅ Artefatos copiados com sucesso!"
+                            else
+                                echo "❌ Falha no build dentro do container"
+                                docker logs ${CONTAINER_NAME}
+                                exit 1
+                            fi
                             
                             # Limpar container
-                            docker rm ${CONTAINER_ID}
+                            docker stop ${CONTAINER_NAME}
+                            docker rm ${CONTAINER_NAME}
                             echo "🧹 Container temporário removido"
+                        fi
                         fi
                     '''
                     
