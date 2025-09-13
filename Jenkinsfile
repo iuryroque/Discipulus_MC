@@ -8,13 +8,7 @@ pipeline {
         BACKEND_DIR = 'server'
         FRONTEND_DIR = 'client'
 
-        // Imagens de bu                            echo "📥 Baixando imagem ${BUILD_BACKEND_IMAGE}..."
-                            if ! docker pull ${BUILD_BACKEND_IMAGE}; then
-                                echo "❌ Falha ao baixar imagem ${BUILD_BACKEND_IMAGE}"
-                                echo "🔍 Verificando imagens disponíveis:"
-                                docker images
-                                exit 1
-                            fi        BUILD_BACKEND_IMAGE = 'maven:3.9-eclipse-temurin-21-alpine'
+        BUILD_BACKEND_IMAGE = 'maven:3.9-eclipse-temurin-21-alpine'
         BUILD_FRONTEND_IMAGE = 'node:18-alpine'
 
         // Configurações das imagens Docker (locais)
