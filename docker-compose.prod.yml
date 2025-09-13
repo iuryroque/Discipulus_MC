@@ -22,9 +22,9 @@ services:
       retries: 3
     restart: unless-stopped
 
-  # Backend Spring Boot (imagem do Docker Hub)
+  # Backend Spring Boot (imagem local)
   backend:
-    image: ${DOCKER_USERNAME:-seu_usuario_dockerhub}/discipulus-backend:${VERSION:-latest}
+    image: discipulus-backend:latest
     container_name: discipulus_backend
     depends_on:
       postgres:
@@ -43,9 +43,9 @@ services:
       - discipulus_network
     restart: unless-stopped
 
-  # Frontend React/Vite (imagem do Docker Hub)
+  # Frontend React/Vite (imagem local)
   frontend:
-    image: ${DOCKER_USERNAME:-seu_usuario_dockerhub}/discipulus-frontend:${VERSION:-latest}
+    image: discipulus-frontend:latest
     container_name: discipulus_frontend
     depends_on:
       - backend

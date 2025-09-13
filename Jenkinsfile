@@ -1,0 +1,395 @@
+pipeline {
+    agent any
+
+    environment {
+        // Configurações das imagens Docker (locais)
+        IMAGE_PREFIX = 'discipulus'
+        VERSION = "${env.BUILD_NUMBER ?: 'latest'}"
+
+        // Configurações do projeto
+        BACKEND_DIR = 'server'
+        FRONTEND_DIR = 'client'
+        
+        // Imagens de build
+        BUILD_BACKEND_IMAGE = 'discipulus-build-backend'
+        BUILD_FRONTEND_IMAGE = 'discipulus-build-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '🔄 Fazendo checkout do código...'
+                checkout scm
+            }
+        }
+
+        stage('Verify Dependencies') {
+            steps {
+                echo '� Verificando dependências do sistema...'
+                sh '''
+                    echo "=== Verificação de Dependências ==="
+
+                    # Verificar Docker
+                    if command -v docker &> /dev/null; then
+                        echo "✅ Docker encontrado:"
+                        docker --version
+                    else
+                        echo "❌ Docker não encontrado!"
+                        exit 1
+                    fi
+
+                    # Verificar Docker Compose
+                    if command -v docker-compose &> /dev/null; then
+                        echo "✅ Docker Compose encontrado:"
+                        docker-compose --version
+                    else
+                        echo "❌ Docker Compose não encontrado!"
+                        exit 1
+                    fi
+
+                    # Verificar Java
+                    if command -v java &> /dev/null; then
+                        echo "✅ Java encontrado:"
+                        java -version
+                    else
+                        echo "❌ Java não encontrado!"
+                        exit 1
+                    fi
+
+                    # Verificar Maven
+                    if command -v mvn &> /dev/null; then
+                        echo "✅ Maven encontrado:"
+                        mvn -version
+                    else
+                        echo "❌ Maven não encontrado!"
+                        exit 1
+                    fi
+
+                    # Verificar Node.js
+                    if command -v node &> /dev/null; then
+                        echo "✅ Node.js encontrado:"
+                        node --version
+                    else
+                        echo "❌ Node.js não encontrado!"
+                        exit 1
+                    fi
+
+                    # Verificar npm
+                    if command -v npm &> /dev/null; then
+                        echo "✅ npm encontrado:"
+                        npm --version
+                    else
+                        echo "❌ npm não encontrado!"
+                        exit 1
+                    fi
+
+                    echo "=== Todas as dependências verificadas com sucesso! ==="
+                '''
+            }
+        }
+
+        stage('Setup Environment') {
+            steps {
+                echo '🔧 Configurando ambiente...'
+                sh '''
+                    # Criar arquivo .env para o projeto
+                    cat > .env << EOF
+# Configurações das Imagens Docker (locais)
+IMAGE_PREFIX=${IMAGE_PREFIX}
+VERSION=${VERSION}
+
+# Configurações do Banco de Dados
+POSTGRES_DB=discipulus_v1
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+POSTGRES_PORT=5433
+
+# Configurações JWT
+JWT_SECRET=${JWT_SECRET}
+JWT_EXPIRATION=86400000
+
+# Configurações de Portas
+BACKEND_PORT=8080
+FRONTEND_PORT=80
+EOF
+                '''
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                echo '📦 Build do backend Spring Boot em container...'
+                script {
+                    // Build usando container dedicado
+                    sh '''
+                        docker run --rm \
+                            -v $(pwd)/${BACKEND_DIR}:/app \
+                            -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
+                            -w /app \
+                            ${BUILD_BACKEND_IMAGE}:latest \
+                            bash -c "
+                                echo '📋 Versão do Java:' && java -version
+                                echo '📋 Versão do Maven:' && mvn -version
+                                echo '🔨 Iniciando build do backend...'
+                                mvn clean compile -DskipTests
+                                mvn package -DskipTests
+                                echo '✅ Build do backend concluído!'
+                            "
+                    '''
+                    
+                    // Copiar artefatos do container para o host
+                    sh '''
+                        # Verificar se o JAR foi criado
+                        if [ -f ${BACKEND_DIR}/target/*.war ]; then
+                            echo "✅ Arquivo WAR encontrado!"
+                            ls -la ${BACKEND_DIR}/target/*.war
+                        else
+                            echo "❌ Arquivo WAR não encontrado!"
+                            exit 1
+                        fi
+                    '''
+                }
+                echo '✅ Backend buildado com sucesso!'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: "${BACKEND_DIR}/target/*.war", fingerprint: true
+                }
+                failure {
+                    echo '❌ Falha no build do backend!'
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                echo '🎨 Build do frontend React em container...'
+                script {
+                    // Build usando container dedicado
+                    sh '''
+                        docker run --rm \
+                            -v $(pwd)/${FRONTEND_DIR}:/app \
+                            -v npm-cache-${BUILD_NUMBER}:/opt/npm-cache \
+                            -w /app \
+                            ${BUILD_FRONTEND_IMAGE}:latest \
+                            sh -c "
+                                echo '📋 Versão do Node.js:' && node --version
+                                echo '📋 Versão do npm:' && npm --version
+                                echo '🔨 Iniciando build do frontend...'
+                                
+                                # Limpar cache npm se necessário
+                                npm cache clean --force || true
+                                
+                                # Instalar dependências
+                                npm ci --prefer-offline
+                                
+                                # Build da aplicação
+                                npm run build
+                                
+                                echo '✅ Build do frontend concluído!'
+                            "
+                    '''
+                    
+                    // Verificar se o build foi criado
+                    sh '''
+                        if [ -d ${FRONTEND_DIR}/dist ]; then
+                            echo "✅ Diretório dist encontrado!"
+                            ls -la ${FRONTEND_DIR}/dist/
+                        else
+                            echo "❌ Diretório dist não encontrado!"
+                            exit 1
+                        fi
+                    '''
+                }
+                echo '✅ Frontend buildado com sucesso!'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: "${FRONTEND_DIR}/dist/**/*", fingerprint: true
+                }
+                failure {
+                    echo '❌ Falha no build do frontend!'
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                echo '🐳 Build das imagens Docker locais...'
+                script {
+                    // Build Backend
+                    sh '''
+                        docker build -t ${IMAGE_PREFIX}-backend:${VERSION} ./${BACKEND_DIR}
+                        docker build -t ${IMAGE_PREFIX}-backend:latest ./${BACKEND_DIR}
+                    '''
+
+                    // Build Frontend
+                    sh '''
+                        docker build -t ${IMAGE_PREFIX}-frontend:${VERSION} ./${FRONTEND_DIR}
+                        docker build -t ${IMAGE_PREFIX}-frontend:latest ./${FRONTEND_DIR}
+                    '''
+                }
+                echo '✅ Imagens Docker criadas com sucesso!'
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'staging'
+                }
+            }
+            steps {
+                echo '🚀 Deploy para Staging...'
+                script {
+                    // Parar containers existentes
+                    sh '''
+                        docker-compose -f docker-compose.yml down || true
+                    '''
+
+                    // Iniciar serviços
+                    sh '''
+                        docker-compose -f docker-compose.yml up -d --build
+                    '''
+
+                    // Aguardar serviços
+                    sh '''
+                        sleep 30
+                        docker-compose -f docker-compose.yml ps
+                    '''
+                }
+                echo '✅ Deploy para Staging concluído!'
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+                beforeInput true
+            }
+            input {
+                message 'Deploy para Produção?'
+                ok 'Deploy'
+                submitterParameter 'APPROVER'
+            }
+            steps {
+                echo '🚀 Deploy para Produção...'
+                script {
+                    // Usar docker-compose.prod.yml
+                    sh '''
+                        docker-compose -f docker-compose.prod.yml down || true
+                        docker-compose -f docker-compose.prod.yml pull
+                        docker-compose -f docker-compose.prod.yml up -d
+                    '''
+
+                    // Aguardar e verificar
+                    sh '''
+                        sleep 30
+                        docker-compose -f docker-compose.prod.yml ps
+                    '''
+                }
+                echo '✅ Deploy para Produção concluído!'
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                echo '🏥 Verificando saúde dos serviços...'
+                script {
+                    // Verificar se os containers estão rodando
+                    sh '''
+                        docker-compose -f docker-compose.yml ps
+                    '''
+
+                    // Testar conectividade do backend
+                    sh '''
+                        timeout 30 bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 5; done' || echo "Backend health check failed"
+                    '''
+
+                    // Testar conectividade do frontend
+                    sh '''
+                        timeout 30 bash -c 'until curl -f http://localhost; do sleep 5; done' || echo "Frontend health check failed"
+                    '''
+                }
+                echo '✅ Health check concluído!'
+            }
+        }
+
+        stage('Cleanup Build Environment') {
+            steps {
+                echo '🧹 Limpando ambiente de build...'
+                script {
+                    // Limpar volumes temporários de cache
+                    sh '''
+                        # Limpar volumes de cache específicos do build
+                        docker volume rm maven-cache-${BUILD_NUMBER} || true
+                        docker volume rm npm-cache-${BUILD_NUMBER} || true
+                        
+                        # Limpar imagens de build se necessário (opcional)
+                        # docker rmi ${BUILD_BACKEND_IMAGE}:latest || true
+                        # docker rmi ${BUILD_FRONTEND_IMAGE}:latest || true
+                    '''
+                }
+                echo '✅ Ambiente de build limpo!'
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                echo '🧹 Limpando recursos...'
+                script {
+                    // Limpar imagens não utilizadas
+                    sh '''
+                        docker system prune -f
+                    '''
+                }
+                echo '✅ Cleanup concluído!'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '📊 Pipeline finalizado!'
+            script {
+                // Limpar workspace se necessário
+                cleanWs()
+            }
+        }
+        success {
+            echo '🎉 Pipeline executado com sucesso!'
+            script {
+                // Notificações de sucesso (Slack, email, etc.)
+                echo "Build ${env.BUILD_NUMBER} successful!"
+                echo "Imagens locais criadas:"
+                echo "  ${IMAGE_PREFIX}-backend:${VERSION}"
+                echo "  ${IMAGE_PREFIX}-frontend:${VERSION}"
+            }
+        }
+        failure {
+            echo '💥 Pipeline falhou!'
+            script {
+                // Notificações de falha
+                echo "Build ${env.BUILD_NUMBER} failed!"
+            }
+        }
+        unstable {
+            echo '⚠️  Pipeline instável!'
+        }
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+    }
+
+    triggers {
+        // Trigger automático para branch main
+        pollSCM('H/15 * * * *') // Poll a cada 15 minutos
+
+        // Ou webhook do GitHub
+        // githubPush()
+    }
+}

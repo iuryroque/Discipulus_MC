@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_PREFIX = 'discipulus'
+        VERSION = "${env.BUILD_NUMBER ?: 'dev'}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Dependencies') {
+            steps {
+                sh '''
+                    echo "=== Verificação Rápida de Dependências ==="
+                    docker --version
+                    java -version
+                    mvn --version
+                    node --version
+                    npm --version
+                '''
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                dir('server') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                dir('client') {
+                    sh '''
+                        npm ci
+                        npm run build
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    // Build images locais
+                    sh '''
+                        docker build -t ${IMAGE_PREFIX}-backend:${VERSION} ./server
+                        docker build -t ${IMAGE_PREFIX}-frontend:${VERSION} ./client
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy Local') {
+            steps {
+                sh '''
+                    docker-compose down || true
+                    docker-compose up -d --build
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build successful!'
+            echo "Imagens locais: ${IMAGE_PREFIX}-backend:${VERSION}, ${IMAGE_PREFIX}-frontend:${VERSION}"
+        }
+        failure {
+            echo '❌ Build failed!'
+        }
+    }
+}

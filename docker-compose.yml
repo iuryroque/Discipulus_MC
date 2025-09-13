@@ -23,9 +23,7 @@ services:
 
   # Backend Spring Boot
   backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
+    image: discipulus-backend:latest
     container_name: discipulus_backend
     depends_on:
       postgres:
@@ -46,9 +44,7 @@ services:
 
   # Frontend React/Vite
   frontend:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
+    image: discipulus-frontend:latest
     container_name: discipulus_frontend
     depends_on:
       - backend

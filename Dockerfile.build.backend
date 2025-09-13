@@ -1,0 +1,16 @@
+# Build Environment para Backend Spring Boot
+FROM maven:3.9.4-openjdk-21-slim
+
+# Instalar dependências adicionais se necessário
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Configurar cache do Maven
+VOLUME ["/root/.m2"]
+
+# Comando padrão
+CMD ["/bin/bash"]
