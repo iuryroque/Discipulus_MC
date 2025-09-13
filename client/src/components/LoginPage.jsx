@@ -23,8 +23,8 @@ import {
     Typography
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import React, { useState } from 'react';
-import { useLogin, useNotify, useTranslate } from 'react-admin';
+import { useState } from 'react';
+import { useLogin, useNotify } from 'react-admin';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -35,7 +35,6 @@ const LoginPage = () => {
     
     const login = useLogin();
     const notify = useNotify();
-    const translate = useTranslate();
     const theme = useTheme();
 
     const handleSubmit = async (e) => {
@@ -45,10 +44,10 @@ const LoginPage = () => {
 
         try {
             await login({ username, password });
-            notify('ra.notification.login_success', { type: 'success' });
-        } catch (error) {
+            notify('ra.notification.logged_in', { type: 'success' });
+        } catch {
             setError('Usuário ou senha incorretos. Tente novamente.');
-            notify('Erro na autenticação', { type: 'error' });
+            notify('ra.auth.sign_in_error', { type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -202,10 +201,10 @@ const LoginPage = () => {
                                 setError('');
                                 try {
                                     await login({ username: 'master', password: '1' });
-                                    notify(translate('ra.notification.login_success'), { type: 'success' });
-                                } catch (error) {
+                                    notify('ra.notification.logged_in', { type: 'success' });
+                                } catch {
                                     setError('Usuário ou senha incorretos. Tente novamente.');
-                                    notify('Erro na autenticação', { type: 'error' });
+                                    notify('ra.auth.sign_in_error', { type: 'error' });
                                 } finally {
                                     setLoading(false);
                                 }
@@ -287,7 +286,7 @@ const LoginPage = () => {
 
                     <Box sx={{ mt: 4, textAlign: 'center' }}>
                         <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                            "Ide, portanto, e fazei discípulos de todas as nações..."
+                            &quot;Ide, portanto, e fazei discípulos de todas as nações...&quot;
                         </Typography>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
                             Mateus 28:19

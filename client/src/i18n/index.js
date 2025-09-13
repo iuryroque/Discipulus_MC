@@ -1,27 +1,27 @@
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 
-const englishMessages = {
-    ra: {
-        notification: {
-            http_error: 'Network error. Please retry',
-        },
-        action: {
-            save: 'Salvar',
-            delete: 'Delete',
-        },
-    },
-};
-const frenchMessages = {
-    ra: {
-        notification: {
-            http_error: 'Erreur réseau, veuillez réessayer',
-        },
-        action: {
-            save: 'Enregistrer',
-            delete: 'Supprimer',
-        },
-    },
-};
+// const englishMessages = {
+//     ra: {
+//         notification: {
+//             http_error: 'Network error. Please retry',
+//         },
+//         action: {
+//             save: 'Salvar',
+//             delete: 'Delete',
+//         },
+//     },
+// };
+// const frenchMessages = {
+//     ra: {
+//         notification: {
+//             http_error: 'Erreur réseau, veuillez réessayer',
+//         },
+//         action: {
+//             save: 'Enregistrer',
+//             delete: 'Supprimer',
+//         },
+//     },
+// };
 
 const ptMessages = {
   ra: {
@@ -165,10 +165,8 @@ const ptMessages = {
         'Não foi possível carregar as traduções para a linguagem especificada',
       canceled: 'Ação cancelada',
       logged_out: 'Sua sessão foi finalizada, por favor reconecte.',
+      logged_in: 'Login realizado com sucesso!',
       login_success: 'Login realizado com sucesso!',
-      'login_success': 'Login realizado com sucesso!',
-      'Login realizado com sucesso!': 'Login realizado com sucesso!',
-      'ra.notification.login_success': 'Login realizado com sucesso!',
       "Configuração de culto recorrente criada com sucesso!": "Configuração de culto recorrente criada com sucesso!",
     },
     validation: {
