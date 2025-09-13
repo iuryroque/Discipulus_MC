@@ -8,8 +8,13 @@ pipeline {
         BACKEND_DIR = 'server'
         FRONTEND_DIR = 'client'
 
-        // Imagens de build
-        BUILD_BACKEND_IMAGE = 'maven:3.9-eclipse-temurin-21-alpine'
+        // Imagens de bu                            echo "📥 Baixando imagem ${BUILD_BACKEND_IMAGE}..."
+                            if ! docker pull ${BUILD_BACKEND_IMAGE}; then
+                                echo "❌ Falha ao baixar imagem ${BUILD_BACKEND_IMAGE}"
+                                echo "🔍 Verificando imagens disponíveis:"
+                                docker images
+                                exit 1
+                            fi        BUILD_BACKEND_IMAGE = 'maven:3.9-eclipse-temurin-21-alpine'
         BUILD_FRONTEND_IMAGE = 'node:18-alpine'
 
         // Configurações das imagens Docker (locais)
@@ -227,6 +232,9 @@ EOF
         }
 
         stage('Build Backend') {
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 echo '📦 Build do backend Spring Boot em container...'
                 script {
@@ -244,17 +252,27 @@ EOF
                         BACKEND_PATH="${WORKSPACE}/${BACKEND_DIR}"
                         echo "📂 Caminho absoluto do backend: ${BACKEND_PATH}"
 
-                        # Verificar se o diretório existe
+                        # Verificar se o diretório existe e tem permissões
                         if [ ! -d "${BACKEND_PATH}" ]; then
                             echo "❌ Diretório ${BACKEND_PATH} não existe!"
                             exit 1
                         fi
 
-                        # Verificar permissões do diretório
-                        echo "🔍 Verificando permissões do diretório host:"
-                        ls -ld "${BACKEND_PATH}" || true
-                        echo "🔍 Verificando permissões dos arquivos:"
-                        ls -la "${BACKEND_PATH}/" | head -10 || true
+                        if [ ! -r "${BACKEND_PATH}/pom.xml" ]; then
+                            echo "❌ Não tem permissão para ler pom.xml!"
+                            ls -la "${BACKEND_PATH}/pom.xml"
+                            exit 1
+                        fi
+
+                        # Verificar recursos do sistema
+                        echo "💾 Verificando recursos do sistema:"
+                        df -h / | tail -1
+                        free -h | grep "^Mem:" || echo "Memória: $(cat /proc/meminfo | grep MemTotal | awk '{print $2/1024/1024 " GB"}')"
+
+                        # Verificar recursos do sistema
+                        echo "� Verificando recursos do sistema:"
+                        df -h / | tail -1
+                        free -h | grep "^Mem:" || echo "Memória: $(cat /proc/meminfo | grep MemTotal | awk '{print $2/1024/1024 " GB"}')"
 
                         # Verificar se há SELinux ou AppArmor
                         echo "🔍 Verificando SELinux/AppArmor:"
@@ -284,10 +302,23 @@ EOF
 
                         # Verificar conectividade de rede
                         echo "🌐 Verificando conectividade de rede:"
-                        if curl -I --connect-timeout 10 https://repo.maven.apache.org >/dev/null 2>&1; then
+                        if curl -I --connect-timeout 10 --max-time 30 https://repo.maven.apache.org >/dev/null 2>&1; then
                             echo "✅ Conectividade com Maven Central OK"
                         else
-                            echo "⚠️ Problemas de conectividade com Maven Central (pode afetar downloads)"
+                            echo "⚠️ Problemas de conectividade com Maven Central - tentando com retry..."
+                            for i in 1 2 3; do
+                                if curl -I --connect-timeout 10 --max-time 30 https://repo.maven.apache.org >/dev/null 2>&1; then
+                                    echo "✅ Conectividade OK na tentativa $i"
+                                    break
+                                else
+                                    echo "❌ Tentativa $i falhou"
+                                    if [ $i -eq 3 ]; then
+                                        echo "⚠️ Conectividade instável - build pode falhar"
+                                    else
+                                        sleep 5
+                                    fi
+                                fi
+                            done
                         fi
 
                         if docker run --rm \
