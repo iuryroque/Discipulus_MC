@@ -254,7 +254,7 @@ EOF
                             -v "${BACKEND_PATH}:/app" \
                             -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
                             -w /app \
-                            ${BUILD_BACKEND_IMAGE}:latest \
+                            ${BUILD_BACKEND_IMAGE} \
                             bash -c "
                                 echo '📂 Conteúdo do /app no container:'
                                 ls -la || true
@@ -292,7 +292,7 @@ EOF
                             echo "📦 Criando container temporário..."
                             docker run -d --name "${CONTAINER_NAME}" \
                                 -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
-                                ${BUILD_BACKEND_IMAGE}:latest \
+                                ${BUILD_BACKEND_IMAGE} \
                                 tail -f /dev/null
 
                             # Copiar arquivos do host para o container
@@ -548,7 +548,7 @@ EOF
                             docker volume rm npm-cache-${BUILD_NUMBER} || true
                             
                             # Limpar imagens de build se necessário (opcional)
-                            # docker rmi ${BUILD_BACKEND_IMAGE}:latest || true
+                            # docker rmi ${BUILD_BACKEND_IMAGE} || true
                             # docker rmi ${BUILD_FRONTEND_IMAGE}:latest || true
                         '''
                         echo '✅ Cache de build limpo!'
