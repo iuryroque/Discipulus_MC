@@ -295,9 +295,11 @@ EOF
                             echo "📋 Copiando arquivos para o container..."
                             docker cp "${BACKEND_PATH}/." ${CONTAINER_ID}:/app/
                             
-                            # Executar build no container
+                            # Iniciar container e executar build
                             echo "🔨 Executando build no container..."
-                            docker start -i ${CONTAINER_ID} bash -c "
+                            docker start ${CONTAINER_ID}
+                            sleep 2
+                            docker exec ${CONTAINER_ID} bash -c "
                                 cd /app
                                 echo '📂 Conteúdo do /app após cópia:'
                                 ls -la
