@@ -7,7 +7,7 @@ pipeline {
         FRONTEND_DIR = 'client'
 
         // Imagens de build
-        BUILD_BACKEND_IMAGE = 'maven:3.8-openjdk-21-slim'
+        BUILD_BACKEND_IMAGE = 'maven:3.9-eclipse-temurin-21-alpine'
         BUILD_FRONTEND_IMAGE = 'node:18-alpine'
 
         // Configurações das imagens Docker (locais)
