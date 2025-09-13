@@ -26,56 +26,61 @@ pipeline {
         stage('Load Secrets') {
             steps {
                 echo '🔐 Carregando arquivo unificado de credenciais...'
-                withCredentials([file(credentialsId: 'discipulus-credentials', variable: 'CREDENTIALS_FILE')]) {
-                    script {
-                        // Carregar arquivo único de credenciais
-                        def credsContent = readFile(file: env.CREDENTIALS_FILE).trim()
-                        
-                        // Parse do arquivo de credenciais (formato CHAVE=VALOR)
-                        def credsLines = credsContent.split('\n')
-                        credsLines.each { line ->
-                            line = line.trim()
-                            if (line.contains('=') && !line.startsWith('#')) {
-                                def parts = line.split('=', 2)
-                                if (parts.length == 2) {
-                                    def key = parts[0].trim()
-                                    def value = parts[1].trim()
-                                    
-                                    // Mapear para variáveis de ambiente
-                                    switch(key) {
-                                        case 'POSTGRES_PASSWORD':
-                                            env.POSTGRES_PASSWORD = value
-                                            break
-                                        case 'JWT_SECRET':
-                                            env.JWT_SECRET = value
-                                            break
-                                        case 'MAVEN_OPTS':
-                                            env.MAVEN_OPTS = value
-                                            break
-                                        case 'NODE_ENV':
-                                            env.NODE_ENV = value
-                                            break
-                                        case 'DEPLOY_ENVIRONMENT':
-                                            env.DEPLOY_ENVIRONMENT = value
-                                            break
-                                        case 'HEALTH_CHECK_TIMEOUT':
-                                            env.HEALTH_CHECK_TIMEOUT = value
-                                            break
-                                        case 'CLEANUP_BUILD_CACHE':
-                                            env.CLEANUP_BUILD_CACHE = value
-                                            break
+                script {
+                    try {
+                        withCredentials([file(credentialsId: 'discipulus-credentials', variable: 'CREDENTIALS_FILE')]) {
+                            // Carregar arquivo único de credenciais
+                            def credsContent = readFile(file: env.CREDENTIALS_FILE).trim()
+
+                            // Parse do arquivo de credenciais (formato CHAVE=VALOR)
+                            def credsLines = credsContent.split('\n')
+                            credsLines.each { line ->
+                                line = line.trim()
+                                if (line.contains('=') && !line.startsWith('#')) {
+                                    def parts = line.split('=', 2)
+                                    if (parts.length == 2) {
+                                        def key = parts[0].trim()
+                                        def value = parts[1].trim()
+
+                                        // Mapear para variáveis de ambiente
+                                        switch(key) {
+                                            case 'POSTGRES_PASSWORD':
+                                                env.POSTGRES_PASSWORD = value
+                                                break
+                                            case 'JWT_SECRET':
+                                                env.JWT_SECRET = value
+                                                break
+                                            case 'MAVEN_OPTS':
+                                                env.MAVEN_OPTS = value
+                                                break
+                                            case 'NODE_ENV':
+                                                env.NODE_ENV = value
+                                                break
+                                            case 'DEPLOY_ENVIRONMENT':
+                                                env.DEPLOY_ENVIRONMENT = value
+                                                break
+                                            case 'HEALTH_CHECK_TIMEOUT':
+                                                env.HEALTH_CHECK_TIMEOUT = value
+                                                break
+                                            case 'CLEANUP_BUILD_CACHE':
+                                                env.CLEANUP_BUILD_CACHE = value
+                                                break
+                                        }
                                     }
                                 }
                             }
                         }
-                        
-                        // Valores padrão para configurações não encontradas
-                        env.MAVEN_OPTS = env.MAVEN_OPTS ?: '-Xmx1024m'
-                        env.NODE_ENV = env.NODE_ENV ?: 'production'
-                        env.DEPLOY_ENVIRONMENT = env.DEPLOY_ENVIRONMENT ?: 'staging'
-                        env.HEALTH_CHECK_TIMEOUT = env.HEALTH_CHECK_TIMEOUT ?: '60'
-                        env.CLEANUP_BUILD_CACHE = env.CLEANUP_BUILD_CACHE ?: 'true'
+                    } catch (Exception e) {
+                        echo "⚠️ Arquivo de credenciais não encontrado, usando valores padrão"
+                        currentBuild.description = "⚠️ Credenciais não encontradas - usando padrões"
                     }
+
+                    // Valores padrão para configurações não encontradas
+                    env.MAVEN_OPTS = env.MAVEN_OPTS ?: '-Xmx1024m'
+                    env.NODE_ENV = env.NODE_ENV ?: 'production'
+                    env.DEPLOY_ENVIRONMENT = env.DEPLOY_ENVIRONMENT ?: 'staging'
+                    env.HEALTH_CHECK_TIMEOUT = env.HEALTH_CHECK_TIMEOUT ?: '60'
+                    env.CLEANUP_BUILD_CACHE = env.CLEANUP_BUILD_CACHE ?: 'true'
                 }
             }
         }
@@ -90,6 +95,8 @@ pipeline {
                     if command -v docker &> /dev/null; then
                         echo "✅ Docker encontrado:"
                         docker --version
+                        echo "📊 Status do Docker daemon:"
+                        docker info >/dev/null 2>&1 && echo "✅ Docker daemon OK" || echo "❌ Docker daemon com problemas"
                     else
                         echo "❌ Docker não encontrado!"
                         exit 1
@@ -98,6 +105,23 @@ pipeline {
                     # Verificar Docker Compose
                     if command -v docker-compose &> /dev/null; then
                         echo "✅ Docker Compose encontrado:"
+                        docker-compose --version
+                    else
+                        echo "⚠️ Docker Compose não encontrado (não crítico)"
+                    fi
+
+                    # Verificar espaço em disco
+                    echo "💾 Espaço em disco:"
+                    df -h / | tail -1
+
+                    # Verificar memória
+                    echo "🧠 Memória disponível:"
+                    free -h | grep "^Mem:" || echo "Comando free não disponível"
+
+                    echo "=== Todas as dependências verificadas com sucesso! ==="
+                '''
+            }
+        }
                         docker-compose --version
                     else
                         echo "❌ Docker Compose não encontrado!"
@@ -228,6 +252,12 @@ EOF
                         BACKEND_PATH="${WORKSPACE}/${BACKEND_DIR}"
                         echo "📂 Caminho absoluto do backend: ${BACKEND_PATH}"
 
+                        # Verificar se o diretório existe
+                        if [ ! -d "${BACKEND_PATH}" ]; then
+                            echo "❌ Diretório ${BACKEND_PATH} não existe!"
+                            exit 1
+                        fi
+
                         # Verificar permissões do diretório
                         echo "🔍 Verificando permissões do diretório host:"
                         ls -ld "${BACKEND_PATH}" || true
@@ -248,8 +278,26 @@ EOF
                             echo "AppArmor não encontrado"
                         fi
 
-                        # Tentar abordagem alternativa se volume mounting falhar
-                        echo "🔄 Tentando build com volume mounting..."
+                        # Verificar se a imagem Docker existe localmente
+                        echo "🔍 Verificando imagem Docker ${BUILD_BACKEND_IMAGE}:"
+                        if docker images | grep -q "${BUILD_BACKEND_IMAGE}"; then
+                            echo "✅ Imagem ${BUILD_BACKEND_IMAGE} encontrada localmente"
+                        else
+                            echo "� Baixando imagem ${BUILD_BACKEND_IMAGE}..."
+                            docker pull ${BUILD_BACKEND_IMAGE} || {
+                                echo "❌ Falha ao baixar imagem ${BUILD_BACKEND_IMAGE}"
+                                exit 1
+                            }
+                        fi
+
+                        # Verificar conectividade de rede
+                        echo "🌐 Verificando conectividade de rede:"
+                        if curl -I --connect-timeout 10 https://repo.maven.apache.org >/dev/null 2>&1; then
+                            echo "✅ Conectividade com Maven Central OK"
+                        else
+                            echo "⚠️ Problemas de conectividade com Maven Central (pode afetar downloads)"
+                        fi
+
                         if docker run --rm \
                             -v "${BACKEND_PATH}:/app" \
                             -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
