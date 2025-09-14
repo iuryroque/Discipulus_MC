@@ -462,11 +462,27 @@ EOF
                                 echo '📋 Versão do npm:' && npm --version
                                 echo '🔨 Iniciando build do frontend...'
                                 
+                                # Verificar se package.json existe
+                                if [ ! -f package.json ]; then
+                                    echo '❌ package.json não encontrado!'
+                                    ls -la /app/
+                                    exit 1
+                                fi
+                                
                                 # Limpar cache npm se necessário
                                 npm cache clean --force || true
                                 
-                                # Instalar dependências
-                                npm ci --prefer-offline
+                                # Instalar dependências (com fallback)
+                                if [ -f package-lock.json ]; then
+                                    echo '📦 Usando npm ci (package-lock.json encontrado)...'
+                                    npm ci --prefer-offline || {
+                                        echo '⚠️ npm ci falhou, tentando npm install...'
+                                        npm install
+                                    }
+                                else
+                                    echo '📦 Usando npm install (package-lock.json não encontrado)...'
+                                    npm install
+                                fi
                                 
                                 # Build da aplicação
                                 npm run build
