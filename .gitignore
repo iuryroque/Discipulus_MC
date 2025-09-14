@@ -1,2 +1,7 @@
 # Ignorar arquivos de configuração do Spring Boot
 server/src/main/resources/application*.properties 
+
+# Ignorar arquivos de ambiente com credenciais
+.env
+.env.local
+.env.production
