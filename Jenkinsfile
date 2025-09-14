@@ -470,8 +470,8 @@ EOF
                         echo "🔨 Iniciando build do frontend usando Dockerfile..."
                         cd ${FRONTEND_DIR}
                         
-                        # Build da imagem temporária para extrair arquivos
-                        docker build -t frontend-build-temp:${BUILD_NUMBER} .
+                        # Build apenas do estágio de build para extrair arquivos dist
+                        docker build --target build -t frontend-build-temp:${BUILD_NUMBER} .
                         
                         # Criar container temporário para extrair arquivos built
                         docker create --name frontend-extract-${BUILD_NUMBER} frontend-build-temp:${BUILD_NUMBER}
