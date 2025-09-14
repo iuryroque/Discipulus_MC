@@ -1,3 +1,31 @@
+Client (frontend)
+===============
+
+Como construir o projeto frontend (Vite + React):
+
+Requisitos:
+- Node.js (versão LTS recomendada)
+- npm
+
+Passos:
+
+1) Instalar dependências
+
+```powershell
+cd client
+npm install
+```
+
+2) Build para produção
+
+```powershell
+npm run build
+# ou, no Windows PowerShell, usar o wrapper:
+.\run.ps1
+```
+
+Observações:
+- Durante o build o Vite pode exibir um aviso sobre chunks maiores que 500 KB. Isso é um aviso (não bloqueia o build). Se desejar reduzir o tamanho, configure code-splitting via `build.rollupOptions.output.manualChunks` em `vite.config.js`.
 # Discipulus_V1 - Sistema de Gestão de Discipulado
 
 O Discipulus_V1 é um sistema web completo para a gestão de discipulado em igrejas. Ele foi cuidadosamente projetado para auxiliar na administração e no acompanhamento de membros e visitantes em sua jornada de fé, oferecendo uma solução robusta e moderna para as necessidades da igreja.
