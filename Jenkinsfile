@@ -465,45 +465,27 @@ EOF
                         echo "================================="
                     '''
                     
-                    // Build usando container dedicado
+                    // Build usando Docker build (resolve problemas de volume mount entre containers)
                     sh '''
-                        docker run --rm \
-                            -v ${WORKSPACE}/${FRONTEND_DIR}:/app \
-                            -v npm-cache-${BUILD_NUMBER}:/opt/npm-cache \
-                            -w /app \
-                            ${BUILD_FRONTEND_IMAGE} \
-                            sh -c "
-                                echo '📋 Versão do Node.js:' && node --version
-                                echo '📋 Versão do npm:' && npm --version
-                                echo '🔨 Iniciando build do frontend...'
-                                
-                                # Verificar se package.json existe
-                                if [ ! -f package.json ]; then
-                                    echo '❌ package.json não encontrado!'
-                                    ls -la /app/
-                                    exit 1
-                                fi
-                                
-                                # Limpar cache npm se necessário
-                                npm cache clean --force || true
-                                
-                                # Instalar dependências (com fallback)
-                                if [ -f package-lock.json ]; then
-                                    echo '📦 Usando npm ci (package-lock.json encontrado)...'
-                                    npm ci --prefer-offline || {
-                                        echo '⚠️ npm ci falhou, tentando npm install...'
-                                        npm install
-                                    }
-                                else
-                                    echo '📦 Usando npm install (package-lock.json não encontrado)...'
-                                    npm install
-                                fi
-                                
-                                # Build da aplicação
-                                npm run build
-                                
-                                echo '✅ Build do frontend concluído!'
-                            "
+                        echo "🔨 Iniciando build do frontend usando Dockerfile..."
+                        cd ${FRONTEND_DIR}
+                        
+                        # Build da imagem temporária para extrair arquivos
+                        docker build -t frontend-build-temp:${BUILD_NUMBER} .
+                        
+                        # Criar container temporário para extrair arquivos built
+                        docker create --name frontend-extract-${BUILD_NUMBER} frontend-build-temp:${BUILD_NUMBER}
+                        
+                        # Extrair arquivos do diretório dist
+                        docker cp frontend-extract-${BUILD_NUMBER}:/app/dist ./dist
+                        
+                        # Limpar container temporário
+                        docker rm frontend-extract-${BUILD_NUMBER}
+                        
+                        # Limpar imagem temporária
+                        docker rmi frontend-build-temp:${BUILD_NUMBER}
+                        
+                        echo "✅ Build do frontend concluído!"
                     '''
                     
                     // Verificar se o build foi criado
