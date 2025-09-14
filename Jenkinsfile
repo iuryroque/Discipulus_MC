@@ -599,14 +599,18 @@ EOF
             when {
                 branch 'main'
             }
-            input {
-                message 'Deploy para Produção?'
-                ok 'Deploy'
-                submitterParameter 'APPROVER'
-            }
             steps {
-                echo '🚀 Deploy para Produção...'
                 script {
+                    // Solicitar aprovação manual
+                    def userInput = input(
+                        message: 'Deploy para Produção?',
+                        ok: 'Deploy',
+                        submitterParameter: 'APPROVER'
+                    )
+                    
+                    echo "✅ Deploy aprovado por: ${userInput}"
+                    echo '🚀 Deploy para Produção...'
+                    
                     // Usar docker-compose.prod.yml
                     sh '''
                         docker-compose -f docker-compose.prod.yml down || true
