@@ -531,6 +531,40 @@ EOF
             }
         }
 
+        stage('Deploy Development') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo '🚀 Deploy automático para desenvolvimento...'
+                script {
+                    // Parar containers existentes
+                    sh '''
+                        docker-compose -f docker-compose.yml down || true
+                    '''
+
+                    // Retaggear imagens para latest (necessário para docker-compose)
+                    sh '''
+                        docker tag ${IMAGE_PREFIX}-backend:${VERSION} ${IMAGE_PREFIX}-backend:latest
+                        docker tag ${IMAGE_PREFIX}-frontend:${VERSION} ${IMAGE_PREFIX}-frontend:latest
+                    '''
+
+                    // Subir serviços com docker-compose
+                    sh '''
+                        docker-compose -f docker-compose.yml up -d
+                    '''
+
+                    // Aguardar containers iniciarem
+                    sh '''
+                        echo "⏳ Aguardando containers iniciarem..."
+                        sleep 10
+                        docker-compose -f docker-compose.yml ps
+                    '''
+                }
+                echo '✅ Deploy de desenvolvimento concluído!'
+            }
+        }
+
         stage('Deploy to Staging') {
             when {
                 anyOf {
