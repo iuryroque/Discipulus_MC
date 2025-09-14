@@ -456,7 +456,7 @@ EOF
                             -v $(pwd)/${FRONTEND_DIR}:/app \
                             -v npm-cache-${BUILD_NUMBER}:/opt/npm-cache \
                             -w /app \
-                            ${BUILD_FRONTEND_IMAGE}:latest \
+                            ${BUILD_FRONTEND_IMAGE} \
                             sh -c "
                                 echo '📋 Versão do Node.js:' && node --version
                                 echo '📋 Versão do npm:' && npm --version
