@@ -450,10 +450,25 @@ EOF
             steps {
                 echo '🎨 Build do frontend React em container...'
                 script {
+                    // Debug do workspace antes do build
+                    sh '''
+                        echo "=== DEBUG: Workspace Information ==="
+                        echo "PWD: $(pwd)"
+                        echo "WORKSPACE: ${WORKSPACE}"
+                        echo "FRONTEND_DIR: ${FRONTEND_DIR}"
+                        echo "Conteúdo do diretório atual:"
+                        ls -la
+                        echo "Conteúdo do frontend:"
+                        ls -la ${FRONTEND_DIR} || echo "ERRO: Diretório ${FRONTEND_DIR} não encontrado"
+                        echo "Verificando se package.json existe:"
+                        test -f ${FRONTEND_DIR}/package.json && echo "✅ package.json encontrado" || echo "❌ package.json NÃO encontrado"
+                        echo "================================="
+                    '''
+                    
                     // Build usando container dedicado
                     sh '''
                         docker run --rm \
-                            -v $(pwd)/${FRONTEND_DIR}:/app \
+                            -v ${WORKSPACE}/${FRONTEND_DIR}:/app \
                             -v npm-cache-${BUILD_NUMBER}:/opt/npm-cache \
                             -w /app \
                             ${BUILD_FRONTEND_IMAGE} \
