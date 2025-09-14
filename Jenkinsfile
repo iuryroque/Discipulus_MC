@@ -532,9 +532,6 @@ EOF
         }
 
         stage('Deploy Development') {
-            when {
-                branch 'main'
-            }
             steps {
                 echo '🚀 Deploy automático para desenvolvimento...'
                 script {
