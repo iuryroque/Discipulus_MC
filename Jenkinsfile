@@ -598,7 +598,6 @@ EOF
         stage('Deploy to Production') {
             when {
                 branch 'main'
-                beforeInput true
             }
             input {
                 message 'Deploy para Produção?'
