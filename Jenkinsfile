@@ -535,9 +535,18 @@ EOF
             steps {
                 echo '🚀 Deploy automático para desenvolvimento...'
                 script {
-                    // Parar containers existentes
+                    // Parar containers existentes com limpeza completa
                     sh '''
-                        docker-compose -f docker-compose.yml down || true
+                        echo "🧹 Limpando ambiente anterior..."
+                        docker-compose -f docker-compose.yml down --remove-orphans || true
+                        
+                        # Remover containers específicos se ainda existirem
+                        docker rm -f discipulus_postgres discipulus_backend discipulus_frontend || true
+                        
+                        # Limpar volumes órfãos se necessário
+                        docker volume prune -f || true
+                        
+                        echo "✅ Limpeza concluída"
                     '''
 
                     // Retaggear imagens para latest (necessário para docker-compose)
@@ -548,14 +557,20 @@ EOF
 
                     // Subir serviços com docker-compose
                     sh '''
+                        echo "🚀 Iniciando novos containers..."
                         docker-compose -f docker-compose.yml up -d
                     '''
 
                     // Aguardar containers iniciarem
                     sh '''
                         echo "⏳ Aguardando containers iniciarem..."
-                        sleep 10
+                        sleep 15
+                        
+                        echo "📊 Status dos containers:"
                         docker-compose -f docker-compose.yml ps
+                        
+                        echo "🔍 Verificando saúde dos serviços:"
+                        docker ps --filter "name=discipulus" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
                     '''
                 }
                 echo '✅ Deploy de desenvolvimento concluído!'
