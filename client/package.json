@@ -12,7 +12,6 @@
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
     "@mui/utils": "^5.17.1",
-    "clientnew": "file:",
     "react": "^18.3.1",
     "react-admin": "^5.2",
     "react-dom": "^18.3.1",
