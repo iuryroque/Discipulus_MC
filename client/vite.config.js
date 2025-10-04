@@ -1,10 +1,11 @@
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
     port: 3000, // Porta personalizada
   },
   build: {
@@ -15,9 +16,10 @@ export default defineConfig({
         // Manual chunks para separar bibliotecas grandes
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'vendor-react'
-            if (id.includes('react-dom')) return 'vendor-react-dom'
-            if (id.includes('react-admin')) return 'vendor-react-admin'
+            // Manter React e bibliotecas relacionadas juntas
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react'
+            }
             if (id.match(/@mui|material|@emotion/)) return 'vendor-mui'
             if (id.includes('zod')) return 'vendor-zod'
             // fallback: agrupar outras dependências em vendor

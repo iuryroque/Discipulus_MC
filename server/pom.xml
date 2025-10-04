@@ -92,6 +92,12 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.2.0</version>
 		</dependency>
+		<!-- MinIO Client para armazenamento de arquivos -->
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>8.5.9</version>
+		</dependency>
 	</dependencies>
 
 	<build>
