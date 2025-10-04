@@ -36,6 +36,12 @@ services:
       SERVER_PORT: ${SERVER_PORT:-8080}
       COM_UNIRIOS_JWTSECRET: ${JWT_SECRET:-bezKoderSecretKey}
       COM_UNIRIOS_JWTEXPIRATIONMS: ${JWT_EXPIRATION:-86400000}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://localhost:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-discipulus-bucket}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-discipulus-bucket}
+      MINIO_REGION: ${MINIO_REGION:-us-east-1}
     ports:
       - "8080:8080"
     networks:
