@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Visualização de Pessoas', () => {
   test('deve carregar a página de visualização quando há dados', async ({ page }) => {

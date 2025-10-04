@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Edição de Pessoas', () => {
   test('deve carregar o formulário de edição quando há dados', async ({ page }) => {
