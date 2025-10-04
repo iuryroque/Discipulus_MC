@@ -1,6 +1,7 @@
 import { CalendarToday, LocationOn, Person, Schedule } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 
 // Componente para o próximo culto
 export const ProximoCultoCard = ({ culto, onShow }) => {
@@ -68,4 +69,9 @@ export const ProximoCultoCard = ({ culto, onShow }) => {
             </CardContent>
         </Card>
     );
+};
+
+ProximoCultoCard.propTypes = {
+    culto: PropTypes.object,
+    onShow: PropTypes.func,
 };
