@@ -1,6 +1,7 @@
 import { Event } from '@mui/icons-material';
 import { Box, Card, CardContent, Grid, Skeleton, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import { useListContext } from 'react-admin';
 import { CultoCard } from './CultoCard';
 import { ProximoCultoCard } from './ProximoCultoCard';
@@ -23,14 +24,44 @@ export const CultoGrid = ({ onEdit, onShow, onDelete }) => {
     const agendados = cultos.filter(c => c.status?.toLowerCase() === 'agendado').length;
     const realizados = cultos.filter(c => c.status?.toLowerCase() === 'realizado').length;
 
+    const TotalIcon = <Event sx={{ fontSize: 32, color: theme.palette.primary.main }} />;
+    const AgendadosIcon = <Event sx={{ fontSize: 32, color: '#fff' }} />;
+    const RealizadosIcon = <Event sx={{ fontSize: 32, color: theme.palette.text.disabled }} />;
+
     return (
         <>
             <ProximoCultoCard culto={proximoCulto} onShow={onShow} />
 
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0, mb: 4 }}>
-                <Card sx={{ flex: '300px' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4">{total}</Typography><Typography color="text.secondary">Total</Typography></CardContent></Card>
-                <Card sx={{ flex: '300px', bgcolor: theme.palette.primary.main, color: 'white' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4" color="primary.contrastText">{agendados}</Typography><Typography color="primary.contrastText">Agendados</Typography></CardContent></Card>
-                <Card sx={{ flex: '300px' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4">{realizados}</Typography><Typography color="text.secondary">Realizados</Typography></CardContent></Card>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
+                <Card sx={{ minWidth: 220, flex: 1 }}>
+                    <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                            <Typography color="text.secondary">Total</Typography>
+                            <Typography variant="h4">{total}</Typography>
+                        </Box>
+                        {TotalIcon}
+                    </CardContent>
+                </Card>
+
+                <Card sx={{ minWidth: 220, flex: 1, bgcolor: theme.palette.primary.main, color: '#fff' }}>
+                    <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                            <Typography sx={{ color: '#fff' }}>Agendados</Typography>
+                            <Typography variant="h4" sx={{ color: '#fff' }}>{agendados}</Typography>
+                        </Box>
+                        {AgendadosIcon}
+                    </CardContent>
+                </Card>
+
+                <Card sx={{ minWidth: 220, flex: 1 }}>
+                    <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                            <Typography color="text.secondary">Realizados</Typography>
+                            <Typography variant="h4">{realizados}</Typography>
+                        </Box>
+                        {RealizadosIcon}
+                    </CardContent>
+                </Card>
             </Box>
 
             <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Todos os Cultos</Typography>
@@ -51,4 +82,10 @@ export const CultoGrid = ({ onEdit, onShow, onDelete }) => {
             )}
         </>
     );
+};
+
+CultoGrid.propTypes = {
+    onEdit: PropTypes.func,
+    onShow: PropTypes.func,
+    onDelete: PropTypes.func,
 };
