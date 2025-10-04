@@ -27,11 +27,11 @@ export const CultoGrid = ({ onEdit, onShow, onDelete }) => {
         <>
             <ProximoCultoCard culto={proximoCulto} onShow={onShow} />
 
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={4}><Card><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4">{total}</Typography><Typography color="text.secondary">Total</Typography></CardContent></Card></Grid>
-                <Grid item xs={12} sm={4}><Card sx={{ bgcolor: theme.palette.primary.main, color: 'white' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4" color="primary.contrastText">{agendados}</Typography><Typography color="primary.contrastText">Agendados</Typography></CardContent></Card></Grid>
-                <Grid item xs={12} sm={4}><Card><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4">{realizados}</Typography><Typography color="text.secondary">Realizados</Typography></CardContent></Card></Grid>
-            </Grid>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0, mb: 4 }}>
+                <Card sx={{ flex: '300px' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4">{total}</Typography><Typography color="text.secondary">Total</Typography></CardContent></Card>
+                <Card sx={{ flex: '300px', bgcolor: theme.palette.primary.main, color: 'white' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4" color="primary.contrastText">{agendados}</Typography><Typography color="primary.contrastText">Agendados</Typography></CardContent></Card>
+                <Card sx={{ flex: '300px' }}><CardContent sx={{ textAlign: 'center' }}><Typography variant="h4">{realizados}</Typography><Typography color="text.secondary">Realizados</Typography></CardContent></Card>
+            </Box>
 
             <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Todos os Cultos</Typography>
 
