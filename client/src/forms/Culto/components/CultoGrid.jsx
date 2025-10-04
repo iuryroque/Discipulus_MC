@@ -1,4 +1,4 @@
-import { Event } from '@mui/icons-material';
+import { CheckCircle, Event, Schedule } from '@mui/icons-material';
 import { Box, Card, CardContent, Grid, Skeleton, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import PropTypes from 'prop-types';
@@ -25,8 +25,8 @@ export const CultoGrid = ({ onEdit, onShow, onDelete }) => {
     const realizados = cultos.filter(c => c.status?.toLowerCase() === 'realizado').length;
 
     const TotalIcon = <Event sx={{ fontSize: 32, color: theme.palette.primary.main }} />;
-    const AgendadosIcon = <Event sx={{ fontSize: 32, color: '#fff' }} />;
-    const RealizadosIcon = <Event sx={{ fontSize: 32, color: theme.palette.text.disabled }} />;
+    const AgendadosIcon = <Schedule sx={{ fontSize: 32, color: '#fff' }} />;
+    const RealizadosIcon = <CheckCircle sx={{ fontSize: 32, color: theme.palette.success.main }} />;
 
     return (
         <>

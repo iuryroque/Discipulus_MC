@@ -1,4 +1,5 @@
 import {
+    CheckCircle,
     Clear,
     Delete,
     Edit,
@@ -30,7 +31,7 @@ export const CultoCard = ({ record, onEdit, onDelete, onShow }) => {
         const iconProps = { sx: { color: theme.palette.common.white, fontSize: 18 } };
         switch (status?.toLowerCase()) {
             case 'agendado': return <Schedule {...iconProps} />;
-            case 'realizado': return <Event {...iconProps} />;
+            case 'realizado': return <CheckCircle {...iconProps} />;
             case 'cancelado': return <Clear {...iconProps} />;
             default: return <Event {...iconProps} />;
         }
