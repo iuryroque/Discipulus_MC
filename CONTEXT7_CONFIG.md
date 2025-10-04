@@ -13,7 +13,7 @@ Este arquivo documenta as versões exatas das bibliotecas configuradas no MCP Co
 - **Playwright**: `/microsoft/playwright` (versão 1.55.1) - 2075 code snippets, trust score 9.9
 
 ### Backend (Spring Boot)
-- **Spring Boot**: `/spring-projects/spring-boot` (versão 3.3.0-SNAPSHOT) - 693 code snippets, trust score 7.5
+- **Spring Boot**: `/spring-projects/spring-boot` (versão 3.3.13) - 693 code snippets, trust score 7.5
 - **PostgreSQL**: `/postgres/postgres` (versão 42.7.3) - 20 code snippets, trust score 8.4
 - **MinIO**: `/minio/minio` (versão 8.5.9) - 658 code snippets, trust score 8.5
 
