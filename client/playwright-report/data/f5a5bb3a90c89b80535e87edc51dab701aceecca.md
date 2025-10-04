@@ -1,0 +1,69 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - img "Ícone de pessoas" [ref=e10]
+      - heading "Discipulus" [level=1] [ref=e11]
+      - paragraph [ref=e12]: Sistema de Gestão de Discipulado
+      - separator [ref=e13]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic:
+          - text: Usuário
+          - generic: "*"
+        - generic [ref=e16]:
+          - textbox "Usuário" [ref=e17]
+          - group:
+            - generic: Usuário *
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - text: Senha
+          - generic [ref=e20]: "*"
+        - generic [ref=e21]:
+          - textbox "Senha" [active] [ref=e22]: testpass
+          - button [ref=e24] [cursor=pointer]:
+            - img [ref=e25] [cursor=pointer]
+          - group:
+            - generic: Senha *
+      - button "Entrar no Sistema" [ref=e27] [cursor=pointer]
+    - button "Login rápido (master/1)" [ref=e28] [cursor=pointer]
+    - generic [ref=e30]: © 2024 Discipulus - Gestão de Discipulado
+  - generic [ref=e31]:
+    - heading "Recursos do Sistema" [level=2] [ref=e32]
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - img [ref=e36]
+        - generic [ref=e38]:
+          - heading "Gestão de Membros" [level=6] [ref=e39]
+          - paragraph [ref=e40]: Cadastro e acompanhamento de pessoas
+      - generic [ref=e41]:
+        - img [ref=e43]
+        - generic [ref=e45]:
+          - heading "Controle de Presença" [level=6] [ref=e46]
+          - paragraph [ref=e47]: Registro de presença em cultos
+      - generic [ref=e48]:
+        - img [ref=e50]
+        - generic [ref=e52]:
+          - heading "Acompanhamento de Estudos" [level=6] [ref=e53]
+          - paragraph [ref=e54]: Monitoramento do progresso espiritual
+      - generic [ref=e55]:
+        - img [ref=e57]
+        - generic [ref=e59]:
+          - heading "Currículo de Estudos" [level=6] [ref=e60]
+          - paragraph [ref=e61]: Organização de lições e materiais
+      - generic [ref=e62]:
+        - img [ref=e64]
+        - generic [ref=e66]:
+          - heading "Lições Concluídas" [level=6] [ref=e67]
+          - paragraph [ref=e68]: Controle de progresso individual
+      - generic [ref=e69]:
+        - img [ref=e71]
+        - generic [ref=e73]:
+          - heading "Sistema de Alertas" [level=6] [ref=e74]
+          - paragraph [ref=e75]: Notificações e lembretes importantes
+    - generic [ref=e76]:
+      - paragraph [ref=e77]: "\"Ide, portanto, e fazei discípulos de todas as nações...\""
+      - generic [ref=e78]: Mateus 28:19
+```
