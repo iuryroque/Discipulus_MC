@@ -70,6 +70,7 @@ O Discipulus_V1 oferece um conjunto abrangente de funcionalidades para a gestão
 * **React Admin** para a criação de uma interface de administração rica e personalizável.
 * **Material-UI (MUI)** para componentes de UI modernos e elegantes.
 * **Zod** para uma validação de formulários robusta e declarativa.
+* **PWA (Progressive Web App)** com `vite-plugin-pwa` para instalação e uso offline. Ver [README_PWA.md](./README_PWA.md) para mais detalhes.
 
 ### Backend (`server`)
 
@@ -115,5 +116,16 @@ O Discipulus_V1 oferece um conjunto abrangente de funcionalidades para a gestão
 
 4.  **Acesse a aplicação:**
     * Após a inicialização dos contêineres, a aplicação estará disponível em seu navegador no endereço: `http://localhost:3000` (ou na porta que você configurou no arquivo `.env`).
+
+## PWA - Progressive Web App
+
+O Discipulus agora suporta funcionalidade PWA! Isso significa que você pode:
+
+* 📱 **Instalar a aplicação** no seu dispositivo (desktop ou mobile)
+* 🔌 **Usar offline** - funcionalidades básicas disponíveis sem internet
+* 🚀 **Acesso rápido** - carregamento instantâneo através de cache
+* 📲 **Experiência nativa** - parecer e funcionar como um app nativo
+
+Para mais informações sobre como instalar e usar o PWA, consulte o [README_PWA.md](./README_PWA.md).
 
 Este `README.md` foi gerado com o auxílio do Gemini.
