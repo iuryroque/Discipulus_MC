@@ -19,18 +19,12 @@ import {
     Typography
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 
 // Componente para exibir culto em formato de card
 export const CultoCard = ({ record, onEdit, onDelete, onShow }) => {
     const theme = useTheme();
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'agendado': return 'warning';
-            case 'realizado': return 'success';
-            case 'cancelado': return 'error';
-            default: return 'default';
-        }
-    };
+    // getStatusColor was removed because styles are derived directly from theme in the chips
 
     const getStatusIcon = (status) => {
         const iconProps = { sx: { color: theme.palette.common.white, fontSize: 18 } };
@@ -94,30 +88,34 @@ export const CultoCard = ({ record, onEdit, onDelete, onShow }) => {
                         size="small"
                         variant="filled"
                         sx={{
-                            backgroundColor: theme.palette.primary.main,
+                            bgcolor: theme.palette.primary.main,
                             color: theme.palette.common.white,
                             fontWeight: 700,
                             borderRadius: 1,
                             letterSpacing: 1,
-                            boxShadow: 1
+                            boxShadow: 1,
+                            px: 1
                         }}
                     />
+
                     <Chip
                         avatar={(
                             <MuiAvatar sx={{ bgcolor: 'transparent', width: 24, height: 24 }}>
                                 {getStatusIcon(record.status)}
                             </MuiAvatar>
                         )}
-                        label={record.status?.toUpperCase()}
+                        label={(record.status || '').toUpperCase()}
                         size="small"
+                        variant="filled"
                         sx={{
                             fontWeight: 600,
                             bgcolor:
                                 record.status?.toLowerCase() === 'agendado' ? theme.palette.primary.main :
-                                    record.status?.toLowerCase() === 'realizado' ? theme.palette.success.main :
-                                        record.status?.toLowerCase() === 'cancelado' ? theme.palette.error.main : theme.palette.grey[400],
+                                record.status?.toLowerCase() === 'realizado' ? theme.palette.success.main :
+                                record.status?.toLowerCase() === 'cancelado' ? theme.palette.error.main : theme.palette.grey[400],
                             color: theme.palette.common.white,
-                            border: 0
+                            border: 0,
+                            textTransform: 'uppercase'
                         }}
                     />
                 </Box>
@@ -145,4 +143,11 @@ export const CultoCard = ({ record, onEdit, onDelete, onShow }) => {
             </CardContent>
         </Card>
     );
+};
+
+CultoCard.propTypes = {
+    record: PropTypes.object.isRequired,
+    onEdit: PropTypes.func,
+    onDelete: PropTypes.func,
+    onShow: PropTypes.func,
 };
