@@ -5,10 +5,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.os.unirios.config.MinioConfig;
 
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
@@ -26,8 +25,11 @@ public class FileStorageService {
     @Autowired
     private MinioClient minioClient;
 
-    @Autowired
-    private MinioConfig minioConfig;
+    @Value("${minio.bucket.name}")
+    private String bucketName;
+
+    @Value("${minio.endpoint}")
+    private String endpoint;
 
     /**
      * Faz upload de um arquivo para o MinIO
@@ -44,7 +46,7 @@ public class FileStorageService {
             
             minioClient.putObject(
                 PutObjectArgs.builder()
-                    .bucket(minioConfig.getBucketName())
+                    .bucket(bucketName)
                     .object(objectName)
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
@@ -68,7 +70,7 @@ public class FileStorageService {
             return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                     .method(Method.GET)
-                    .bucket(minioConfig.getBucketName())
+                    .bucket(bucketName)
                     .object(fileName)
                     .expiry(expiryInMinutes, TimeUnit.MINUTES)
                     .build()
@@ -86,7 +88,7 @@ public class FileStorageService {
         try {
             minioClient.removeObject(
                 RemoveObjectArgs.builder()
-                    .bucket(minioConfig.getBucketName())
+                    .bucket(bucketName)
                     .object(fileName)
                     .build()
             );
@@ -114,6 +116,6 @@ public class FileStorageService {
      * @return URL pública do arquivo
      */
     public String getPublicUrl(String fileName) {
-        return minioConfig.getEndpoint() + "/" + minioConfig.getBucketName() + "/" + fileName;
+        return endpoint + "/" + bucketName + "/" + fileName;
     }
 }
