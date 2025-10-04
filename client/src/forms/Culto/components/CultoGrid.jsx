@@ -25,8 +25,8 @@ export const CultoGrid = ({ onEdit, onShow, onDelete }) => {
     const realizados = cultos.filter(c => c.status?.toLowerCase() === 'realizado').length;
 
     const TotalIcon = <Event sx={{ fontSize: 32, color: theme.palette.primary.main }} />;
-    const AgendadosIcon = <Schedule sx={{ fontSize: 32, color: '#fff' }} />;
-    const RealizadosIcon = <CheckCircle sx={{ fontSize: 32, color: theme.palette.success.main }} />;
+    const AgendadosIcon = <Schedule sx={{ fontSize: 32, color: theme.palette.common.white }} />;
+    const RealizadosIcon = <CheckCircle sx={{ fontSize: 32, color: theme.palette.primary.main }} />;
 
     return (
         <>
