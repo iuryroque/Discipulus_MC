@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: discipulus_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-discipulus_v1}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - discipulus_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend Spring Boot
+  backend:
+    image: discipulus-backend:latest
+    container_name: discipulus_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-discipulus_v1}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      COM_UNIRIOS_JWTSECRET: ${JWT_SECRET}
+      COM_UNIRIOS_JWTEXPIRATIONMS: ${JWT_EXPIRATION:-86400000}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://localhost:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-discipulus-bucket}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-discipulus-bucket}
+      MINIO_REGION: ${MINIO_REGION:-us-east-1}
+    ports:
+      - "8080:8080"
+    networks:
+      - discipulus_network
+    restart: unless-stopped
+
+  # Frontend React/Vite
+  frontend:
+    image: discipulus-frontend:latest
+    container_name: discipulus_frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - discipulus_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  discipulus_network:
+    driver: bridge 

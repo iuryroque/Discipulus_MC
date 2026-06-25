@@ -1,0 +1,22 @@
+# Build Environment para Frontend React/Vite
+FROM node:18-alpine
+
+# Instalar dependências adicionais
+RUN apk add --no-cache \
+    git \
+    python3 \
+    make \
+    g++
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Configurar cache do npm
+RUN mkdir -p /opt/npm-cache
+ENV npm_config_cache=/opt/npm-cache
+
+# Volume para cache
+VOLUME ["/opt/npm-cache"]
+
+# Comando padrão
+CMD ["/bin/sh"]
