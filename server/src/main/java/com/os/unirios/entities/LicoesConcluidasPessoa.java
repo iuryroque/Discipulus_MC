@@ -1,0 +1,59 @@
+package com.os.unirios.entities;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.os.unirios.event.AuditEventListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+            
+@Entity
+@Table(name = "LICOES_CONCLUIDAS_PESSOA")
+@NoArgsConstructor  @Getter @Setter
+@EntityListeners(AuditEventListener.class)
+public class LicoesConcluidasPessoa  implements Serializable{
+            
+            
+private static final long serialVersionUID = 1L;
+            
+    
+            
+                @Id
+                @GeneratedValue(strategy = GenerationType.IDENTITY)
+                @Column(name="LICOES_CONCLUIDAS_PESSOA_ID")
+                
+            private  Long id;
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_DATA_CONCLUSAO")
+            private  Date dataConclusao;
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_OBSERVACOES")
+            private  String observacoes;
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_CRIADO_EM")
+            private  Date criadoEm;
+            @Column(name="LICOES_CONCLUIDAS_PESSOA_ATUALIZADO_EM")
+            private  Date atualizadoEm;
+    
+
+    public LicoesConcluidasPessoa  ( Long id ,Date dataConclusao ,String observacoes ,Date criadoEm ,Date atualizadoEm ){
+        
+            this.id = id;
+            
+            this.dataConclusao = dataConclusao;
+            
+            this.observacoes = observacoes;
+            
+            this.criadoEm = criadoEm;
+            
+            this.atualizadoEm = atualizadoEm;
+            
+    }
+
+    }
