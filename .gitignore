@@ -1,0 +1,15 @@
+# Ignorar arquivos de configuração do Spring Boot
+server/src/main/resources/application-local.properties
+
+# Ignorar arquivos de ambiente com credenciais
+.env
+.env.local
+.env.production
+# Build outputs e dependencias
+server/target/
+client/node_modules/
+client/dist/
+client/dev-dist/
+client/playwright-report/
+client/test-results/
+node_modules/
