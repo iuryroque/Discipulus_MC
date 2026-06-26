@@ -1,5 +1,5 @@
 import { Group, Person, Warning } from '@mui/icons-material';
-import { Box, Card, CardContent, Grid, Skeleton, Typography } from '@mui/material';
+import { Box, Card, CardContent, Skeleton, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useListContext } from 'react-admin';
 import { PessoaCard } from './PessoaCard';
@@ -11,13 +11,11 @@ export const PessoaCardGrid = ({ onEdit, onShow, onDelete }) => {
 
     if (isLoading) {
         return (
-            <Grid container spacing={3}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
                 {Array.from(new Array(6)).map((_, index) => (
-                    <Grid item xs={12} md={6} key={index}>
-                        <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
-                    </Grid>
+                    <Skeleton key={index} variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
                 ))}
-            </Grid>
+            </Box>
         );
     }
 
@@ -48,20 +46,18 @@ export const PessoaCardGrid = ({ onEdit, onShow, onDelete }) => {
     return (
         <>
             {/* Estatísticas */}
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
-                <Card sx={{ minWidth: 220, flex: 1 }}><CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box><Typography color="text.secondary">Total</Typography><Typography variant="h4">{total}</Typography></Box>{TotalIcon}</CardContent></Card>
-                <Card sx={{ minWidth: 220, flex: 1, bgcolor: theme.palette.primary.main, color: '#fff' }}><CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box><Typography sx={{color: '#fff'}}>Ativos</Typography><Typography variant="h4" sx={{color: '#fff'}}>{visitantesAtivos}</Typography></Box>{AtivosIcon}</CardContent></Card>
-                <Card sx={{ minWidth: 220, flex: 1 }}><CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box><Typography color="text.secondary">Inativos</Typography><Typography variant="h4">{visitantesInativos}</Typography></Box>{InativosIcon}</CardContent></Card>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+                <Card sx={{ height: '100%' }}><CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box><Typography color="text.secondary">Total</Typography><Typography variant="h4">{total}</Typography></Box>{TotalIcon}</CardContent></Card>
+                <Card sx={{ height: '100%', bgcolor: theme.palette.primary.main, color: '#fff' }}><CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box><Typography sx={{color: '#fff'}}>Ativos</Typography><Typography variant="h4" sx={{color: '#fff'}}>{visitantesAtivos}</Typography></Box>{AtivosIcon}</CardContent></Card>
+                <Card sx={{ height: '100%' }}><CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box><Typography color="text.secondary">Inativos</Typography><Typography variant="h4">{visitantesInativos}</Typography></Box>{InativosIcon}</CardContent></Card>
             </Box>
 
             {/* Grid de Cards */}
-            <Grid container spacing={3}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
                 {pessoas.map((pessoa) => (
-                    <Grid item xs={12} md={6} lg={4} key={pessoa.id}>
-                        <PessoaCard record={pessoa} onEdit={onEdit} onShow={onShow} onDelete={onDelete} />
-                    </Grid>
+                    <PessoaCard key={pessoa.id} record={pessoa} onEdit={onEdit} onShow={onShow} onDelete={onDelete} />
                 ))}
-            </Grid>
+            </Box>
         </>
     );
 };

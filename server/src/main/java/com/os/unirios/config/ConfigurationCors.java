@@ -30,7 +30,7 @@ public class ConfigurationCors{
 	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 	        CorsConfiguration config = new CorsConfiguration();
 	        config.setAllowCredentials(true);
-	        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+	        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://localhost", "http://localhost:80"));
 	        config.setAllowedMethods(Collections.singletonList("*"));
 	        config.setAllowedHeaders(Collections.singletonList("*"));
 	        source.registerCorsConfiguration("/**", config);
