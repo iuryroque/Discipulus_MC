@@ -1,35 +1,86 @@
-import React from 'react';
-import { Datagrid, DateField, DeleteButton, EditButton, List, NumberField, ShowButton, TextField, TextInput } from 'react-admin';
+import { Box } from '@mui/material';
+import {
+    BooleanInput,
+    Datagrid,
+    DateField,
+    FunctionField,
+    List,
+    SelectInput,
+    TextField,
+    TextInput,
+    WrapperField,
+} from 'react-admin';
+import { DotChip, ListActions, RowActions } from '../../components/SharedListActions';
 
-const postFilters = [
-        <TextInput label="Filtrar pelo tipo" source="tipo" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo titulo" source="titulo" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo mensagem" source="mensagem" alwaysOn variant="outlined"/>,<TextInput label="Filtrar pelo resolvido" source="resolvido" alwaysOn variant="outlined"/>,
-        ]; 
+const TIPO_COLORS = {
+    AVISO:     '#ff9800',
+    URGENTE:   '#f44336',
+    LEMBRETE:  '#2196f3',
+    INFO:      '#607d8b',
+};
 
-const AlertasList = props => {
+const TIPO_LABELS = {
+    AVISO:     'Aviso',
+    URGENTE:   'Urgente',
+    LEMBRETE:  'Lembrete',
+    INFO:      'Info',
+};
 
-    return (
+const RESOLVIDO_COLORS = {
+    true:  '#4caf50',
+    false: '#f44336',
+};
 
-        <List {...props} 
-        // filters={postFilters}
-        >
-            <Datagrid>
-                <NumberField source="id" variant="outlined"/>
-                <TextField source="tipo" variant="outlined" />
-                <TextField source="titulo" variant="outlined" />
-                <TextField source="mensagem" variant="outlined" />
-                <TextField source="resolvido" variant="outlined" />
-                <DateField  source="dataAlerta" variant="outlined"/>
-                <DateField  source="dataResolucao" variant="outlined"/>
-                <DateField  source="criadoEm" variant="outlined"/>
-                <DateField  source="alteradoEm" variant="outlined"/>
-                <ShowButton />
-                <EditButton />
-                <DeleteButton />
-            </Datagrid>
-        </List>
-    )
-}
+const RESOLVIDO_LABELS = {
+    true:  'Resolvido',
+    false: 'Pendente',
+};
 
-export default AlertasList
+const alertaFilters = [
+    <TextInput label="Título" source="titulo" alwaysOn variant="outlined" />,
+    <TextInput label="Tipo" source="tipo" variant="outlined" />,
+    <SelectInput
+        label="Status"
+        source="resolvido"
+        variant="outlined"
+        choices={[
+            { id: 'true', name: 'Resolvido' },
+            { id: 'false', name: 'Pendente' },
+        ]}
+    />,
+];
 
-    
+const AlertasList = props => (
+    <List
+        {...props}
+        filters={alertaFilters}
+        actions={<ListActions createLabel="Novo Alerta" />}
+        title="Alertas"
+    >
+        <Datagrid rowClick="show" bulkActionButtons={false}>
+            <WrapperField label="Tipo">
+                <FunctionField render={r => (
+                    <DotChip value={r.tipo} colorMap={TIPO_COLORS} labelMap={TIPO_LABELS} />
+                )} />
+            </WrapperField>
+            <TextField source="titulo" label="Título" />
+            <TextField source="mensagem" label="Mensagem" />
+            <WrapperField label="Status">
+                <FunctionField render={r => (
+                    <DotChip
+                        value={String(r.resolvido)}
+                        colorMap={RESOLVIDO_COLORS}
+                        labelMap={RESOLVIDO_LABELS}
+                    />
+                )} />
+            </WrapperField>
+            <DateField source="dataAlerta" label="Data do Alerta" />
+            <DateField source="dataResolucao" label="Resolvido em" />
+            <WrapperField label="">
+                <RowActions resource="alertas" />
+            </WrapperField>
+        </Datagrid>
+    </List>
+);
+
+export default AlertasList;

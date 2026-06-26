@@ -16,7 +16,6 @@ import {
     Button,
     Card,
     CardContent,
-    Chip,
     Grid,
     IconButton,
     LinearProgress,
@@ -27,7 +26,6 @@ import { useTheme } from '@mui/material/styles';
 import { format } from 'date-fns';
 import React, { useState } from 'react';
 import {
-    CreateButton,
     Datagrid,
     FunctionField,
     List,
@@ -38,6 +36,7 @@ import {
     useNotify,
     useRecordContext
 } from 'react-admin';
+import { DotChip, ListActions } from '../../components/SharedListActions';
 
 const diasSemanaMap = {
     'DOMINGO': 'Domingo',
@@ -47,62 +46,6 @@ const diasSemanaMap = {
     'QUINTA': 'Quinta-feira',
     'SEXTA': 'Sexta-feira',
     'SABADO': 'Sábado'
-};
-
-const StatusField = ({ record }) => {
-    if (!record) return null;
-    
-    const isAtivo = record.ativo;
-    
-    return (
-        <Chip
-            label={isAtivo ? 'Ativo' : 'Inativo'}
-            color={isAtivo ? 'success' : 'error'}
-            size="small"
-            variant="outlined"
-            icon={isAtivo ? <CheckCircle fontSize="small" /> : <Warning fontSize="small" />}
-            sx={{
-                fontWeight: 600,
-                borderWidth: 2
-            }}
-        />
-    );
-};
-
-const VigenciaField = ({ record }) => {
-    if (!record) return null;
-    
-    const hoje = new Date();
-    const dataInicio = new Date(record.dataInicio);
-    const dataFim = record.dataFim ? new Date(record.dataFim) : null;
-    
-    let color = 'success';
-    let label = 'Vigente';
-    let icon = <CheckCircle fontSize="small" />;
-    
-    if (hoje < dataInicio) {
-        color = 'warning';
-        label = 'Futuro';
-        icon = <CalendarToday fontSize="small" />;
-    } else if (dataFim && hoje > dataFim) {
-        color = 'error';
-        label = 'Expirado';
-        icon = <Warning fontSize="small" />;
-    }
-    
-    return (
-        <Chip
-            label={label}
-            color={color}
-            size="small"
-            variant="outlined"
-            icon={icon}
-            sx={{
-                fontWeight: 600,
-                borderWidth: 2
-            }}
-        />
-    );
 };
 
 const ActionButtons = () => {
@@ -401,7 +344,7 @@ const CultoRecorrenteList = props => {
             <List 
                 {...props} 
                 title="Configurações de Cultos Recorrentes"
-                actions={<CreateButton label="Nova Configuração" />}
+                actions={<ListActions createLabel="Nova Configuração" />}
                 filters={[
                     <TextField 
                         source="titulo" 
@@ -524,20 +467,14 @@ const CultoRecorrenteList = props => {
                         source="ativo"
                         label="Ativo"
                         render={record => (
-                            <Chip
-                                label={record.ativo ? 'Ativo' : 'Inativo'}
-                                color={record.ativo ? 'success' : 'error'}
-                                size="small"
-                                variant="outlined"
-                                icon={record.ativo ? <CheckCircle fontSize="small" /> : <Warning fontSize="small" />}
-                                sx={{
-                                    fontWeight: 600,
-                                    borderWidth: 2
-                                }}
+                            <DotChip
+                                value={record.ativo ? 'ATIVO' : 'INATIVO'}
+                                colorMap={{ ATIVO: '#4caf50', INATIVO: '#f44336' }}
+                                labelMap={{ ATIVO: 'Ativo', INATIVO: 'Inativo' }}
                             />
                         )}
                     />
-                    
+
                     <FunctionField
                         source="vigencia"
                         label="Vigência"
@@ -545,32 +482,14 @@ const CultoRecorrenteList = props => {
                             const hoje = new Date();
                             const dataInicio = new Date(record.dataInicio);
                             const dataFim = record.dataFim ? new Date(record.dataFim) : null;
-                            
-                            let color = 'success';
-                            let label = 'Vigente';
-                            let icon = <CheckCircle fontSize="small" />;
-                            
-                            if (hoje < dataInicio) {
-                                color = 'warning';
-                                label = 'Futuro';
-                                icon = <CalendarToday fontSize="small" />;
-                            } else if (dataFim && hoje > dataFim) {
-                                color = 'error';
-                                label = 'Expirado';
-                                icon = <Warning fontSize="small" />;
-                            }
-                            
+                            let key = 'VIGENTE';
+                            if (hoje < dataInicio) key = 'FUTURO';
+                            else if (dataFim && hoje > dataFim) key = 'EXPIRADO';
                             return (
-                                <Chip
-                                    label={label}
-                                    color={color}
-                                    size="small"
-                                    variant="outlined"
-                                    icon={icon}
-                                    sx={{
-                                        fontWeight: 600,
-                                        borderWidth: 2
-                                    }}
+                                <DotChip
+                                    value={key}
+                                    colorMap={{ VIGENTE: '#4caf50', FUTURO: '#ff9800', EXPIRADO: '#f44336' }}
+                                    labelMap={{ VIGENTE: 'Vigente', FUTURO: 'Futuro', EXPIRADO: 'Expirado' }}
                                 />
                             );
                         }}
