@@ -1,13 +1,9 @@
 import { Edit, Email, HowToReg, Person, Phone } from '@mui/icons-material';
 import { Avatar, Box, Card, CardContent, Checkbox, Chip, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useState } from 'react';
 
-// Card para exibir uma única pessoa na lista de chamada
-// Card para exibir uma única pessoa na lista de chamada
-export const PresencaCard = ({ pessoa, onRegistrarPresenca, isSelected, onToggle, onEdit }) => {
+export const PresencaCard = ({ pessoa, isSelected, onToggle, onEdit }) => {
     const theme = useTheme();
-    const [selecionados, setSelecionados] = useState([]);
 
     const getAvatarColor = (nome) => {
         const letra = nome.trim().charAt(0).toUpperCase();
@@ -43,17 +39,9 @@ export const PresencaCard = ({ pessoa, onRegistrarPresenca, isSelected, onToggle
         }
     };
 
-    const handleToggleSelecionado = (pessoaId) => {
-        setSelecionados(prev => 
-            prev.includes(pessoaId) 
-                ? prev.filter(id => id !== pessoaId) // Remove se já existe
-                : [...prev, pessoaId]                   // Adiciona se não existe
-        );
-    };
-
     return (
-        <Card 
-        onClick={() => handleToggleSelecionado(pessoa.id)}
+        <Card
+        onClick={() => onToggle(pessoa.id)}
         sx={{
             cursor: 'pointer',
             height: '100%',

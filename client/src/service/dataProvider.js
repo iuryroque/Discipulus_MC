@@ -60,11 +60,7 @@ export default {
         })),
 
     getMany: (resource, params) => {
-        
-        return httpClient(`${apiUrl}/${resource}/many/${params.ids}`, {
-            method: 'GET',
-            body: JSON.stringify(params.data),
-        }).then(({ json }) => ({ data: json }));
+        return httpClient(`${apiUrl}/${resource}/many/${params.ids}`).then(({ json }) => ({ data: json }));
     },
 
     getManyReference: (resource, params) => {

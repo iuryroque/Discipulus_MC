@@ -3,28 +3,17 @@ package com.os.unirios.config;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import com.os.unirios.repositories.UserRepository;
-
 @Configuration
 public class ConfigurationCors{
 
-	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
-	PasswordEncoder passwordEncoder;
-
-	
 	 @Bean
 	    public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {
 	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

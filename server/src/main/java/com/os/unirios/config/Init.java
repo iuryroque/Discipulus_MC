@@ -71,7 +71,7 @@ public class Init implements CommandLineRunner {
         // Criar dados iniciais para Presenca
         if (presencaRepository.count() == 0) {
             Presenca presenca = new Presenca();
-            presenca.setPresente(StatusPresenca.valueOf("SIM".trim().toUpperCase()));
+            presenca.setPresente(StatusPresenca.SIM);
             presenca.setObservacoes("Presença padrão");
             presencaRepository.save(presenca);
         }

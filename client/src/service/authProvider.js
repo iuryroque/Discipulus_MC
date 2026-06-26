@@ -40,9 +40,9 @@ const authProvider = {
         return Promise.resolve();
     },
     logout: () => {
-        return Promise.resolve().then(e=> localStorage.removeItem('auth')); 
+        localStorage.removeItem('auth');
+        return Promise.resolve();
     },
-    // ...
 };
 
 export default authProvider;
