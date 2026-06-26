@@ -1,10 +1,8 @@
 import {
     WaterDrop as BaptismIcon,
-    Email as EmailIcon,
-    Info as InfoIcon,
     Person as PersonIcon
 } from '@mui/icons-material';
-import { Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material';
+import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 import {
     Create,
     DateInput,
@@ -16,244 +14,147 @@ import { usePessoaEnumOptions } from '../../hooks/useEnumOptions';
 import { pessoaCondicionalSchema } from '../../validation/schemas';
 import { useZodValidation } from '../../validation/useZodValidation';
 
+const Section = ({ icon: Icon, title }) => (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, mt: 1 }}>
+        <Icon color="primary" fontSize="small" />
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'primary.main' }}>
+            {title}
+        </Typography>
+    </Box>
+);
+
 const PessoaCreate = props => {
     const validate = useZodValidation(pessoaCondicionalSchema);
-    const { statusOptions, tipoOptions, statusBatismoOptions, loading, error } = usePessoaEnumOptions();
+    const { statusOptions, tipoOptions, statusBatismoOptions, loading } = usePessoaEnumOptions();
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
                 <CircularProgress />
-            </div>
+            </Box>
         );
-    }
-
-    if (error) {
-        console.error('Erro ao carregar opções dos enums:', error);
     }
 
     return (
         <Create {...props} title="Nova Pessoa">
             <SimpleForm validate={validate}>
-                <Grid container spacing={3}>
-                    {/* Informações Pessoais */}
-                    <Grid item xs={12} md={8}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom sx={{ 
-                                    color: 'primary.main', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 1,
-                                    mb: 3 
-                                }}>
-                                    <PersonIcon />
-                                    Informações Pessoais
-                                </Typography>
-                                
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <TextInput 
-                                            source="nomeCompleto" 
-                                            variant="outlined"
-                                            label="Nome Completo"
-                                            helperText="Digite o nome completo da pessoa"
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                    
-                                    <Grid item xs={12} sm={6}>
-                                        <DateInput 
-                                            source="dataNascimento" 
-                                            variant="outlined"
-                                            label="Data de Nascimento"
-                                            helperText="Data de nascimento (opcional)"
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                    
-                                    <Grid item xs={12} sm={6}>
-                                        <TextInput 
-                                            source="telefone" 
-                                            variant="outlined"
-                                            label="Telefone"
-                                            helperText="Digite o número de telefone"
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
 
-                    {/* Status e Tipo */}
-                    <Grid item xs={12} md={4}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom sx={{ 
-                                    color: 'primary.main', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 1,
-                                    mb: 3 
-                                }}>
-                                    <InfoIcon />
-                                    Status e Tipo
-                                </Typography>
-                                
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <SelectInput 
-                                            source="status" 
-                                            label="Status"
-                                            choices={statusOptions}
-                                            variant="outlined"
-                                            fullWidth
-                                            helperText="Selecione o status da pessoa"
-                                        />
-                                    </Grid>
-                                    
-                                    <Grid item xs={12}>
-                                        <SelectInput 
-                                            source="tipo" 
-                                            label="Tipo"
-                                            choices={tipoOptions}
-                                            variant="outlined"
-                                            fullWidth
-                                            helperText="Selecione o tipo da pessoa (email obrigatório para membros)"
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Informações de Contato */}
-                    <Grid item xs={12} md={6}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom sx={{ 
-                                    color: 'primary.main', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 1,
-                                    mb: 3 
-                                }}>
-                                    <EmailIcon />
-                                    Informações de Contato
-                                </Typography>
-                                
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <TextInput 
-                                            source="email" 
-                                            variant="outlined"
-                                            label="Email"
-                                            helperText="Digite o endereço de email (obrigatório para membros)"
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                    
-                                    <Grid item xs={12}>
-                                        <TextInput 
-                                            source="endereco" 
-                                            variant="outlined"
-                                            label="Endereço"
-                                            helperText="Digite o endereço completo (opcional)"
-                                            multiline
-                                            rows={3}
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Informações de Batismo */}
-                    <Grid item xs={12} md={6}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom sx={{ 
-                                    color: 'primary.main', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 1,
-                                    mb: 3 
-                                }}>
-                                    <BaptismIcon />
-                                    Informações de Batismo
-                                </Typography>
-                                
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <SelectInput 
-                                            source="statusBatismo" 
-                                            label="Status do Batismo"
-                                            choices={statusBatismoOptions}
-                                            variant="outlined"
-                                            fullWidth
-                                            helperText="Selecione o status do batismo"
-                                        />
-                                    </Grid>
-                                    
-                                    <Grid item xs={12} sm={6}>
-                                        <DateInput 
-                                            source="dataInteresseBatismo" 
-                                            variant="outlined"
-                                            label="Data de Interesse no Batismo"
-                                            helperText="Data em que demonstrou interesse (opcional)"
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                    
-                                    <Grid item xs={12} sm={6}>
-                                        <DateInput 
-                                            source="dataBatismo" 
-                                            variant="outlined"
-                                            label="Data do Batismo"
-                                            helperText="Data em que foi batizado (opcional)"
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Observações */}
-                    <Grid item xs={12}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom sx={{ 
-                                    color: 'primary.main', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 1,
-                                    mb: 3 
-                                }}>
-                                    <InfoIcon />
-                                    Observações
-                                </Typography>
-                                
-                                <TextInput 
-                                    source="observacoes" 
+                    {/* Card 1 — Dados Pessoais */}
+                    <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}>
+                        <Section icon={PersonIcon} title="Dados Pessoais" />
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <TextInput
+                                source="nomeCompleto"
+                                label="Nome Completo"
+                                variant="outlined"
+                                helperText="Digite o nome completo da pessoa"
+                                fullWidth
+                            />
+                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                                <DateInput
+                                    source="dataNascimento"
+                                    label="Data de Nascimento"
                                     variant="outlined"
-                                    label="Observações"
-                                    helperText="Informações adicionais sobre a pessoa (opcional)"
-                                    multiline
-                                    rows={4}
+                                    helperText="Opcional"
                                     fullWidth
                                 />
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>
+                                <TextInput
+                                    source="telefone"
+                                    label="Telefone"
+                                    variant="outlined"
+                                    helperText="Digite o número de telefone"
+                                    fullWidth
+                                />
+                            </Box>
+                            <Divider />
+                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                                <SelectInput
+                                    source="status"
+                                    label="Status"
+                                    choices={statusOptions}
+                                    variant="outlined"
+                                    helperText="Status da pessoa"
+                                    fullWidth
+                                />
+                                <SelectInput
+                                    source="tipo"
+                                    label="Tipo"
+                                    choices={tipoOptions}
+                                    variant="outlined"
+                                    helperText="Email obrigatório para membros"
+                                    fullWidth
+                                />
+                            </Box>
+                        </Box>
+                    </Box>
+
+                    {/* Card 2 — Contato, Batismo e Observações */}
+                    <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+                            <TextInput
+                                source="email"
+                                label="Email"
+                                variant="outlined"
+                                helperText="Obrigatório para membros"
+                                fullWidth
+                            />
+                            <TextInput
+                                source="endereco"
+                                label="Endereço"
+                                variant="outlined"
+                                helperText="Opcional"
+                                multiline
+                                rows={3}
+                                fullWidth
+                            />
+                        </Box>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <Section icon={BaptismIcon} title="Batismo" />
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
+                            <SelectInput
+                                source="statusBatismo"
+                                label="Status do Batismo"
+                                choices={statusBatismoOptions}
+                                variant="outlined"
+                                helperText="Status do batismo"
+                                fullWidth
+                            />
+                            <DateInput
+                                source="dataInteresseBatismo"
+                                label="Data de Interesse"
+                                variant="outlined"
+                                helperText="Opcional"
+                                fullWidth
+                            />
+                            <DateInput
+                                source="dataBatismo"
+                                label="Data do Batismo"
+                                variant="outlined"
+                                helperText="Opcional"
+                                fullWidth
+                            />
+                        </Box>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <TextInput
+                            source="observacoes"
+                            label="Observações"
+                            variant="outlined"
+                            helperText="Informações adicionais (opcional)"
+                            multiline
+                            rows={3}
+                            fullWidth
+                        />
+                    </Box>
+
+                </Box>
             </SimpleForm>
         </Create>
     );
 };
 
 export default PessoaCreate;
-
-    
