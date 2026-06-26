@@ -52,39 +52,43 @@ const PessoaCreate = props => {
                                 fullWidth
                             />
                             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                                <DateInput
-                                    source="dataNascimento"
-                                    label="Data de Nascimento"
-                                    variant="outlined"
-                                    helperText="Opcional"
-                                    fullWidth
-                                />
-                                <TextInput
-                                    source="telefone"
-                                    label="Telefone"
-                                    variant="outlined"
-                                    helperText="Digite o número de telefone"
-                                    fullWidth
-                                />
+                                <Box>
+                                    <DateInput
+                                        source="dataNascimento"
+                                        label="Data de Nascimento"
+                                        variant="outlined"
+                                        helperText="Opcional"
+                                    />
+                                </Box>
+                                <Box>
+                                    <TextInput
+                                        source="telefone"
+                                        label="Telefone"
+                                        variant="outlined"
+                                        helperText="Digite o número de telefone"
+                                    />
+                                </Box>
                             </Box>
                             <Divider />
                             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                                <SelectInput
-                                    source="status"
-                                    label="Status"
-                                    choices={statusOptions}
-                                    variant="outlined"
-                                    helperText="Status da pessoa"
-                                    fullWidth
-                                />
-                                <SelectInput
-                                    source="tipo"
-                                    label="Tipo"
-                                    choices={tipoOptions}
-                                    variant="outlined"
-                                    helperText="Email obrigatório para membros"
-                                    fullWidth
-                                />
+                                <Box>
+                                    <SelectInput
+                                        source="status"
+                                        label="Status"
+                                        choices={statusOptions}
+                                        variant="outlined"
+                                        helperText="Status da pessoa"
+                                    />
+                                </Box>
+                                <Box>
+                                    <SelectInput
+                                        source="tipo"
+                                        label="Tipo"
+                                        choices={tipoOptions}
+                                        variant="outlined"
+                                        helperText="Email obrigatório para membros"
+                                    />
+                                </Box>
                             </Box>
                         </Box>
                     </Box>
@@ -92,50 +96,55 @@ const PessoaCreate = props => {
                     {/* Card 2 — Contato, Batismo e Observações */}
                     <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 3 }}>
                         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-                            <TextInput
-                                source="email"
-                                label="Email"
-                                variant="outlined"
-                                helperText="Obrigatório para membros"
-                                fullWidth
-                            />
-                            <TextInput
-                                source="endereco"
-                                label="Endereço"
-                                variant="outlined"
-                                helperText="Opcional"
-                                multiline
-                                rows={3}
-                                fullWidth
-                            />
+                            <Box>
+                                <TextInput
+                                    source="email"
+                                    label="Email"
+                                    variant="outlined"
+                                    helperText="Obrigatório para membros"
+                                />
+                            </Box>
+                            <Box>
+                                <TextInput
+                                    source="endereco"
+                                    label="Endereço"
+                                    variant="outlined"
+                                    helperText="Opcional"
+                                    multiline
+                                    rows={3}
+                                />
+                            </Box>
                         </Box>
 
                         <Divider sx={{ my: 2 }} />
 
                         <Section icon={BaptismIcon} title="Batismo" />
                         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
-                            <SelectInput
-                                source="statusBatismo"
-                                label="Status do Batismo"
-                                choices={statusBatismoOptions}
-                                variant="outlined"
-                                helperText="Status do batismo"
-                                fullWidth
-                            />
-                            <DateInput
-                                source="dataInteresseBatismo"
-                                label="Data de Interesse"
-                                variant="outlined"
-                                helperText="Opcional"
-                                fullWidth
-                            />
-                            <DateInput
-                                source="dataBatismo"
-                                label="Data do Batismo"
-                                variant="outlined"
-                                helperText="Opcional"
-                                fullWidth
-                            />
+                            <Box>
+                                <SelectInput
+                                    source="statusBatismo"
+                                    label="Status do Batismo"
+                                    choices={statusBatismoOptions}
+                                    variant="outlined"
+                                    helperText="Status do batismo"
+                                />
+                            </Box>
+                            <Box>
+                                <DateInput
+                                    source="dataInteresseBatismo"
+                                    label="Data de Interesse"
+                                    variant="outlined"
+                                    helperText="Opcional"
+                                />
+                            </Box>
+                            <Box>
+                                <DateInput
+                                    source="dataBatismo"
+                                    label="Data do Batismo"
+                                    variant="outlined"
+                                    helperText="Opcional"
+                                />
+                            </Box>
                         </Box>
 
                         <Divider sx={{ my: 2 }} />
