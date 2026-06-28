@@ -128,13 +128,15 @@ pipeline {
                         exit 1
                     fi
 
-                    # Verificar Maven
+                    # Verificar Maven (obrigatório para build direto no agente)
                     echo "Verificando Maven..."
                     if which mvn >/dev/null 2>&1; then
                         echo "✅ Maven encontrado:"
                         mvn -version
                     else
-                        echo "⚠️ Maven não encontrado no host (será usado dentro do container de build)"
+                        echo "❌ Maven não encontrado no agente Jenkins!"
+                        echo "   Instale o Maven no agente ou configure a tool 'Maven' no Jenkins."
+                        exit 1
                     fi
 
                     # Verificar Node.js
@@ -226,210 +228,79 @@ EOF
         }
 
         stage('Build Backend') {
+            // Opção 1: Build direto no agente Jenkins (sem Docker intermediário).
+            // Evita o problema de DinD (Docker-in-Docker) onde o volume mount falha
+            // porque o Jenkins roda dentro de um container e o daemon Docker resolve
+            // os paths no host físico, onde o workspace não existe.
             options {
                 timeout(time: 20, unit: 'MINUTES')
             }
             steps {
-                echo '📦 Build do backend Spring Boot em container...'
+                echo '📦 Build do backend Spring Boot diretamente no agente Jenkins...'
                 script {
-                    // Build usando container dedicado
                     sh '''
                         set -eu
-                        echo "📂 Diretório atual: $(pwd)"
-                        echo "📂 WORKSPACE: ${WORKSPACE}"
-                        echo "📂 Conteúdo do diretório server:"
-                        ls -la ${BACKEND_DIR}/ || true
-                        echo "📂 Verificando se pom.xml existe:"
-                        ls -la ${BACKEND_DIR}/pom.xml || echo "❌ pom.xml não encontrado"
 
-                        # Usar caminho absoluto para o volume
-                        BACKEND_PATH="${WORKSPACE}/${BACKEND_DIR}"
-                        echo "📂 Caminho absoluto do backend: ${BACKEND_PATH}"
+                        echo "=== Informações do ambiente ==="
+                        echo "📂 Workspace: ${WORKSPACE}"
+                        echo "📂 Diretório do backend: ${WORKSPACE}/${BACKEND_DIR}"
+                        java -version
+                        mvn -version
 
-                        # Verificar se o diretório existe e tem permissões
-                        if [ ! -d "${BACKEND_PATH}" ]; then
-                            echo "❌ Diretório ${BACKEND_PATH} não existe!"
+                        # Verificar se pom.xml existe
+                        if [ ! -f "${WORKSPACE}/${BACKEND_DIR}/pom.xml" ]; then
+                            echo "❌ pom.xml não encontrado em ${WORKSPACE}/${BACKEND_DIR}/"
+                            echo "📂 Conteúdo do diretório:"
+                            ls -la "${WORKSPACE}/${BACKEND_DIR}/" || true
                             exit 1
                         fi
-
-                        if [ ! -r "${BACKEND_PATH}/pom.xml" ]; then
-                            echo "❌ Não tem permissão para ler pom.xml!"
-                            ls -la "${BACKEND_PATH}/pom.xml"
-                            exit 1
-                        fi
+                        echo "✅ pom.xml encontrado"
 
                         # Verificar recursos do sistema
-                        echo "💾 Verificando recursos do sistema:"
+                        echo "💾 Recursos do sistema:"
                         df -h / | tail -1
-                        free -h | grep "^Mem:" || echo "Memória: $(cat /proc/meminfo | grep MemTotal | awk '{print $2/1024/1024 " GB"}')"
+                        free -h | grep "^Mem:" || true
 
-                        # Verificar recursos do sistema
-                        echo "� Verificando recursos do sistema:"
-                        df -h / | tail -1
-                        free -h | grep "^Mem:" || echo "Memória: $(cat /proc/meminfo | grep MemTotal | awk '{print $2/1024/1024 " GB"}')"
-
-                        # Verificar se há SELinux ou AppArmor
-                        echo "🔍 Verificando SELinux/AppArmor:"
-                        if command -v getenforce >/dev/null 2>&1; then
-                            echo "SELinux status: $(getenforce)"
-                        else
-                            echo "SELinux não encontrado"
-                        fi
-
-                        if command -v apparmor_status >/dev/null 2>&1; then
-                            echo "AppArmor encontrado"
-                        else
-                            echo "AppArmor não encontrado"
-                        fi
-
-                        # Verificar se a imagem Docker existe localmente
-                        echo "🔍 Verificando imagem Docker ${BUILD_BACKEND_IMAGE}:"
-                        if docker images | grep -q "${BUILD_BACKEND_IMAGE}"; then
-                            echo "✅ Imagem ${BUILD_BACKEND_IMAGE} encontrada localmente"
-                        else
-                            echo "� Baixando imagem ${BUILD_BACKEND_IMAGE}..."
-                            docker pull ${BUILD_BACKEND_IMAGE} || {
-                                echo "❌ Falha ao baixar imagem ${BUILD_BACKEND_IMAGE}"
-                                exit 1
-                            }
-                        fi
-
-                        # Verificar conectividade de rede
-                        echo "🌐 Verificando conectividade de rede:"
+                        # Verificar conectividade com Maven Central
+                        echo "🌐 Verificando conectividade com Maven Central..."
                         if curl -I --connect-timeout 10 --max-time 30 https://repo.maven.apache.org >/dev/null 2>&1; then
                             echo "✅ Conectividade com Maven Central OK"
                         else
-                            echo "⚠️ Problemas de conectividade com Maven Central - tentando com retry..."
-                            for i in 1 2 3; do
-                                if curl -I --connect-timeout 10 --max-time 30 https://repo.maven.apache.org >/dev/null 2>&1; then
-                                    echo "✅ Conectividade OK na tentativa $i"
-                                    break
-                                else
-                                    echo "❌ Tentativa $i falhou"
-                                    if [ $i -eq 3 ]; then
-                                        echo "⚠️ Conectividade instável - build pode falhar"
-                                    else
-                                        sleep 5
-                                    fi
-                                fi
-                            done
+                            echo "⚠️ Conectividade com Maven Central instável - build pode ser lento"
                         fi
 
-                        if docker run --rm \
-                            -v "${BACKEND_PATH}:/app" \
-                            -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
-                            -w /app \
-                            ${BUILD_BACKEND_IMAGE} \
-                            bash -c "
-                                echo '📂 Conteúdo do /app no container:'
-                                ls -la || true
-                                echo '📂 Verificando pom.xml no container:'
-                                ls -la pom.xml || echo '❌ pom.xml não encontrado no container'
-                                echo '📂 Conteúdo detalhado do /app:'
-                                find /app -maxdepth 2 -ls 2>/dev/null || echo '❌ Erro ao listar arquivos'
-                                echo '📋 Versão do Java:' && java -version || true
-                                echo '📋 Versão do Maven:' && mvn -version || true
-                                echo '🔨 Iniciando build do backend...'
-                                if [ -f pom.xml ]; then
-                                    mvn clean compile -DskipTests
-                                    mvn package -DskipTests
-                                    echo '✅ Build do backend concluído!'
-                                    exit 0
-                                else
-                                    echo '❌ ERRO: pom.xml não encontrado no container!'
-                                    exit 1
-                                fi
-                            "; then
-                            echo "✅ Build com volume mounting bem-sucedido!"
-                        else
-                            echo "❌ Volume mounting falhou, tentando abordagem alternativa..."
+                        echo "🔨 Iniciando compilação Maven..."
+                        cd "${WORKSPACE}/${BACKEND_DIR}"
 
-                            # Abordagem simplificada usando docker run com container persistente
-                            CONTAINER_NAME="discipulus-build-${BUILD_NUMBER}"
+                        # Compilar
+                        mvn clean compile \
+                            -DskipTests \
+                            -Dmaven.opts="${MAVEN_OPTS}" \
+                            --batch-mode \
+                            --no-transfer-progress
 
-                            cleanup_container() {
-                                docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
-                            }
+                        echo "📦 Gerando pacote WAR..."
 
-                            trap cleanup_container EXIT
+                        # Empacotar
+                        mvn package \
+                            -DskipTests \
+                            -Dmaven.opts="${MAVEN_OPTS}" \
+                            --batch-mode \
+                            --no-transfer-progress
 
-                            # Criar e iniciar container em background
-                            echo "📦 Criando container temporário..."
-                            docker run -d --name "${CONTAINER_NAME}" \
-                                -v maven-cache-${BUILD_NUMBER}:/root/.m2 \
-                                ${BUILD_BACKEND_IMAGE} \
-                                tail -f /dev/null
-
-                            # Copiar arquivos do host para o container
-                            # Nota: usamos docker cp como fallback quando o volume mount falha (AppArmor/SELinux podem bloquear mounts).
-                            #      docker cp evita problemas de profile de segurança, mas é mais lento e consome IO.
-                            echo "$(date +'%Y-%m-%d %T') - 📋 Copiando arquivos para o container (com retries)..."
-                            COPY_OK=0
-                            for i in 1 2 3; do
-                                docker cp "${BACKEND_PATH}/." "${CONTAINER_NAME}:/app/" && { COPY_OK=1; break; } || {
-                                    echo "$(date +'%Y-%m-%d %T') - ⚠️ Tentativa $i de docker cp falhou, aguardando antes de tentar novamente..."
-                                    sleep 2
-                                }
-                            done
-                            if [ "$COPY_OK" -ne 1 ]; then
-                                echo "$(date +'%Y-%m-%d %T') - ❌ Todas as tentativas de docker cp falharam"
-                                docker logs "${CONTAINER_NAME}" || true
-                                exit 1
-                            fi
-
-                            # Executar build no container com timeout no host para evitar hangs infinitos
-                            echo "$(date +'%Y-%m-%d %T') - 🔨 Executando build no container (timeout 1200s)..."
-                            if timeout 1200 docker exec "${CONTAINER_NAME}" bash -c "
-                                set -eu
-                                cd /app
-                                echo '$(date +'%Y-%m-%d %T') - 📂 Conteúdo do /app após cópia:'
-                                ls -la || true
-                                echo '$(date +'%Y-%m-%d %T') - 📋 Versão do Java:' && java -version || true
-                                echo '$(date +'%Y-%m-%d %T') - 📋 Versão do Maven:' && mvn -version || true
-                                echo '$(date +'%Y-%m-%d %T') - 🔨 Iniciando build do backend...'
-                                mvn clean compile -DskipTests
-                                mvn package -DskipTests
-                                echo '$(date +'%Y-%m-%d %T') - ✅ Build do backend concluído!'
-                            "; then
-                                # Copiar artefatos de volta para o host (com retries)
-                                echo "$(date +'%Y-%m-%d %T') - 📤 Copiando artefatos de volta para o host (com retries)..."
-                                mkdir -p "${BACKEND_PATH}/target/"
-                                COPY_BACK_OK=0
-                                for j in 1 2 3; do
-                                    docker cp "${CONTAINER_NAME}:/app/target/." "${BACKEND_PATH}/target/" && { COPY_BACK_OK=1; break; } || {
-                                        echo "$(date +'%Y-%m-%d %T') - ⚠️ Tentativa $j de docker cp (back) falhou, aguardando..."
-                                        sleep 2
-                                    }
-                                done
-                                if [ "$COPY_BACK_OK" -ne 1 ]; then
-                                    echo "$(date +'%Y-%m-%d %T') - ❌ Falha ao copiar artefatos de volta após 3 tentativas"
-                                    docker logs "${CONTAINER_NAME}" || true
-                                    exit 1
-                                fi
-                                echo "$(date +'%Y-%m-%d %T') - ✅ Artefatos copiados com sucesso!"
-                            else
-                                echo "$(date +'%Y-%m-%d %T') - ❌ Falha ou timeout no build dentro do container"
-                                echo "--- Logs do container ---"
-                                docker logs "${CONTAINER_NAME}" || true
-                                exit 1
-                            fi
-
-                            # Limpeza final do container (trap também garante remoção)
-                            cleanup_container || true
-                            trap - EXIT
-                            echo "$(date +'%Y-%m-%d %T') - 🧹 Container temporário removido"
-                        fi
+                        echo "✅ Build Maven concluído!"
                     '''
 
-                    // Verificar se o WAR foi criado e copiar/arquivar
+                    // Verificar se o WAR foi criado
                     sh '''
                         set -eu
-                        # Verificar se o WAR foi criado
-                        if ls ${BACKEND_DIR}/target/*.war >/dev/null 2>&1; then
-                            echo "✅ Arquivo WAR encontrado!"
-                            ls -la ${BACKEND_DIR}/target/*.war
+                        if ls "${WORKSPACE}/${BACKEND_DIR}/target"/*.war >/dev/null 2>&1; then
+                            echo "✅ Arquivo WAR encontrado:"
+                            ls -lh "${WORKSPACE}/${BACKEND_DIR}/target"/*.war
                         else
-                            echo "❌ Arquivo WAR não encontrado!"
+                            echo "❌ Arquivo WAR não encontrado em ${WORKSPACE}/${BACKEND_DIR}/target/"
+                            echo "📂 Conteúdo do target:"
+                            ls -la "${WORKSPACE}/${BACKEND_DIR}/target/" || true
                             exit 1
                         fi
                     '''
@@ -442,6 +313,10 @@ EOF
                 }
                 failure {
                     echo '❌ Falha no build do backend!'
+                    sh '''
+                        echo "--- Últimas linhas do log Maven ---"
+                        find "${WORKSPACE}/${BACKEND_DIR}/target" -name "surefire-reports" -exec ls -la {} \; 2>/dev/null || true
+                    '''
                 }
             }
         }
@@ -667,15 +542,16 @@ EOF
             steps {
                 echo '🧹 Limpando ambiente de build...'
                 script {
-                    // Verificar se deve limpar cache
+                    // Nota: o build do backend agora roda diretamente no agente (Opção 1),
+                    // portanto não há volumes Docker de cache Maven para remover.
+                    // O cache local do Maven (~/.m2) é gerenciado pelo próprio agente Jenkins
+                    // e reutilizado entre builds, o que melhora a performance.
                     if (env.CLEANUP_BUILD_CACHE == 'true') {
                         sh '''
-                            # Limpar volumes de cache específicos do build
-                            docker volume rm maven-cache-${BUILD_NUMBER} || true
+                            # Limpar apenas volumes de cache do frontend (npm)
                             docker volume rm npm-cache-${BUILD_NUMBER} || true
-                            
+
                             # Limpar imagens de build se necessário (opcional)
-                            # docker rmi ${BUILD_BACKEND_IMAGE} || true
                             # docker rmi ${BUILD_FRONTEND_IMAGE}:latest || true
                         '''
                         echo '✅ Cache de build limpo!'
