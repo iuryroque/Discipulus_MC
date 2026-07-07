@@ -54,15 +54,23 @@ services:
     container_name: discipulus_frontend
     depends_on:
       - backend
-    ports:
-      - "80:80"
     networks:
       - discipulus_network
+      - apps-net
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.discipulus-app.rule=Host(`discipulus.triadevsolutions.com.br`)"
+      - "traefik.http.routers.discipulus-app.entrypoints=web"
+      - "traefik.http.services.discipulus-app.loadbalancer.server.port=80"
+      - "traefik.docker.network=modelcode-infra_apps-net"
 
 volumes:
   postgres_data:
 
 networks:
   discipulus_network:
-    driver: bridge 
+    driver: bridge
+  apps-net:
+    name: modelcode-infra_apps-net
+    external: true 
