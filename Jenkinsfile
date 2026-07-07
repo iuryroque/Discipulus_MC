@@ -66,6 +66,18 @@ pipeline {
                                             case 'CLEANUP_BUILD_CACHE':
                                                 env.CLEANUP_BUILD_CACHE = value
                                                 break
+                                            case 'MINIO_ENDPOINT':
+                                                env.MINIO_ENDPOINT = value
+                                                break
+                                            case 'MINIO_ACCESS_KEY':
+                                                env.MINIO_ACCESS_KEY = value
+                                                break
+                                            case 'MINIO_SECRET_KEY':
+                                                env.MINIO_SECRET_KEY = value
+                                                break
+                                            case 'MINIO_BUCKET':
+                                                env.MINIO_BUCKET = value
+                                                break
                                         }
                                     }
                                 }
@@ -202,6 +214,13 @@ POSTGRES_PORT=5433
 # Configurações JWT
 JWT_SECRET=${JWT_SECRET}
 JWT_EXPIRATION=86400000
+
+# Configurações MinIO (defaults dummy apenas garantem o boot do backend;
+# defina os valores reais no arquivo de credenciais discipulus-credentials)
+MINIO_ENDPOINT=${MINIO_ENDPOINT:-http://localhost:9000}
+MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+MINIO_BUCKET=${MINIO_BUCKET:-discipulus-bucket}
 
 # Configurações de Portas
 BACKEND_PORT=8080

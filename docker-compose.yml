@@ -36,7 +36,9 @@ services:
       COM_UNIRIOS_JWTEXPIRATIONMS: ${JWT_EXPIRATION:-86400000}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://localhost:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-}
+      # Default dummy: o MinioClient exige credenciais não-vazias já no boot.
+      # Com valores reais no .env / credenciais do Jenkins, estes são sobrescritos.
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
       MINIO_BUCKET: ${MINIO_BUCKET:-discipulus-bucket}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-discipulus-bucket}
       MINIO_REGION: ${MINIO_REGION:-us-east-1}
