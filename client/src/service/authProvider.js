@@ -1,6 +1,8 @@
+import { apiUrl } from './apiConfig';
+
 const authProvider = {
     login: ({ username, password }) =>  {
-        const request = new Request('http://localhost:8080/api/auth/signin', {
+        const request = new Request(`${apiUrl}/api/auth/signin`, {
             method: 'POST',
             body: JSON.stringify({ username, password }),
             headers: new Headers({ 'Content-Type': 'application/json' }),
