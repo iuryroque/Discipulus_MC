@@ -20,7 +20,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '🔄 Fazendo checkout do código...'
-                checkout scm
+                git branch: 'main', url: 'https://github.com/iuryroque/Discipulus_MC.git'
             }
         }
 
@@ -128,14 +128,14 @@ pipeline {
                         exit 1
                     fi
 
-                    # Verificar Maven (obrigatório para build direto no agente)
-                    echo "Verificando Maven..."
-                    if which mvn >/dev/null 2>&1; then
-                        echo "✅ Maven encontrado:"
-                        mvn -version
+                    # Verificar Maven Wrapper (não depende de Maven instalado no agente)
+                    echo "Verificando Maven Wrapper..."
+                    if [ -f "${WORKSPACE}/${BACKEND_DIR}/mvnw" ]; then
+                        echo "✅ Maven Wrapper encontrado:"
+                        chmod +x "${WORKSPACE}/${BACKEND_DIR}/mvnw"
+                        ( cd "${WORKSPACE}/${BACKEND_DIR}" && MAVEN_OPTS="-Xmx1024m" ./mvnw -version )
                     else
-                        echo "❌ Maven não encontrado no agente Jenkins!"
-                        echo "   Instale o Maven no agente ou configure a tool 'Maven' no Jenkins."
+                        echo "❌ mvnw não encontrado em ${WORKSPACE}/${BACKEND_DIR}/!"
                         exit 1
                     fi
 
@@ -241,11 +241,14 @@ EOF
                     sh '''
                         set -eu
 
+                        # Sobrescreve MAVEN_OPTS vindo das credenciais: flags antigas como
+                        # -XX:MaxPermSize não existem mais no Java 21 e derrubam a JVM.
+                        export MAVEN_OPTS="-Xmx1024m"
+
                         echo "=== Informações do ambiente ==="
                         echo "📂 Workspace: ${WORKSPACE}"
                         echo "📂 Diretório do backend: ${WORKSPACE}/${BACKEND_DIR}"
                         java -version
-                        mvn -version
 
                         # Verificar se pom.xml existe
                         if [ ! -f "${WORKSPACE}/${BACKEND_DIR}/pom.xml" ]; then
@@ -255,6 +258,10 @@ EOF
                             exit 1
                         fi
                         echo "✅ pom.xml encontrado"
+
+                        cd "${WORKSPACE}/${BACKEND_DIR}"
+                        chmod +x ./mvnw
+                        ./mvnw -version
 
                         # Verificar recursos do sistema
                         echo "💾 Recursos do sistema:"
@@ -270,10 +277,9 @@ EOF
                         fi
 
                         echo "🔨 Iniciando compilação Maven..."
-                        cd "${WORKSPACE}/${BACKEND_DIR}"
 
                         # Compilar
-                        mvn clean compile \
+                        ./mvnw clean compile \
                             -DskipTests \
                             -Dmaven.opts="${MAVEN_OPTS}" \
                             --batch-mode \
@@ -282,7 +288,7 @@ EOF
                         echo "📦 Gerando pacote WAR..."
 
                         # Empacotar
-                        mvn package \
+                        ./mvnw package \
                             -DskipTests \
                             -Dmaven.opts="${MAVEN_OPTS}" \
                             --batch-mode \
@@ -315,7 +321,7 @@ EOF
                     echo '❌ Falha no build do backend!'
                     sh '''
                         echo "--- Últimas linhas do log Maven ---"
-                        find "${WORKSPACE}/${BACKEND_DIR}/target" -name "surefire-reports" -exec ls -la {} \; 2>/dev/null || true
+                        find "${WORKSPACE}/${BACKEND_DIR}/target" -name "surefire-reports" -exec ls -la {} \\; 2>/dev/null || true
                     '''
                 }
             }
@@ -529,9 +535,9 @@ EOF
                         timeout 30 bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 5; done' || echo "Backend health check failed"
                     '''
 
-                    // Testar conectividade do frontend
+                    // Testar conectividade do frontend (porta 80 não é mais publicada no host, roteamento é via Traefik)
                     sh '''
-                        timeout 30 bash -c 'until curl -f http://localhost; do sleep 5; done' || echo "Frontend health check failed"
+                        timeout 30 bash -c 'until docker exec discipulus_frontend curl -f http://localhost/; do sleep 5; done' || echo "Frontend health check failed"
                     '''
                 }
                 echo '✅ Health check concluído!'
