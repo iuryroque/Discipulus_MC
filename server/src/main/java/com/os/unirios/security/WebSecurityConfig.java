@@ -57,6 +57,7 @@ public class WebSecurityConfig {
         .authorizeHttpRequests(auth -> 
           auth.requestMatchers("/api/auth/**").permitAll()
               .requestMatchers("/api/test/**").permitAll()
+              .requestMatchers("/actuator/health").permitAll()
               .requestMatchers("/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html", "/redoc", "/redoc/**").permitAll()
               .requestMatchers("/culto-recorrente/**").permitAll()
               .requestMatchers("/presenca/**").authenticated()
