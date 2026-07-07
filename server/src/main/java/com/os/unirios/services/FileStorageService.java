@@ -16,8 +16,7 @@ import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 
 /**
- * Serviço para gerenciar uploads de arquivos no MinIO
- * Armazenamento: https://storage.triadevsolution.cloud
+ * Serviço para gerenciar uploads de arquivos no MinIO.
  */
 @Service
 public class FileStorageService {

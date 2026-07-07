@@ -17,8 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.os.unirios.services.FileStorageService;
 
 /**
- * Controller para upload e gerenciamento de arquivos
- * Integração com MinIO: https://storage.triadevsolution.cloud
+ * Controller para upload e gerenciamento de arquivos, integrado com MinIO.
  */
 @RestController
 @RequestMapping("/api/files")

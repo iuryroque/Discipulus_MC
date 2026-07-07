@@ -26,6 +26,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: postgres
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-discipulus_v1}
@@ -34,7 +36,10 @@ services:
       SERVER_PORT: ${SERVER_PORT:-8080}
       COM_UNIRIOS_JWTSECRET: ${JWT_SECRET}
       COM_UNIRIOS_JWTEXPIRATIONMS: ${JWT_EXPIRATION:-86400000}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://localhost:9000}
+      # Precisa ser o mesmo host público roteado pelo Traefik (label do serviço
+      # minio abaixo): o MinioClient usa este endpoint tanto para upload quanto
+      # para gerar as presigned URLs que o navegador acessa diretamente.
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-https://storage-discipulus.triadevsolutions.com.br}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       # Default dummy: o MinioClient exige credenciais não-vazias já no boot.
       # Com valores reais no .env / credenciais do Jenkins, estes são sobrescritos.
@@ -47,6 +52,32 @@ services:
     networks:
       - discipulus_network
     restart: unless-stopped
+
+  # Object storage para uploads (fotos, arquivos)
+  minio:
+    image: minio/minio:latest
+    container_name: discipulus_minio
+    restart: unless-stopped
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - discipulus_network
+      - apps-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.discipulus-minio.rule=Host(`storage-discipulus.triadevsolutions.com.br`)"
+      - "traefik.http.routers.discipulus-minio.entrypoints=web"
+      - "traefik.http.services.discipulus-minio.loadbalancer.server.port=9000"
+      - "traefik.docker.network=modelcode-infra_apps-net"
 
   # Frontend React/Vite
   frontend:
@@ -67,6 +98,7 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   discipulus_network:

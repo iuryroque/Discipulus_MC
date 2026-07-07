@@ -440,7 +440,7 @@ EOF
                         docker-compose -f docker-compose.yml down --remove-orphans || true
                         
                         # Remover containers específicos se ainda existirem
-                        docker rm -f discipulus_postgres discipulus_backend discipulus_frontend || true
+                        docker rm -f discipulus_postgres discipulus_backend discipulus_frontend discipulus_minio || true
                         
                         # Limpar volumes órfãos se necessário
                         docker volume prune -f || true

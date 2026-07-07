@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import io.minio.MinioClient;
 
 /**
- * Configuração para integração com MinIO Object Storage
- * MinIO URL: https://storage.triadevsolution.cloud
+ * Configuração para integração com MinIO Object Storage.
+ * Endpoint definido via propriedade minio.endpoint (env MINIO_ENDPOINT).
  */
 @Configuration
 public class MinioConfig {
