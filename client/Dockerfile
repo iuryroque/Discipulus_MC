@@ -1,5 +1,5 @@
-# Estágio de build
-FROM node:18-alpine as build
+# Estágio de build (react-router 7 exige Node >= 20)
+FROM node:20-alpine as build
 
 # Definir diretório de trabalho
 WORKDIR /app

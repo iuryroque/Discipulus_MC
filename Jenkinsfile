@@ -9,7 +9,7 @@ pipeline {
         FRONTEND_DIR = 'client'
 
         BUILD_BACKEND_IMAGE = 'maven:3.9-eclipse-temurin-21-alpine'
-        BUILD_FRONTEND_IMAGE = 'node:18-alpine'
+        BUILD_FRONTEND_IMAGE = 'node:20-alpine'
 
         // Configurações das imagens Docker (locais)
         IMAGE_PREFIX = 'discipulus'
@@ -350,22 +350,21 @@ EOF
                     sh '''
                         echo "🔨 Iniciando build do frontend usando Dockerfile..."
                         cd ${FRONTEND_DIR}
-                        
-                        # Build apenas do estágio de build para extrair arquivos dist
-                        docker build --target build -t frontend-build-temp:${BUILD_NUMBER} .
-                        
+
+                        # Tag estável (sem BUILD_NUMBER): mantém as camadas referenciadas
+                        # entre builds para que o layer cache do Docker (npm ci etc.)
+                        # sobreviva ao "docker system prune -f" do stage Cleanup.
+                        docker build --target build -t ${IMAGE_PREFIX}-frontend-build:latest .
+
                         # Criar container temporário para extrair arquivos built
-                        docker create --name frontend-extract-${BUILD_NUMBER} frontend-build-temp:${BUILD_NUMBER}
-                        
+                        docker create --name frontend-extract-${BUILD_NUMBER} ${IMAGE_PREFIX}-frontend-build:latest
+
                         # Extrair arquivos do diretório dist
                         docker cp frontend-extract-${BUILD_NUMBER}:/app/dist ./dist
-                        
-                        # Limpar container temporário
+
+                        # Limpar container temporário (a imagem fica como cache do próximo build)
                         docker rm frontend-extract-${BUILD_NUMBER}
-                        
-                        # Limpar imagem temporária
-                        docker rmi frontend-build-temp:${BUILD_NUMBER}
-                        
+
                         echo "✅ Build do frontend concluído!"
                     '''
                     
@@ -532,7 +531,7 @@ EOF
 
                     // Testar conectividade do backend
                     sh '''
-                        timeout 30 bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 5; done' || echo "Backend health check failed"
+                        timeout 60 bash -c 'until curl -sf http://localhost:8080/actuator/health; do sleep 5; done' || echo "Backend health check failed"
                     '''
 
                     // Testar conectividade do frontend (porta 80 não é mais publicada no host, roteamento é via Traefik)
