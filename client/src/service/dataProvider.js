@@ -102,7 +102,7 @@ export default {
         // Endpoint especial para criação em massa de presenças
         if (resource === 'presenca/bulk') {
             const url = `${apiUrl}/presenca/bulk`;
-            return fetchUtils.fetchJson(url, {
+            return httpClient(url, {
                 method: 'POST',
                 body: JSON.stringify(params.data),
             }).then(() => {
