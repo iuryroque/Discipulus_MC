@@ -52,6 +52,10 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Ativa a versao nova do Service Worker imediatamente no deploy,
+        // sem precisar fechar todas as abas ou dar unregister manual.
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         runtimeCaching: [
           {
@@ -83,7 +87,11 @@ export default defineConfig({
             }
           },
           {
+            // Só GET entra no cache do Service Worker — POST/PUT/DELETE
+            // (login, criação, edição) nunca devem ser interceptados por
+            // uma camada de cache.
             urlPattern: /\/api\/.*/i,
+            method: 'GET',
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
